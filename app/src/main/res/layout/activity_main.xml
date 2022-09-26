@@ -23,6 +23,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:text="poste" />
+
     <ImageView
         android:id="@+id/imageEnvoiller"
         android:layout_width="match_parent"

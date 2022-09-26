@@ -12,7 +12,7 @@ import android.widget.ImageView;
 
 public class poste extends AppCompatActivity {
 
-    Button retour;
+    Button retour, poster;
     Bitmap image;
     ImageView imagePoste;
     @Override
@@ -33,6 +33,7 @@ public class poste extends AppCompatActivity {
 
     private void iniActyvity(){
         retour = findViewById(R.id.retour);
+        poster = findViewById(R.id.poster);
         imagePoste = findViewById(R.id.imagePoste);
         extraDonnée();
         retour.setOnClickListener(new Button.OnClickListener(){

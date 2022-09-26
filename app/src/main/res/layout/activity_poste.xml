@@ -31,6 +31,12 @@
         android:layout_alignParentBottom="true"
         android:text="retour" />
 
+    <Button
+        android:id="@+id/poster"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="poster" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="409dp"
         android:layout_height="wrap_content"
