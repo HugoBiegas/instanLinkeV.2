@@ -1,16 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="250dp"
-    style="@style/CardView.Light"
-    app:cardCornerRadius="8dp"
-    android:layout_margin="8dp">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/linearborder"
+    >
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"/>
+        android:layout_height="400px"
+        android:layout_marginVertical="30dp"
+        android:background="@drawable/linearborder"
+        />
 
-</androidx.cardview.widget.CardView>
+    <TextView
+        android:id="@+id/titre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Image du siécle"
+        android:textSize="50px"></TextView>
+
+    <TextView
+        android:id="@+id/descriptions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageView"
+        android:text="trés belle image fait en 1945"></TextView>
+
+</RelativeLayout>
