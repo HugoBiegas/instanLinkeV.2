@@ -26,6 +26,7 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 //https://www.youtube.com/watch?v=8890GpBwn9w
+ //https://www.youtube.com/watch?v=KY5vOVNqkGM
     private static final int RETOUR_PHOTO = 1;
     ImageView imagePoster;
     Button adImage, poste;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         iniActivity();
+
     }
     // initialistations du post
     private void iniActivity(){
