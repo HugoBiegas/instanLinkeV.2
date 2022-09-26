@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         final ArrayList<String> imageList = new ArrayList<>();
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
         final ImageAdapter adapter = new ImageAdapter(imageList, this);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images");
         progressBar.setVisibility(View.VISIBLE);
