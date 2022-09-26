@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 //https://www.youtube.com/watch?v=8890GpBwn9w
     private static final int RETOUR_PHOTO = 1;
     ImageView imagePoster;
-    Button adImage;
+    Button adImage, poste;
     String photoPath = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +38,19 @@ public class MainActivity extends AppCompatActivity {
     }
     private void iniActivity(){
         adImage = findViewById(R.id.adImageBtn);
+        poste = findViewById(R.id.poste);
         imagePoster = findViewById(R.id.imageEnvoiller);
         recupérationImage();
+        adPoste();
+    }
+    private void adPoste(){
+        poste.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), poste.class));
+                finish();
+            }
+        });
     }
 
     private  void recupérationImage(){

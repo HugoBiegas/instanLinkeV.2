@@ -16,6 +16,13 @@
         android:layout_marginBottom="18dp"
         android:text="photo" />
 
+    <Button
+        android:id="@+id/poste"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:text="poste" />
     <ImageView
         android:id="@+id/imageEnvoiller"
         android:layout_width="match_parent"
