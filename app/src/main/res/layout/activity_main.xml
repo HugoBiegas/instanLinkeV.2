@@ -6,14 +6,25 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="537dp"
+        android:layout_marginTop="50dp"
+        />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
     <Button
         android:id="@+id/adImageBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginLeft="150dp"
-        android:layout_marginBottom="18dp"
         android:text="photo" />
 
     <Button
@@ -23,10 +34,4 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:text="poste" />
-
-    <ImageView
-        android:id="@+id/imageEnvoiller"
-        android:layout_width="match_parent"
-        android:layout_height="581dp"
-        android:src="@drawable/ic_launcher_background" />
 </RelativeLayout>
