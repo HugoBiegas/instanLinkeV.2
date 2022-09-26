@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         iniActivity();
     }
+    // initialistations du post
     private void iniActivity(){
         adImage = findViewById(R.id.adImageBtn);
         poste = findViewById(R.id.poste);
@@ -81,8 +82,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode,data);
         if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK){
-            Bitmap image = BitmapFactory.decodeFile(photoPath);
-            imagePoster.setImageBitmap(image);
+            Intent intent = new Intent(getApplicationContext(), poste.class);//créations de la page Game
+            intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
+            startActivity(intent);//on lance l'activiter
+            finish();
         }
     }
 }
