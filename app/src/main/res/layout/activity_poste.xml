@@ -20,26 +20,30 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/imagePoste"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Titre" />
+        android:hint="Titre"
+        android:inputType="textPersonName" />
 
-    <Button
-        android:id="@+id/retour"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
-        android:text="retour" />
+    <EditText
+        android:id="@+id/editText_test1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F1FDDC"
+        android:gravity="top|left"
+        android:inputType="textMultiLine|text"
+        android:layout_below="@id/titre"
+        android:padding="10dp"
+        android:hint="description" />
 
     <Button
         android:id="@+id/poster"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         android:text="poster" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="409dp"
+    <Button
+        android:id="@+id/retour"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/titre">
-    </com.google.android.material.textfield.TextInputLayout>
+        android:text="retour" />
 </RelativeLayout>
