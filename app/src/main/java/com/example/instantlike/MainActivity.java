@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int RETOUR_PHOTO = 1;
     Button adImage, poste;
     String photoPath = null;
+    Uri photoUir;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 File photoFile = File.createTempFile("photo" + time, ".jpg", photoDir);
                 photoPath = photoFile.getAbsolutePath();
-                Uri photoUir = FileProvider.getUriForFile(MainActivity.this, MainActivity.this.getApplicationContext().getPackageName() + ".provider", photoFile);
+                photoUir = FileProvider.getUriForFile(MainActivity.this, MainActivity.this.getApplicationContext().getPackageName() + ".provider", photoFile);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUir);
                 startActivityForResult(intent, RETOUR_PHOTO);
             } catch (IOException e) {
@@ -134,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK){
             Intent intent = new Intent(getApplicationContext(), poste.class);//créations de la page Game
             intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
+            intent.putExtra("uri", photoUir);
             startActivity(intent);//on lance l'activiter
             finish();
         }
