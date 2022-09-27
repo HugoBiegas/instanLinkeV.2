@@ -48,27 +48,32 @@ public class MainActivity extends AppCompatActivity {
         imageInfinie();
     }
     private void imageInfinie(){
+        //bar de progrations de la conections a firebase
         final ProgressBar progressBar = findViewById(R.id.progressBar);
         final ArrayList<String> imageList = new ArrayList<>();
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
         final ImageAdapter adapter = new ImageAdapter(imageList, this);
-
+        //créations du recycler
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images");
         progressBar.setVisibility(View.VISIBLE);
+        //on vas chercher les images dans la BD
         storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
             @Override
             public void onSuccess(ListResult listResult) {
+                // on fait une boucle pour stocker les images une par une
                 for (StorageReference fileRef : listResult.getItems()) {
                     fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
+                            //on récupére uri qui est le lien ou trouver les données
                             imageList.add(uri.toString());
                             Log.d("item", uri.toString());
                         }
                     }).addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
+                            //on ajouter tout les image dans le recycler
                             recyclerView.setAdapter(adapter);
                             progressBar.setVisibility(View.GONE);
                         }
@@ -104,8 +109,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     private void adimage(){
+        //on crée l'appareille photo
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // on regarde si la personne a pris une photo et veux la valider
         if (intent.resolveActivity(getPackageManager()) != null) {
+            // on crée tout les données corespondent a l'image
             String time = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
             try {
@@ -122,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode,data);
+        // on regarde si le résultat de la photo et un  sucer si oui on peux créer un poste
         if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK){
             Intent intent = new Intent(getApplicationContext(), poste.class);//créations de la page Game
             intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host

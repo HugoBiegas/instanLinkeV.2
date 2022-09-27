@@ -16,7 +16,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     private ArrayList<String> imageList;
     private Context context;
-
+    //initialise les variables quand on appelle la clase avec les paramétres données
     public ImageAdapter(ArrayList<String> imageList, Context context) {
         this.imageList = imageList;
         this.context = context;
@@ -31,6 +31,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder, int position) {
+        //créations du recycleur avec tout les image
         Picasso.get().load(imageList.get(position)).into(holder.imageView);
     }
 
@@ -44,6 +45,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         ImageView imageView;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            //récupérations de l'image
            imageView = itemView.findViewById(R.id.imageView);
         }
     }
