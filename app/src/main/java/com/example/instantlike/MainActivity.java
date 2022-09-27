@@ -1,16 +1,6 @@
 package com.example.instantlike;
 
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -18,9 +8,12 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -28,19 +21,19 @@ import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
-import java.io.IOError;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-// vidéo pour l'appareile photo : https://www.youtube.com/watch?v=8890GpBwn9w
- // vidéo pour les liste view : https://www.youtube.com/watch?v=KY5vOVNqkGM
+    // vidéo pour l'appareile photo : https://www.youtube.com/watch?v=8890GpBwn9w
+    // vidéo pour les liste view : https://www.youtube.com/watch?v=KY5vOVNqkGM
     private static final int RETOUR_PHOTO = 1;
     Button adImage, poste;
     String photoPath = null;
     Uri photoUir;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
         iniActivity();
         imageInfinie();
     }
-    private void imageInfinie(){
+
+    private void imageInfinie() {
         //bar de progrations de la conections a firebase
         final ProgressBar progressBar = findViewById(R.id.progressBar);
         final ArrayList<String> imageList = new ArrayList<>();
@@ -86,13 +80,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // initialistations du post
-    private void iniActivity(){
+    private void iniActivity() {
         adImage = findViewById(R.id.adImageBtn);
         poste = findViewById(R.id.poste);
         recupérationImage();
         adPoste();
     }
-    private void adPoste(){
+
+    private void adPoste() {
         poste.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -102,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private  void recupérationImage(){
+    private void recupérationImage() {
         adImage.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,7 +105,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    private void adimage(){
+
+    private void adimage() {
         //on crée l'appareille photo
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // on regarde si la personne a pris une photo et veux la valider
@@ -129,11 +125,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode, resultCode,data);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         // on regarde si le résultat de la photo et un  sucer si oui on peux créer un poste
-        if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK){
+        if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK) {
             Intent intent = new Intent(getApplicationContext(), poste.class);//créations de la page Game
             intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
             intent.putExtra("uri", photoUir);

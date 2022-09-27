@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,8 +8,7 @@
     <ImageView
         android:id="@+id/imagePoste"
         android:layout_width="413dp"
-        android:layout_height="524dp"
-        />
+        android:layout_height="524dp" />
 
     <EditText
         android:id="@+id/titre"
@@ -25,12 +23,12 @@
         android:id="@+id/descriptions"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/titre"
         android:background="#F1FDDC"
         android:gravity="top|left"
+        android:hint="description"
         android:inputType="textMultiLine|text"
-        android:layout_below="@id/titre"
-        android:padding="10dp"
-        android:hint="description" />
+        android:padding="10dp" />
 
     <Button
         android:id="@+id/poster"

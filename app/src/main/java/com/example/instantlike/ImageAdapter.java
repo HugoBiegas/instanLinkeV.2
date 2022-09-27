@@ -1,4 +1,5 @@
 package com.example.instantlike;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     private ArrayList<String> imageList;
     private Context context;
+
     //initialise les variables quand on appelle la clase avec les paramétres données
     public ImageAdapter(ArrayList<String> imageList, Context context) {
         this.imageList = imageList;
@@ -43,10 +45,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imageView;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             //récupérations de l'image
-           imageView = itemView.findViewById(R.id.imageView);
+            imageView = itemView.findViewById(R.id.imageView);
         }
     }
 }
