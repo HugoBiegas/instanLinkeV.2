@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(ListResult listResult) {
                 // on fait une boucle pour stocker les images une par une
                 for (StorageReference fileRef : listResult.getItems()) {
+                    //Toast.makeText(MainActivity.this, listResult.getPageToken(), Toast.LENGTH_SHORT).show();
                     fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
