@@ -9,9 +9,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -24,6 +27,8 @@ public class poste extends AppCompatActivity {
     Bitmap image;
     ImageView imagePoste;
     Uri photoUri;
+    String uuid;
+    EditText titre,descriptions;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +41,6 @@ public class poste extends AppCompatActivity {
             String photoPath = extra.getString("image");
             image = BitmapFactory.decodeFile(photoPath);
             photoUri = extra.getParcelable("uri");
-            Toast.makeText(this, photoUri.toString(), Toast.LENGTH_SHORT).show();
             imagePoste.setImageBitmap(image);
         }
     }
@@ -45,6 +49,8 @@ public class poste extends AppCompatActivity {
     private void iniActyvity(){
         retour = findViewById(R.id.retour);
         poster = findViewById(R.id.poster);
+        titre = findViewById(R.id.titre);
+        descriptions = findViewById(R.id.descriptions);
         imagePoste = findViewById(R.id.imagePoste);
         extraDonnée();
         retourHome();
@@ -59,12 +65,29 @@ public class poste extends AppCompatActivity {
             }
         });
     }
+
     private void enregistrerImage(){
-        posterImage(photoUri);
+        poster.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                //si il y as une image on l'envoie
+                if (null !=imagePoste.getDrawable() && titre.getText().length() !=0 && descriptions.getText().length() !=0){
+                    posterImage(photoUri);
+                    //rajouter dans firebase le titre et le commentaire
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    DatabaseReference myRef = database.getReference("images/"+uuid+"/"+titre.getText()+"/"+descriptions.getText());
+                    myRef.setValue(" ");
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    finish();
+                }else
+                    Toast.makeText(poste.this, "sisisez une image ou une vidéo,un titre et une descriptions", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     private void posterImage(Uri imageUri){
-        String uuid = UUID.randomUUID().toString(); // GENERATE UNIQUE STRING
+        uuid = UUID.randomUUID().toString(); // GENERATE UNIQUE STRING tock
         StorageReference mImageRef = FirebaseStorage.getInstance().getReference("images/" + uuid);
         mImageRef.putFile(imageUri);
     }

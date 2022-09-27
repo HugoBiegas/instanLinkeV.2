@@ -10,9 +10,7 @@
         android:id="@+id/imagePoste"
         android:layout_width="413dp"
         android:layout_height="524dp"
-        tools:layout_editor_absoluteX="-2dp"
-        tools:layout_editor_absoluteY="-1dp"
-        tools:srcCompat="@tools:sample/avatars" />
+        />
 
     <EditText
         android:id="@+id/titre"
@@ -24,7 +22,7 @@
         android:inputType="textPersonName" />
 
     <EditText
-        android:id="@+id/editText_test1"
+        android:id="@+id/descriptions"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#F1FDDC"
