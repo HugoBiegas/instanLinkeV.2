@@ -22,7 +22,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.UUID;
 
-public class poste extends AppCompatActivity {
+public class Poste extends AppCompatActivity {
 
     Button retour, poster;
     Bitmap image;
@@ -139,7 +139,7 @@ public class poste extends AppCompatActivity {
                     startActivity(new Intent(getApplicationContext(), MainActivity.class));
                     finish();
                 } else
-                    Toast.makeText(poste.this, "sisisez une image ou une vidéo,un titre et une descriptions", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Poste.this, "sisisez une image ou une vidéo,un titre et une descriptions", Toast.LENGTH_SHORT).show();
             }
         });
 

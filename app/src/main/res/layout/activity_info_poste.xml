@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".InfoPoste">
+    <Button
+        android:id="@+id/retourPoste"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="retour"
+        />
+
+    <ImageView
+        android:id="@+id/imagePoste"
+        android:layout_width="match_parent"
+        android:layout_height="524dp"
+        android:src="@color/black"/>
+
+    <EditText
+        android:id="@+id/adcommentaire"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imagePoste"
+        android:hint="commentaire"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/commentaire"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/adcommentaire"/>
+
+
+</RelativeLayout>

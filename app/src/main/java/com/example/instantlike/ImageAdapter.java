@@ -1,13 +1,18 @@
 package com.example.instantlike;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
@@ -20,6 +25,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private ArrayList<String> imageList,titre, descriptions;
     private Context context;
     private TextView titreView, descriptionsView;
+    private int positions;
 
     //initialise les variables quand on appelle la clase avec les paramétres données
     public ImageAdapter(ArrayList<String> imageList, Context context,ArrayList<String> titre, ArrayList<String> descriptions) {
@@ -37,7 +43,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder,int position) {
+        positions = holder.getAdapterPosition();
         //créations du recycleur avec tout les image
         Picasso.get().load(imageList.get(position)).into(holder.imageView);
         titreView.setText(titre.get(position));
@@ -55,10 +62,20 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+
             //récupérations de l'image
             imageView = itemView.findViewById(R.id.imageView);
             titreView = itemView.findViewById(R.id.titre);
             descriptionsView = itemView.findViewById(R.id.descriptions);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, InfoPoste.class);
+                    intent.putExtra("image", imageList.get(positions));
+                    context.startActivity(intent);
+                }
+            });
+
         }
     }
 }
