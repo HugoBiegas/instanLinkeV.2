@@ -5,23 +5,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
-    private ArrayList<String> imageList;
+    private ArrayList<String> imageList,titre, descriptions;
     private Context context;
+    private TextView titreView, descriptionsView;
 
     //initialise les variables quand on appelle la clase avec les paramétres données
-    public ImageAdapter(ArrayList<String> imageList, Context context) {
+    public ImageAdapter(ArrayList<String> imageList, Context context,ArrayList<String> titre, ArrayList<String> descriptions) {
         this.imageList = imageList;
         this.context = context;
+        this.titre = titre;
+        this.descriptions = descriptions;
     }
 
     @NonNull
@@ -35,6 +40,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder, int position) {
         //créations du recycleur avec tout les image
         Picasso.get().load(imageList.get(position)).into(holder.imageView);
+        titreView.setText(titre.get(position));
+        descriptionsView.setText(descriptions.get(position));
     }
 
     @Override
@@ -50,6 +57,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             super(itemView);
             //récupérations de l'image
             imageView = itemView.findViewById(R.id.imageView);
+            titreView = itemView.findViewById(R.id.titre);
+            descriptionsView = itemView.findViewById(R.id.descriptions);
         }
     }
 }

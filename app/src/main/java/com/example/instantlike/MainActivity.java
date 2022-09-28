@@ -1,6 +1,7 @@
 package com.example.instantlike;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -9,13 +10,23 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
@@ -33,21 +44,25 @@ public class MainActivity extends AppCompatActivity {
     Button adImage, poste;
     String photoPath = null;
     Uri photoUir;
+    final ArrayList<String> titreList = new ArrayList<>();
+    final ArrayList<String> descList = new ArrayList<>();
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         iniActivity();
-        imageInfinie();
+        imageScrol();
     }
 
-    private void imageInfinie() {
+    private void imageScrol() {
         //bar de progrations de la conections a firebase
         final ProgressBar progressBar = findViewById(R.id.progressBar);
         final ArrayList<String> imageList = new ArrayList<>();
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        final ImageAdapter adapter = new ImageAdapter(imageList, this);
+        final ImageAdapter adapter = new ImageAdapter(imageList, this, titreList, descList);
         //créations du recycler
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images");
@@ -56,9 +71,24 @@ public class MainActivity extends AppCompatActivity {
         storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
             @Override
             public void onSuccess(ListResult listResult) {
+                double p;
                 // on fait une boucle pour stocker les images une par une
                 for (StorageReference fileRef : listResult.getItems()) {
-                    //Toast.makeText(MainActivity.this, listResult.getPageToken(), Toast.LENGTH_SHORT).show();
+                    //actualisations pour avoir un chiffre différent a chaque foi
+                    p=Math.random();
+                    //mise en place des écouteur pour les titre et descriptions
+                    DatabaseReference myRef = database.getReference("images/" + fileRef.getName());
+                    TitreAd(myRef);
+                    DescAd(myRef);
+                    //actualisations pour lire les données
+                    myRef = database.getReference("images/" + fileRef.getName() + "/actu");
+                    myRef.setValue(" " + p);
+                    //lesser le temps de traitement pour la BD relative
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
@@ -75,6 +105,40 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 }
+            }
+        });
+    }
+
+    private void TitreAd(DatabaseReference myRef) {
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String cc = dataSnapshot.getValue().toString();
+                cc = cc.substring(cc.indexOf("Titre") + 6);
+                cc = cc.substring(0, cc.indexOf(","));
+                titreList.add(cc);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void DescAd(DatabaseReference myRef) {
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String cc = dataSnapshot.getValue().toString();
+                cc = cc.substring(cc.indexOf("descriptions") + 13);
+                cc = cc.substring(0, cc.indexOf(","));
+                descList.add(cc);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
     }

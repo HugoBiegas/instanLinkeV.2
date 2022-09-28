@@ -77,8 +77,12 @@ public class poste extends AppCompatActivity {
                     posterImage(photoUri);
                     //rajouter dans firebase le titre et le commentaire
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    DatabaseReference myRef = database.getReference("images/" + uuid + "/" + titre.getText() + "/" + descriptions.getText());
-                    myRef.setValue(" ");
+                    DatabaseReference myRef = database.getReference("images/" + uuid + "/descriptions");
+                    myRef.setValue(descriptions.getText().toString());
+                    myRef = database.getReference("images/" + uuid + "/Titre");
+                    myRef.setValue(titre.getText().toString());
+                    myRef = database.getReference("images/"+ uuid+"/actu");
+                    myRef.setValue(" 1");
                     startActivity(new Intent(getApplicationContext(), MainActivity.class));
                     finish();
                 } else
