@@ -3,12 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".poste">
-
+    tools:context=".poste"
+    >
     <ImageView
         android:id="@+id/imagePoste"
         android:layout_width="413dp"
-        android:layout_height="524dp" />
+        android:layout_height="524dp"
+        />
+    <Button
+        android:id="@+id/ajoutImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ajouter une image"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        />
 
     <EditText
         android:id="@+id/titre"

@@ -1,10 +1,12 @@
 package com.example.instantlike;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,6 +30,7 @@ public class poste extends AppCompatActivity {
     Uri photoUri;
     String uuid;
     EditText titre, descriptions;
+    Button ajoutImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +54,62 @@ public class poste extends AppCompatActivity {
         retour = findViewById(R.id.retour);
         poster = findViewById(R.id.poster);
         titre = findViewById(R.id.titre);
+        ajoutImage = findViewById(R.id.ajoutImage);
         descriptions = findViewById(R.id.descriptions);
         imagePoste = findViewById(R.id.imagePoste);
+        if (null != imagePoste.getDrawable())
+            ajoutImage.setVisibility(View.INVISIBLE);
+        else
+            ajoutImageTel();
         extraDonnée();
         retourHome();
         enregistrerImage();
     }
+
+    private void ajoutImageTel() {
+        ajoutImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //if (ActivityCompat.checkSelfPermission(poste.this, Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Intent galleryintent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(galleryintent, 1);
+                //} else {
+                //demander la permisions
+                //    if (!ActivityCompat.shouldShowRequestPermissionRationale(poste.this, Manifest.permission.MANAGE_EXTERNAL_STORAGE)) {
+                //         String[] permissions = {Manifest.permission.MANAGE_EXTERNAL_STORAGE};
+                //afficher une demande de permisions
+                //         ActivityCompat.requestPermissions(poste.this, permissions, 2);
+                //    } else {
+                //afficher un message que la permisiions est obligatoir
+                //    }
+                // }
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // verifier qu'une image est selectionner
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            Uri selectImage = data.getData();
+            String[] fillePathColum = {MediaStore.Images.Media.DATA};
+            // curseur d'accer au chemin de l'image
+            Cursor cursor = this.getContentResolver().query(selectImage, fillePathColum, null, null, null);
+            //positions sur la premier ligne
+            cursor.moveToFirst();
+            //récupérations chemin préci de l'image
+            int columIndex = cursor.getColumnIndex(fillePathColum[0]);
+            String imgPath = cursor.getString(columIndex);
+            cursor.close();
+            //récupérations de l'image
+            Bitmap image2 = BitmapFactory.decodeFile(imgPath);
+            Toast.makeText(this, imgPath, Toast.LENGTH_SHORT).show();
+            imagePoste.setImageBitmap(image2);
+            ajoutImage.setVisibility(View.INVISIBLE);
+        }
+    }
+
 
     private void retourHome() {
         retour.setOnClickListener(new Button.OnClickListener() {
@@ -81,7 +134,7 @@ public class poste extends AppCompatActivity {
                     myRef.setValue(descriptions.getText().toString());
                     myRef = database.getReference("images/" + uuid + "/Titre");
                     myRef.setValue(titre.getText().toString());
-                    myRef = database.getReference("images/"+ uuid+"/actu");
+                    myRef = database.getReference("images/" + uuid + "/actu");
                     myRef.setValue(" 1");
                     startActivity(new Intent(getApplicationContext(), MainActivity.class));
                     finish();
