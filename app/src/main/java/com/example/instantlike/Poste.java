@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -46,7 +47,9 @@ public class Poste extends AppCompatActivity {
             image = BitmapFactory.decodeFile(photoPath);
             photoUri = extra.getParcelable("uri");
             imagePoste.setImageBitmap(image);
-        }
+            ajoutImage.setVisibility(View.INVISIBLE);
+        }else
+            ajoutImageTel();
     }
 
 
@@ -57,10 +60,6 @@ public class Poste extends AppCompatActivity {
         ajoutImage = findViewById(R.id.ajoutImage);
         descriptions = findViewById(R.id.descriptions);
         imagePoste = findViewById(R.id.imagePoste);
-        if (null != imagePoste.getDrawable())
-            ajoutImage.setVisibility(View.INVISIBLE);
-        else
-            ajoutImageTel();
         extraDonnée();
         retourHome();
         enregistrerImage();
@@ -105,7 +104,9 @@ public class Poste extends AppCompatActivity {
             //récupérations de l'image
             Bitmap image2 = BitmapFactory.decodeFile(imgPath);
             Toast.makeText(this, imgPath, Toast.LENGTH_SHORT).show();
-            imagePoste.setImageBitmap(image2);
+            Glide.with(this /* context */)
+                    .load(image2)
+                    .into(imagePoste);
             ajoutImage.setVisibility(View.INVISIBLE);
         }
     }

@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     Uri photoUir;
     final ArrayList<String> titreList = new ArrayList<>();
     final ArrayList<String> descList = new ArrayList<>();
+    ArrayList<DatabaseReference> StopEventListener = new ArrayList<>();
     FirebaseDatabase database = FirebaseDatabase.getInstance();
 
 
@@ -73,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     p=Math.random();
                     //mise en place des écouteur pour les titre et descriptions
                     DatabaseReference myRef = database.getReference("images/" + fileRef.getName());
+                    StopEventListener.add(myRef);
                     TitreAd(myRef);
                     DescAd(myRef);
                     //actualisations pour lire les données
@@ -100,42 +104,49 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 }
+
             }
         });
     }
 
     private void TitreAd(DatabaseReference myRef) {
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addValueEventListener(TitreListerner());
+    }
+    private ValueEventListener TitreListerner(){
+        return new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String cc = dataSnapshot.getValue().toString();
-                cc = cc.substring(cc.indexOf("Titre") + 6);
-                cc = cc.substring(0, cc.indexOf(","));
-                titreList.add(cc);
+                String chaine = dataSnapshot.getValue().toString();
+                chaine = chaine.substring(chaine.indexOf("Titre") + 6);
+                chaine = chaine.substring(0, chaine.indexOf(","));
+                titreList.add(chaine);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
     }
 
     private void DescAd(DatabaseReference myRef) {
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addValueEventListener(DescListerner());
+    }
+    private ValueEventListener DescListerner(){
+        return new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String cc = dataSnapshot.getValue().toString();
-                cc = cc.substring(cc.indexOf("descriptions") + 13);
-                cc = cc.substring(0, cc.indexOf(","));
-                descList.add(cc);
+                String chaine = dataSnapshot.getValue().toString();
+                chaine = chaine.substring(chaine.indexOf("descriptions") + 13);
+                chaine = chaine.substring(0, chaine.indexOf(","));
+                descList.add(chaine);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
     }
 
     // initialistations du post
@@ -150,6 +161,11 @@ public class MainActivity extends AppCompatActivity {
         poste.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //enlever les évent lister
+                for (int i = 0; i < StopEventListener.size(); i++) {
+                    StopEventListener.get(i).removeEventListener(TitreListerner());
+                    StopEventListener.get(i).removeEventListener(DescListerner());
+                }
                 startActivity(new Intent(getApplicationContext(), Poste.class));
                 finish();
             }
@@ -190,6 +206,11 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         // on regarde si le résultat de la photo et un  sucer si oui on peux créer un poste
         if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK) {
+            //enlever les évent lister
+            for (int i = 0; i < StopEventListener.size(); i++) {
+                StopEventListener.get(i).removeEventListener(TitreListerner());
+                StopEventListener.get(i).removeEventListener(DescListerner());
+            }
             Intent intent = new Intent(getApplicationContext(), Poste.class);//créations de la page Game
             intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
             intent.putExtra("uri", photoUir);

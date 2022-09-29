@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,7 +21,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private ArrayList<String> imageList,titre, descriptions;
     private Context context;
     private TextView titreView, descriptionsView;
-    private int positions;
 
     //initialise les variables quand on appelle la clase avec les paramétres données
     public ImageAdapter(ArrayList<String> imageList, Context context,ArrayList<String> titre, ArrayList<String> descriptions) {
@@ -39,7 +39,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder,int position) {
-        positions = holder.getAdapterPosition();
         //créations du recycleur avec tout les image
         Picasso.get().load(imageList.get(position)).into(holder.imageView);
         titreView.setText(titre.get(position));
@@ -66,7 +65,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, InfoPoste.class);
-                    intent.putExtra("image", imageList.get(positions));
+                    intent.putExtra("image", imageList.get(getAdapterPosition()));
                     context.startActivity(intent);
                 }
             });
