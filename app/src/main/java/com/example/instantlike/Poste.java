@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +33,7 @@ public class Poste extends AppCompatActivity {
     String uuid;
     EditText titre, descriptions;
     Button ajoutImage;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,7 @@ public class Poste extends AppCompatActivity {
         ajoutImage = findViewById(R.id.ajoutImage);
         descriptions = findViewById(R.id.descriptions);
         imagePoste = findViewById(R.id.imagePoste);
+        progressBar = findViewById(R.id.progressBarPoste);
         extraDonnée();
         retourHome();
         enregistrerImage();
@@ -137,6 +140,13 @@ public class Poste extends AppCompatActivity {
                     myRef.setValue(titre.getText().toString());
                     myRef = database.getReference("images/" + uuid + "/actu");
                     myRef.setValue(" 1");
+                    //mettre une bare de chargement pour le temps d'uplode
+                    progressBar.setVisibility(View.VISIBLE);
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     startActivity(new Intent(getApplicationContext(), MainActivity.class));
                     finish();
                 } else
