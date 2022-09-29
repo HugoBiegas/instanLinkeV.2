@@ -1,7 +1,6 @@
 package com.example.instantlike;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.instantlike.Adapter.ComAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,7 +26,6 @@ import java.util.ArrayList;
 public class InfoPoste extends AppCompatActivity {
     Button btnR, btnPoster;
     ImageView imagePoste;
-    Bitmap image;
     String photoPath, nomImage;
     ArrayList<String> gererCome = new ArrayList<>();
     EditText commmenter;
@@ -40,6 +39,10 @@ public class InfoPoste extends AppCompatActivity {
         initActivity();
     }
 
+    /**
+     * méthode d'inisialisations des variable de la view
+     * et de la mise en place des appelle de méthode
+     */
     private void initActivity() {
         btnR = findViewById(R.id.retourPoste);
         imagePoste = findViewById(R.id.imagePoste);
@@ -52,12 +55,18 @@ public class InfoPoste extends AppCompatActivity {
         lesCom();
     }
 
+    /**
+     * méthode pour créer l'écouteur des commentaire
+     */
     private void ecouteurCom() {
         //mise en place de l'écouteur
         DatabaseReference myRef = database.getReference("commentaireImage/" + nomImage);
         recupeCom(myRef);
     }
 
+    /**
+     * méthode pour mettre a jour le recycleurView avec tout les commentaire existant dans la bd
+     */
     private void lesCom() {
         double p = Math.random();
         //créations de l'appelle pour récupérer les commentaires
@@ -65,6 +74,10 @@ public class InfoPoste extends AppCompatActivity {
         myRef.setValue(" " + p);
     }
 
+    /**
+     * méthode pour le btn qui ajoute le commentaitre dans la Bd en fesent a apellle a celle ci.
+     * elle vas passer par l'évent listener dédier (méthode recupCom)
+     */
     private void cliquePosterCom() {
         btnPoster.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,8 +99,20 @@ public class InfoPoste extends AppCompatActivity {
         });
     }
 
+    /**
+     * méthode pour récupérer des donners de la BD temps réel et les mettre a jour
+     */
     private void recupeCom(DatabaseReference myRef) {
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addValueEventListener(BdTempsRel());
+    }
+
+    /**
+     * méthode qui créer l'évent listeneur
+     *
+     * @return
+     */
+    private ValueEventListener BdTempsRel() {
+        return new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 //on récupére les valeurs
@@ -140,20 +165,30 @@ public class InfoPoste extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        };
     }
 
+    /**
+     * lister pour l'actions de revenir a la page d'acceuil.
+     * Et enlevage des écouteurs
+     */
     private void cliqueRetour() {
         btnR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                DatabaseReference myRef = database.getReference("commentaireImage/" + nomImage);
+                myRef.removeEventListener(BdTempsRel());
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 finish();
             }
         });
     }
 
-    private void extrat(){
+    /**
+     * récupérations des extrat envoiller
+     * ces a dire l'image en uri
+     */
+    private void extrat() {
         Bundle extra = getIntent().getExtras();//récuper l'extrat envoiller par roomActivity
         if (extra != null) {
             photoPath = extra.getString("image");

@@ -16,6 +16,7 @@ import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.instantlike.Adapter.ImageAdapter;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -50,9 +51,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         iniActivity();
+    }
+
+    /**
+     * méthode d'inisialisations des variable de la view
+     * et de la mise en place des appelle de méthode
+     */
+    private void iniActivity() {
+        adImage = findViewById(R.id.adImageBtn);
+        poste = findViewById(R.id.poste);
+        recupérationImage();
+        adPoste();
         imageScrol();
     }
 
+    /**
+     * méthode pour mettre a jour le recyclerVieuw qui affiche tout les postes
+     * avec une boucle pour récupérer le titre et la descriptions de la bd temps réel
+     * avec une boucle pour récupérer tout les images dans le storage firebase
+     */
     private void imageScrol() {
         //bar de progrations de la conections a firebase
         final ProgressBar progressBar = findViewById(R.id.progressBar);
@@ -107,10 +124,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * methode pour mettre en place le listener pour l'affichage du titre
+     *
+     * @param myRef
+     */
     private void TitreAd(DatabaseReference myRef) {
         myRef.addValueEventListener(TitreListerner());
     }
-    private ValueEventListener TitreListerner(){
+
+    /**
+     * méthode pour pouvoir par la suite remouve le listeneur
+     * avec concaténation de la chaine pour récupérer le titre exacte
+     *
+     * @return
+     */
+    private ValueEventListener TitreListerner() {
         return new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -127,10 +156,22 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
+    /**
+     * méthode pour mettre en place le listeneur pour l'affichage de la descriptions
+     *
+     * @param myRef
+     */
     private void DescAd(DatabaseReference myRef) {
         myRef.addValueEventListener(DescListerner());
     }
-    private ValueEventListener DescListerner(){
+
+    /**
+     * méthode pour pouvoir par la suite suprimer le listeneur
+     * avec concaténation de la chaine pour récupérer la descriptions exacte
+     *
+     * @return
+     */
+    private ValueEventListener DescListerner() {
         return new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -147,14 +188,9 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    // initialistations du post
-    private void iniActivity() {
-        adImage = findViewById(R.id.adImageBtn);
-        poste = findViewById(R.id.poste);
-        recupérationImage();
-        adPoste();
-    }
-
+    /**
+     * méthode pour aller ajouter un poste tout en supriment les event listeneur
+     */
     private void adPoste() {
         poste.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -170,6 +206,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * méthode pour créer l'appareille photo en cliquent sur le btn
+     */
     private void recupérationImage() {
         adImage.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -179,6 +218,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * méthode qui mais en place l'appreille photo
+     * avec la créations de a à z de l'image en créent tout les données de l'image
+     */
     private void adimage() {
         //on crée l'appareille photo
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -199,6 +242,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * redéfinitions de la méthode onActivityResult qui permet d'avoir un retour sur la capture faite aux préalable
+     * tout en enlevent tout les évent listeneur
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

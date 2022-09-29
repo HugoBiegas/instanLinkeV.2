@@ -42,6 +42,9 @@ public class Poste extends AppCompatActivity {
         iniActyvity();
     }
 
+    /**
+     * méthode pour gérer les donnée envoiller par la view MainActivity
+     */
     private void extraDonnée() {
         Bundle extra = getIntent().getExtras();//récuper l'extrat envoiller par roomActivity
         if (extra != null) {
@@ -50,11 +53,14 @@ public class Poste extends AppCompatActivity {
             photoUri = extra.getParcelable("uri");
             imagePoste.setImageBitmap(image);
             ajoutImage.setVisibility(View.INVISIBLE);
-        }else
+        } else
             ajoutImageTel();
     }
 
-
+    /**
+     * méthode d'inisialisations des variable de la view
+     * et de la mise en place des appelle de méthode
+     */
     private void iniActyvity() {
         retour = findViewById(R.id.retour);
         poster = findViewById(R.id.poster);
@@ -68,6 +74,11 @@ public class Poste extends AppCompatActivity {
         enregistrerImage();
     }
 
+    /**
+     * méthode pour avoir le bouton pour ajouter une image
+     * si on ne passe pas par l'appareille photo
+     * avec gestions des droit (doit avoir la permisions de récupérer des donnée du téléphone)
+     */
     private void ajoutImageTel() {
         ajoutImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,6 +100,14 @@ public class Poste extends AppCompatActivity {
         });
     }
 
+    /**
+     * redéfinitions de la méthode onActivityResult qui permet d'avoir un retour sur l'inportations de l'image choisi
+     * et traitement de cette image (récupérations du chemin de l'image et récupérations de l'image par la suite)
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -107,14 +126,14 @@ public class Poste extends AppCompatActivity {
             //récupérations de l'image
             Bitmap image2 = BitmapFactory.decodeFile(imgPath);
             Toast.makeText(this, imgPath, Toast.LENGTH_SHORT).show();
-            Glide.with(this /* context */)
-                    .load(image2)
-                    .into(imagePoste);
+            Glide.with(this /* context */).load(image2).into(imagePoste);
             ajoutImage.setVisibility(View.INVISIBLE);
         }
     }
 
-
+    /**
+     * méthode pour le btn pour revenir a la page d'acceuil
+     */
     private void retourHome() {
         retour.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -125,6 +144,11 @@ public class Poste extends AppCompatActivity {
         });
     }
 
+    /**
+     * méthode pour ajouter un poste
+     * envoi de l'image dans le storage firebase
+     * envoi du titre et de la descriptions dans la bd temps réel
+     */
     private void enregistrerImage() {
         poster.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -140,6 +164,7 @@ public class Poste extends AppCompatActivity {
                     myRef.setValue(titre.getText().toString());
                     myRef = database.getReference("images/" + uuid + "/actu");
                     myRef.setValue(" 1");
+
                     //mettre une bare de chargement pour le temps d'uplode
                     progressBar.setVisibility(View.VISIBLE);
                     try {
@@ -156,6 +181,12 @@ public class Poste extends AppCompatActivity {
 
     }
 
+    /**
+     * méthode permettent de rendre chaque image unique
+     * donc pour les différentier avec un clée unique
+     *
+     * @param imageUri
+     */
     private void posterImage(Uri imageUri) {
         uuid = UUID.randomUUID().toString(); // GENERATE UNIQUE STRING tock
         StorageReference mImageRef = FirebaseStorage.getInstance().getReference("images/" + uuid);
