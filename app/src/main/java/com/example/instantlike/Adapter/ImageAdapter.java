@@ -58,8 +58,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder, int position) {
         //créations du recycleur avec tout les image
         Picasso.get().load(imageList.get(position)).into(holder.imageView);
-        titreView.setText(titre.get(position));
-        descriptionsView.setText(descriptions.get(position));
+        //titreView.setText(titre.get(position));
+        //descriptionsView.setText(descriptions.get(position));
     }
 
     /**

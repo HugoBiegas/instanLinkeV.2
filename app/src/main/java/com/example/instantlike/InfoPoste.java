@@ -15,6 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.instantlike.Adapter.ComAdapter;
+import com.example.instantlike.Connection.Login;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,13 +27,26 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class InfoPoste extends AppCompatActivity {
-    Button btnR, btnPoster;
-    ImageView imagePoste;
-    String photoPath, nomImage;
-    ArrayList<String> gererCome = new ArrayList<>();
-    EditText commmenter;
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
-    Boolean addCom = true, chercheCom = false;
+    private Button btnR, btnPoster;
+    private ImageView imagePoste;
+    private String photoPath, nomImage;
+    private ArrayList<String> gererCome = new ArrayList<>();
+    private EditText commmenter;
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private Boolean addCom = true, chercheCom = false;
+    private FirebaseAuth mAuth;
+
+    public void onStart() {
+        super.onStart();
+        // Check si l'user est connecté
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+
+            startActivity(new Intent(getApplicationContext(), Login.class));
+            finish();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

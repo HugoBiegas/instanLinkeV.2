@@ -28,12 +28,12 @@ import com.google.firebase.auth.FirebaseUser;
 public class Login extends AppCompatActivity {
 
     // Initialisation des variables
-    EditText mEmail, mPassword;
-    Button mLoginBtn;
-    TextView mCreateBtn, forgotTextLink;
-    FirebaseAuth fAuth;
-    ProgressBar progressBar;
-    String userId;
+    private EditText mEmail, mPassword;
+    private Button mLoginBtn;
+    private TextView mCreateBtn, forgotTextLink;
+    private FirebaseAuth fAuth;
+    private ProgressBar progressBar;
+    private String userId;
     private FirebaseAuth mAuth;
 
 
@@ -52,12 +52,14 @@ public class Login extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         if (fAuth.getCurrentUser() != null)
             userId = fAuth.getCurrentUser().getUid();
-        if (userId != null){
-            startActivity(new Intent(getApplicationContext(), com.example.instantlike.MainActivity.class));
+        if (userId != null) {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
             finish();
         }
 
-        Source: https://prograide.com/pregunta/43777/comment-detecter-si-un-utilisateur-est-dej-connecte--firebase
+        Source:
+        https:
+//prograide.com/pregunta/43777/comment-detecter-si-un-utilisateur-est-dej-connecte--firebase
         //Vérification des champs avant d'appuyer sur le bouton
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,17 +67,17 @@ public class Login extends AppCompatActivity {
                 String email = mEmail.getText().toString().trim();
                 String password = mPassword.getText().toString().trim();
 
-                if(TextUtils.isEmpty(email)){
+                if (TextUtils.isEmpty(email)) {
                     mEmail.setError("Email requis");
                     return;
                 }
 
-                if(TextUtils.isEmpty(password)){
+                if (TextUtils.isEmpty(password)) {
                     mPassword.setError("Mot de passe requis");
                     return;
                 }
 
-                if(password.length() < 6){
+                if (password.length() < 6) {
                     mPassword.setError("Mot de passe trop faible");
                     return;
                 }
@@ -88,14 +90,13 @@ public class Login extends AppCompatActivity {
                 fAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
-                            Toast.makeText(Login.this,"Connexion réussi", Toast.LENGTH_SHORT).show();
+                        if (task.isSuccessful()) {
+                            Toast.makeText(Login.this, "Connexion réussi", Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
                             startActivity(new Intent(getApplicationContext(), com.example.instantlike.MainActivity.class));
-                        }
-                        else {
-                            Toast.makeText(Login.this,"Erreur! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(Login.this, "Erreur! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             updateUI(null);
                             progressBar.setVisibility(View.GONE);
                             mLoginBtn.setEnabled(true);
@@ -134,12 +135,12 @@ public class Login extends AppCompatActivity {
                         fAuth.sendPasswordResetEmail(mail).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(Login.this,"Lien envoyé sur votre email.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Login.this, "Lien envoyé sur votre email.", Toast.LENGTH_SHORT).show();
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(Login.this, "Echec d'envoie du lien",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Login.this, "Echec d'envoie du lien", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -157,14 +158,15 @@ public class Login extends AppCompatActivity {
             }
         });
     }
-    public void updateUI(FirebaseUser account){
 
-        if(account != null){
-            Toast.makeText(this,"You Signed In successfully",Toast.LENGTH_LONG).show();
+    public void updateUI(FirebaseUser account) {
+
+        if (account != null) {
+            Toast.makeText(this, "You Signed In successfully", Toast.LENGTH_LONG).show();
             startActivity(new Intent(this, MainActivity.class));
 
-        }else {
-            Toast.makeText(this,"You Didnt signed in",Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "You Didnt signed in", Toast.LENGTH_LONG).show();
         }
 
     }

@@ -17,6 +17,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.example.instantlike.Connection.Login;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -26,14 +29,28 @@ import java.util.UUID;
 
 public class Poste extends AppCompatActivity {
 
-    Button retour, poster;
-    Bitmap image;
-    ImageView imagePoste;
-    Uri photoUri;
-    String uuid;
-    EditText titre, descriptions;
-    Button ajoutImage;
-    ProgressBar progressBar;
+    private Button retour, poster;
+    private Bitmap image;
+    private ImageView imagePoste;
+    private Uri photoUri;
+    private String uuid;
+    private EditText titre, descriptions;
+    private Button ajoutImage;
+    private ProgressBar progressBar;
+    private FirebaseAuth mAuth;
+
+    public void onStart() {
+        super.onStart();
+        // Check si l'user est connecté
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+
+            startActivity(new Intent(getApplicationContext(), Login.class));
+            finish();
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

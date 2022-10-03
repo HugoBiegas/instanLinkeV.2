@@ -30,13 +30,13 @@ import java.util.Map;
 public class Register extends AppCompatActivity {
 
     //Initialisation des variables
-    EditText mEmail, mUser, mPassword, mCPassword;
-    Button mRegisterBtn;
-    TextView mLoginBtn;
-    ProgressBar progressBar;
-    FirebaseAuth fAuth;
-    FirebaseFirestore fStore;
-    String userID;
+    private EditText mEmail, mUser, mPassword, mCPassword;
+    private Button mRegisterBtn;
+    private TextView mLoginBtn;
+    private ProgressBar progressBar;
+    private FirebaseAuth fAuth;
+    private FirebaseFirestore fStore;
+    private String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,27 +66,27 @@ public class Register extends AppCompatActivity {
                 String username = mUser.getText().toString().trim();
 
                 //Controle d'erreurs
-                if(TextUtils.isEmpty(email)){
+                if (TextUtils.isEmpty(email)) {
                     mEmail.setError("Email requis");
                     return;
                 }
-                if (username.contains("victoir") || username.contains("defaite")|| username.equals("")){
+                if (username.contains("victoir") || username.contains("defaite") || username.equals("")) {
                     mUser.setError("nom incorecte");
                     return;
                 }
 
-                if(TextUtils.isEmpty(password)){
+                if (TextUtils.isEmpty(password)) {
                     mPassword.setError("Mot de passe requis");
                     return;
                 }
 
-                if(password.length() < 6){
+                if (password.length() < 6) {
                     mPassword.setError("Mot de passe trop faible");
                     return;
                 }
 
                 String passc = mCPassword.getText().toString();
-                if(!password.equals(passc)){
+                if (!password.equals(passc)) {
                     mPassword.setError("Confirmer votre mdp svp !!");
                     return;
                 }
@@ -94,30 +94,29 @@ public class Register extends AppCompatActivity {
                 progressBar.setVisibility(View.VISIBLE);
                 mRegisterBtn.setEnabled(false);
 
-                fAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                fAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         //Si le compte est créer on affiche un toast, on va rentrer ensuite avec son userid dans la bd et dans la collection "users" introduire l'username et l'email pour nous les
                         //réutiliser plus tard. Ensuite on redirige vers Main
                         //Sachant que FirebaseAuth n'a besoin que de l'email et du mdp
-                        if(task.isSuccessful()){
-                            Toast.makeText(Register.this,"Compte créer!", Toast.LENGTH_SHORT).show();
+                        if (task.isSuccessful()) {
+                            Toast.makeText(Register.this, "Compte créer!", Toast.LENGTH_SHORT).show();
                             userID = fAuth.getCurrentUser().getUid();
                             DocumentReference documentReference = fStore.collection("users").document(userID);
-                            Map<String,Object> user = new HashMap<>();
+                            Map<String, Object> user = new HashMap<>();
                             user.put("username", username);
                             user.put("email", email);
                             documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    Log.d("TAG", "onSuccess: Le profil a été créer pour"+ userID);
+                                    Log.d("TAG", "onSuccess: Le profil a été créer pour" + userID);
                                 }
                             });
                             startActivity(new Intent(getApplicationContext(), com.example.instantlike.MainActivity.class));
-                        }
-                        else {
+                        } else {
                             //si cela a échoué pour une quelquonque raison
-                            Toast.makeText(Register.this,"Error! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Register.this, "Error! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
                             mRegisterBtn.setEnabled(true);
                         }

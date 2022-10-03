@@ -40,13 +40,13 @@ public class MainActivity extends AppCompatActivity {
     // vidéo pour l'appareile photo : https://www.youtube.com/watch?v=8890GpBwn9w
     // vidéo pour les liste view : https://www.youtube.com/watch?v=KY5vOVNqkGM
     private static final int RETOUR_PHOTO = 1;
-    Button adImage, poste;
-    String photoPath = null;
-    Uri photoUir;
-    final ArrayList<String> titreList = new ArrayList<>();
-    final ArrayList<String> descList = new ArrayList<>();
-    ArrayList<DatabaseReference> StopEventListener = new ArrayList<>();
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private Button adImage, poste;
+    private String photoPath = null;
+    private Uri photoUir;
+    private final ArrayList<String> titreList = new ArrayList<>();
+    private final ArrayList<String> descList = new ArrayList<>();
+    private ArrayList<DatabaseReference> StopEventListener = new ArrayList<>();
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private FirebaseAuth mAuth;
 
     public void onStart() {
@@ -54,8 +54,10 @@ public class MainActivity extends AppCompatActivity {
         // Check si l'user est connecté
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser == null){
+        if (currentUser == null) {
+
             startActivity(new Intent(getApplicationContext(), Login.class));
+            finish();
         }
     }
 
@@ -101,15 +103,15 @@ public class MainActivity extends AppCompatActivity {
                 // on fait une boucle pour stocker les images une par une
                 for (StorageReference fileRef : listResult.getItems()) {
                     //actualisations pour avoir un chiffre différent a chaque foi
-                    p=Math.random();
+                    p = Math.random();
                     //mise en place des écouteur pour les titre et descriptions
-                    DatabaseReference myRef = database.getReference("images/" + fileRef.getName());
-                    StopEventListener.add(myRef);
-                    TitreAd(myRef);
-                    DescAd(myRef);
+                    //DatabaseReference myRef = database.getReference("images/" + fileRef.getName());
+                    //StopEventListener.add(myRef);
+                    //TitreAd(myRef);
+                    //DescAd(myRef);
                     //actualisations pour lire les données
-                    myRef = database.getReference("images/" + fileRef.getName() + "/actu");
-                    myRef.setValue(" " + p);
+                    //myRef = database.getReference("images/" + fileRef.getName() + "/actu");
+                    //myRef.setValue(" " + p);
                     //lesser le temps de traitement pour la BD relative
                     try {
                         Thread.sleep(1000);

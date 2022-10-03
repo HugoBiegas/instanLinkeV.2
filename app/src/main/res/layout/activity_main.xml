@@ -23,14 +23,14 @@
         android:id="@+id/adImageBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_marginHorizontal="20dp"
         android:text="photo" />
 
     <Button
         android:id="@+id/poste"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:layout_marginHorizontal="300dp"
         android:text="poste" />
 
 </RelativeLayout>
