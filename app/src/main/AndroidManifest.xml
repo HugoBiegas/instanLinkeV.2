@@ -22,6 +22,12 @@
             android:name=".InfoPoste"
             android:exported="false" />
         <activity
+            android:name=".Connection.Login"
+            android:exported="true" />
+        <activity
+            android:name=".Connection.Register"
+            android:exported="true" />
+        <activity
             android:name=".Poste"
             android:exported="true">
             <intent-filter>
