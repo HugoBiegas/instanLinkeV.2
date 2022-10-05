@@ -108,11 +108,11 @@ public class MainActivity extends AppCompatActivity {
                 // on fait une boucle pour stocker les images une par une
                 for (StorageReference fileRef : listResult.getItems()) {
                     //actualisations pour avoir un chiffre différent a chaque foi
-                    imageListName.add(fileRef.getName());
                     fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
                             //on récupére uri qui est le lien ou trouver les données
+                            imageListName.add(fileRef.getName());
                             imageListUri.add(uri.toString());
                             Log.d("item", uri.toString());
                         }

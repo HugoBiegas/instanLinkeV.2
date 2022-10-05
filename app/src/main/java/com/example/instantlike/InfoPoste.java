@@ -132,6 +132,7 @@ public class InfoPoste extends AppCompatActivity {
                                             Log.d("TAG", "onSuccess: Les données son créer");
                                         }
                                     });
+                                    commmenter.setText("");
                                 } else {
                                     //si le document existe pas
                                     Map<String, Object> donnée = new HashMap<>();
@@ -150,7 +151,15 @@ public class InfoPoste extends AppCompatActivity {
                             }
                         }
                     });
-
+                    //faire une pose pour l'envoi des données
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    gererCome.clear();
+                    //actualiser les coms
+                    ComeAffichage();
                 } else {
                     Toast.makeText(InfoPoste.this, "écriver un commentaire pour le poster", Toast.LENGTH_SHORT).show();
                 }
@@ -192,7 +201,6 @@ public class InfoPoste extends AppCompatActivity {
                                         i++;
                                         gererCome.add(concaténations);
                                     }
-
                                 }
                                 final RecyclerView recyclerView = findViewById(R.id.commentaire);
                                 recyclerView.setLayoutManager(new LinearLayoutManager(InfoPoste.this));
