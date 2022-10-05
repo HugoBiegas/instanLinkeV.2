@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,13 +19,20 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.instantlike.Connection.Login;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class Poste extends AppCompatActivity {
@@ -32,12 +40,15 @@ public class Poste extends AppCompatActivity {
     private Button retour, poster;
     private Bitmap image;
     private ImageView imagePoste;
+    private String imageName;
     private Uri photoUri;
     private String uuid;
     private EditText titre, descriptions;
     private Button ajoutImage;
-    private ProgressBar progressBar;
     private FirebaseAuth mAuth;
+    private FirebaseAuth fAuth;
+    private FirebaseFirestore fStore;
+    private ProgressBar progressBar;
 
     public void onStart() {
         super.onStart();
@@ -86,6 +97,9 @@ public class Poste extends AppCompatActivity {
         descriptions = findViewById(R.id.descriptions);
         imagePoste = findViewById(R.id.imagePoste);
         progressBar = findViewById(R.id.progressBarPoste);
+        //Prendre instance de firebase
+        fAuth = FirebaseAuth.getInstance();
+        fStore = FirebaseFirestore.getInstance();
         extraDonnée();
         retourHome();
         enregistrerImage();
@@ -172,27 +186,32 @@ public class Poste extends AppCompatActivity {
             public void onClick(View view) {
                 //si il y as une image on l'envoie
                 if (null != imagePoste.getDrawable() && titre.getText().length() != 0 && descriptions.getText().length() != 0) {
+                    //Poster l'image sur le storage
                     posterImage(photoUri);
                     //rajouter dans firebase le titre et le commentaire
-                    FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    DatabaseReference myRef = database.getReference("images/" + uuid + "/descriptions");
-                    myRef.setValue(descriptions.getText().toString());
-                    myRef = database.getReference("images/" + uuid + "/Titre");
-                    myRef.setValue(titre.getText().toString());
-                    myRef = database.getReference("images/" + uuid + "/actu");
-                    myRef.setValue(" 1");
-
-                    //mettre une bare de chargement pour le temps d'uplode
-                    progressBar.setVisibility(View.VISIBLE);
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    ajoutTitreDescBD(titre.getText().toString(),descriptions.getText().toString());
                     startActivity(new Intent(getApplicationContext(), MainActivity.class));
                     finish();
                 } else
                     Toast.makeText(Poste.this, "sisisez une image ou une vidéo,un titre et une descriptions", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    private void ajoutTitreDescBD(String Titre,String desc){
+        String userID = fAuth.getCurrentUser().getUid();
+        DocumentReference documentReference = fStore.collection("images").document(uuid);
+        Map<String, Object> donnée = new HashMap<>();
+        donnée.put("Titre", Titre);
+        donnée.put("Descriptions", desc);
+        donnée.put("Like", 0);
+        donnée.put("DatePoste", new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date()));
+        donnée.put("UserPoste", userID);
+        documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("TAG", "onSuccess: Les données son créer");
             }
         });
 

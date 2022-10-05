@@ -1,5 +1,7 @@
 package com.example.instantlike;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,7 +21,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.instantlike.Adapter.ImageAdapter;
 import com.example.instantlike.Connection.Login;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +31,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
@@ -43,11 +51,13 @@ public class MainActivity extends AppCompatActivity {
     private Button adImage, poste;
     private String photoPath = null;
     private Uri photoUir;
-    private final ArrayList<String> titreList = new ArrayList<>();
-    private final ArrayList<String> descList = new ArrayList<>();
-    private ArrayList<DatabaseReference> StopEventListener = new ArrayList<>();
-    private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private FirebaseAuth mAuth;
+    private final ArrayList<String> imageListUri = new ArrayList<>();
+    private final ArrayList<String> imageListName = new ArrayList<>();
+    private ArrayList<String> imageName = new ArrayList<>();
+    private ArrayList<String> titreImage = new ArrayList<>();
+    private ArrayList<String> descImage = new ArrayList<>();
+
 
     public void onStart() {
         super.onStart();
@@ -55,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
         }
@@ -86,50 +95,69 @@ public class MainActivity extends AppCompatActivity {
      * avec une boucle pour récupérer tout les images dans le storage firebase
      */
     private void imageScrol() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("images")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                //récupérations du nom de l'image
+                                imageName.add(document.getId());
+                                //récupérations des titre
+                                String titre = document.getData().toString();
+                                titre = titre.substring(titre.indexOf("Titre=") + 6);
+                                if (titre.indexOf(",") == -1)
+                                    titre = titre.substring(0, titre.indexOf("}"));
+                                else
+                                    titre = titre.substring(0, titre.indexOf(","));
+                                titreImage.add(titre);
+                                //récupérations des descriptions
+                                String desc = document.getData().toString();
+                                desc = desc.substring(desc.indexOf("Descriptions=") + 13);
+                                if (desc.indexOf(",") == -1)
+                                    desc = desc.substring(0, desc.indexOf("}"));
+                                else
+                                    desc = desc.substring(0, desc.indexOf(","));
+                                descImage.add(desc);
+                            }
+                            final RecyclerView recyclerView = findViewById(R.id.recyclerView);
+                            recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+                            ImageAdapter adapter = new ImageAdapter(imageListUri,imageListName, getApplicationContext(), titreImage, descImage,imageName);
+                            recyclerView.setAdapter(adapter);
+
+                        } else {
+                            Toast.makeText(MainActivity.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
         //bar de progrations de la conections a firebase
         final ProgressBar progressBar = findViewById(R.id.progressBar);
-        final ArrayList<String> imageList = new ArrayList<>();
-        final RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        final ImageAdapter adapter = new ImageAdapter(imageList, this, titreList, descList);
         //créations du recycler
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images");
         progressBar.setVisibility(View.VISIBLE);
         //on vas chercher les images dans la BD
         storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
             @Override
             public void onSuccess(ListResult listResult) {
-                double p;
                 // on fait une boucle pour stocker les images une par une
                 for (StorageReference fileRef : listResult.getItems()) {
                     //actualisations pour avoir un chiffre différent a chaque foi
-                    p = Math.random();
-                    //mise en place des écouteur pour les titre et descriptions
-                    //DatabaseReference myRef = database.getReference("images/" + fileRef.getName());
-                    //StopEventListener.add(myRef);
-                    //TitreAd(myRef);
-                    //DescAd(myRef);
-                    //actualisations pour lire les données
-                    //myRef = database.getReference("images/" + fileRef.getName() + "/actu");
-                    //myRef.setValue(" " + p);
-                    //lesser le temps de traitement pour la BD relative
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    imageListName.add(fileRef.getName());
                     fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
                             //on récupére uri qui est le lien ou trouver les données
-                            imageList.add(uri.toString());
+                            imageListUri.add(uri.toString());
                             Log.d("item", uri.toString());
                         }
                     }).addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
                             //on ajouter tout les image dans le recycler
-                            recyclerView.setAdapter(adapter);
                             progressBar.setVisibility(View.GONE);
                         }
                     });
@@ -139,69 +167,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * methode pour mettre en place le listener pour l'affichage du titre
-     *
-     * @param myRef
-     */
-    private void TitreAd(DatabaseReference myRef) {
-        myRef.addValueEventListener(TitreListerner());
-    }
-
-    /**
-     * méthode pour pouvoir par la suite remouve le listeneur
-     * avec concaténation de la chaine pour récupérer le titre exacte
-     *
-     * @return
-     */
-    private ValueEventListener TitreListerner() {
-        return new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String chaine = dataSnapshot.getValue().toString();
-                chaine = chaine.substring(chaine.indexOf("Titre") + 6);
-                chaine = chaine.substring(0, chaine.indexOf(","));
-                titreList.add(chaine);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-    }
-
-    /**
-     * méthode pour mettre en place le listeneur pour l'affichage de la descriptions
-     *
-     * @param myRef
-     */
-    private void DescAd(DatabaseReference myRef) {
-        myRef.addValueEventListener(DescListerner());
-    }
-
-    /**
-     * méthode pour pouvoir par la suite suprimer le listeneur
-     * avec concaténation de la chaine pour récupérer la descriptions exacte
-     *
-     * @return
-     */
-    private ValueEventListener DescListerner() {
-        return new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String chaine = dataSnapshot.getValue().toString();
-                chaine = chaine.substring(chaine.indexOf("descriptions") + 13);
-                chaine = chaine.substring(0, chaine.indexOf(","));
-                descList.add(chaine);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-    }
 
     /**
      * méthode pour aller ajouter un poste tout en supriment les event listeneur
@@ -210,11 +175,6 @@ public class MainActivity extends AppCompatActivity {
         poste.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //enlever les évent lister
-                for (int i = 0; i < StopEventListener.size(); i++) {
-                    StopEventListener.get(i).removeEventListener(TitreListerner());
-                    StopEventListener.get(i).removeEventListener(DescListerner());
-                }
                 startActivity(new Intent(getApplicationContext(), Poste.class));
                 finish();
             }
@@ -243,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
         // on regarde si la personne a pris une photo et veux la valider
         if (intent.resolveActivity(getPackageManager()) != null) {
             // on crée tout les données corespondent a l'image
-            String time = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
             File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
             try {
                 File photoFile = File.createTempFile("photo" + time, ".jpg", photoDir);
@@ -270,11 +230,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         // on regarde si le résultat de la photo et un  sucer si oui on peux créer un poste
         if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK) {
-            //enlever les évent lister
-            for (int i = 0; i < StopEventListener.size(); i++) {
-                StopEventListener.get(i).removeEventListener(TitreListerner());
-                StopEventListener.get(i).removeEventListener(DescListerner());
-            }
             Intent intent = new Intent(getApplicationContext(), Poste.class);//créations de la page Game
             intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
             intent.putExtra("uri", photoUir);
