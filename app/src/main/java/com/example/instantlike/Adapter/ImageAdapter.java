@@ -20,14 +20,14 @@ import java.util.ArrayList;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
-    private ArrayList<String> imageListUri,imageListName, titre, descriptions, imageName;
+    private ArrayList<String> imageListUri, imageListName, titre, descriptions, imageName;
     private Context context;
     private TextView titreView, descriptionsView;
 
     /**
      * initialise les variables quand on appelle la clase avec les paramétres données
      */
-    public ImageAdapter(ArrayList<String> imageListUri,ArrayList<String> imageListName, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> imageName) {
+    public ImageAdapter(ArrayList<String> imageListUri, ArrayList<String> imageListName, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> imageName) {
         this.imageListUri = imageListUri;
         this.imageListName = imageListName;
         this.context = context;
@@ -61,10 +61,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder, int position) {
         //créations du recycleur avec tout les image
         Picasso.get().load(imageListUri.get(position)).into(holder.imageView);
-        String teste = imageListName.get(position);
+        String testeNomImage = imageListName.get(position);
         int i;
-        for ( i = 0; i < imageName.size(); i++) {
-            if (imageName.get(i).equals(teste))
+        for (i = 0; i < imageName.size(); i++) {
+            if (imageName.get(i).equals(testeNomImage))
                 break;
         }
         titreView.setText(titre.get(i));
@@ -100,6 +100,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 public void onClick(View v) {
                     Intent intent = new Intent(context, InfoPoste.class);
                     intent.putExtra("image", imageListUri.get(getAdapterPosition()));
+                    intent.putExtra("name", imageListName.get(getAdapterPosition()));
                     context.startActivity(intent);
                 }
             });

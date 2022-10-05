@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
         }
+        titreDescNomImage();
     }
 
     @Override
@@ -95,45 +96,6 @@ public class MainActivity extends AppCompatActivity {
      * avec une boucle pour récupérer tout les images dans le storage firebase
      */
     private void imageScrol() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("images")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                //récupérations du nom de l'image
-                                imageName.add(document.getId());
-                                //récupérations des titre
-                                String titre = document.getData().toString();
-                                titre = titre.substring(titre.indexOf("Titre=") + 6);
-                                if (titre.indexOf(",") == -1)
-                                    titre = titre.substring(0, titre.indexOf("}"));
-                                else
-                                    titre = titre.substring(0, titre.indexOf(","));
-                                titreImage.add(titre);
-                                //récupérations des descriptions
-                                String desc = document.getData().toString();
-                                desc = desc.substring(desc.indexOf("Descriptions=") + 13);
-                                if (desc.indexOf(",") == -1)
-                                    desc = desc.substring(0, desc.indexOf("}"));
-                                else
-                                    desc = desc.substring(0, desc.indexOf(","));
-                                descImage.add(desc);
-                            }
-                            final RecyclerView recyclerView = findViewById(R.id.recyclerView);
-                            recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
-                            ImageAdapter adapter = new ImageAdapter(imageListUri,imageListName, getApplicationContext(), titreImage, descImage,imageName);
-                            recyclerView.setAdapter(adapter);
-
-                        } else {
-                            Toast.makeText(MainActivity.this, "Error getting documents", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
         //bar de progrations de la conections a firebase
         final ProgressBar progressBar = findViewById(R.id.progressBar);
         //créations du recycler
@@ -165,6 +127,47 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void titreDescNomImage() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("images")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                //récupérations du nom de l'image
+                                imageName.add(document.getId());
+                                //récupérations des titre
+                                String titre = document.getData().toString();
+                                titre = titre.substring(titre.indexOf("Titre=") + 6);
+                                if (titre.indexOf(",") == -1)
+                                    titre = titre.substring(0, titre.indexOf("}"));
+                                else
+                                    titre = titre.substring(0, titre.indexOf(","));
+                                titreImage.add(titre);
+                                //récupérations des descriptions
+                                String desc = document.getData().toString();
+                                desc = desc.substring(desc.indexOf("Descriptions=") + 13);
+                                if (desc.indexOf(",") == -1)
+                                    desc = desc.substring(0, desc.indexOf("}"));
+                                else
+                                    desc = desc.substring(0, desc.indexOf(","));
+                                descImage.add(desc);
+                            }
+                            final RecyclerView recyclerView = findViewById(R.id.recyclerView);
+                            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+
+                            ImageAdapter adapter = new ImageAdapter(imageListUri, imageListName, MainActivity.this, titreImage, descImage, imageName);
+                            recyclerView.setAdapter(adapter);
+
+                        } else {
+                            Toast.makeText(MainActivity.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
 

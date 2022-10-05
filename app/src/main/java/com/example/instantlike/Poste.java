@@ -189,7 +189,7 @@ public class Poste extends AppCompatActivity {
                     //Poster l'image sur le storage
                     posterImage(photoUri);
                     //rajouter dans firebase le titre et le commentaire
-                    ajoutTitreDescBD(titre.getText().toString(),descriptions.getText().toString());
+                    ajoutBDFirestore(titre.getText().toString(), descriptions.getText().toString());
                     startActivity(new Intent(getApplicationContext(), MainActivity.class));
                     finish();
                 } else
@@ -199,7 +199,7 @@ public class Poste extends AppCompatActivity {
 
     }
 
-    private void ajoutTitreDescBD(String Titre,String desc){
+    private void ajoutBDFirestore(String Titre, String desc) {
         String userID = fAuth.getCurrentUser().getUid();
         DocumentReference documentReference = fStore.collection("images").document(uuid);
         Map<String, Object> donnée = new HashMap<>();

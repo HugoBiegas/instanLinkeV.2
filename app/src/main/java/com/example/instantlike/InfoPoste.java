@@ -1,12 +1,16 @@
 package com.example.instantlike;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,15 +20,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.instantlike.Adapter.ComAdapter;
 import com.example.instantlike.Connection.Login;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class InfoPoste extends AppCompatActivity {
     private Button btnR, btnPoster;
@@ -32,9 +41,9 @@ public class InfoPoste extends AppCompatActivity {
     private String photoPath, nomImage;
     private ArrayList<String> gererCome = new ArrayList<>();
     private EditText commmenter;
-    private FirebaseDatabase database = FirebaseDatabase.getInstance();
-    private Boolean addCom = true, chercheCom = false;
     private FirebaseAuth mAuth;
+    private String uuid;
+    private FirebaseAuth fAuth = FirebaseAuth.getInstance();
 
     public void onStart() {
         super.onStart();
@@ -42,7 +51,6 @@ public class InfoPoste extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
         }
@@ -65,30 +73,11 @@ public class InfoPoste extends AppCompatActivity {
         btnPoster = findViewById(R.id.PosterCommentaire);
         commmenter = findViewById(R.id.adcommentaire);
         extrat();
-        ecouteurCom();
         cliqueRetour();
         cliquePosterCom();
-        lesCom();
+        ComeAffichage();
     }
 
-    /**
-     * méthode pour créer l'écouteur des commentaire
-     */
-    private void ecouteurCom() {
-        //mise en place de l'écouteur
-        DatabaseReference myRef = database.getReference("commentaireImage/" + nomImage);
-        recupeCom(myRef);
-    }
-
-    /**
-     * méthode pour mettre a jour le recycleurView avec tout les commentaire existant dans la bd
-     */
-    private void lesCom() {
-        double p = Math.random();
-        //créations de l'appelle pour récupérer les commentaires
-        DatabaseReference myRef = database.getReference("commentaireImage/" + nomImage + "/actu");
-        myRef.setValue(" " + p);
-    }
 
     /**
      * méthode pour le btn qui ajoute le commentaitre dans la Bd en fesent a apellle a celle ci.
@@ -98,91 +87,125 @@ public class InfoPoste extends AppCompatActivity {
         btnPoster.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (commmenter.length() != 0) {
-                    addCom = false;
-                    double p = Math.random();
-                    //déclanchement de lécouteur
-                    DatabaseReference myRef = database.getReference("commentaireImage/" + nomImage + "/actu");
-                    myRef.setValue(" " + p);
-                    //lésser le temps de trétement
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                //si il y a un commentaire
+                if (commmenter.getText().toString().length() != 0) {
+                    FirebaseFirestore fStore = FirebaseFirestore.getInstance();
+                    String userID = fAuth.getCurrentUser().getUid();
+                    DocumentReference documentReference = fStore.collection("commentaire").document(uuid + ":" + userID);
+                    documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    //si il existe on prend les commentaire existant
+                                    Map<String, Object> donnée = new HashMap<>();
+                                    String data = document.getData().toString();
+                                    String concaténations;
+                                    int i = 0;
+                                    //boucle pour reprendre les commentaire créer par cette personne
+                                    while (data.length() != 0) {
+                                        //on regarde si il a écrie un commentaire
+                                        if (data.indexOf("Com" + i) == -1)
+                                            break;
+                                        concaténations = data;
+                                        if (i < 10)
+                                            concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 5);
+                                        else if (i < 100)
+                                            concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 6);
+                                        else
+                                            concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 7);
+
+                                        if (concaténations.indexOf(",") == -1)
+                                            concaténations = concaténations.substring(0, concaténations.indexOf("}"));
+                                        else
+                                            concaténations = concaténations.substring(0, concaténations.indexOf(","));
+                                        donnée.put("Com" + i, concaténations);
+                                        i++;
+                                    }
+                                    donnée.put("Com" + i, commmenter.getText().toString());
+                                    donnée.put("UserCom", userID);
+                                    //créations des donnée
+                                    documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d("TAG", "onSuccess: Les données son créer");
+                                        }
+                                    });
+                                } else {
+                                    //si le document existe pas
+                                    Map<String, Object> donnée = new HashMap<>();
+                                    donnée.put("Com0", commmenter.getText().toString());
+                                    donnée.put("UserCom", userID);
+                                    documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d("TAG", "onSuccess: Les données son créer");
+                                        }
+                                    });
+                                    Log.d(TAG, "Document does not exist!");
+                                }
+                            } else {
+                                Log.d(TAG, "Failed with: ", task.getException());
+                            }
+                        }
+                    });
+
+                } else {
+                    Toast.makeText(InfoPoste.this, "écriver un commentaire pour le poster", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
-    /**
-     * méthode pour récupérer des donners de la BD temps réel et les mettre a jour
-     */
-    private void recupeCom(DatabaseReference myRef) {
-        myRef.addValueEventListener(BdTempsRel());
-    }
+    private void ComeAffichage() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("commentaire")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                //on regarde que se sont bien les commentaire pour cette image
+                                if (document.getId().contains(uuid)) {
+                                    //récupérations des com
+                                    String com = document.getData().toString();
+                                    String concaténations;
+                                    int i = 0;
+                                    while (com.length() != 0) {
+                                        //on regarde si il a écrie un commentaire
+                                        if (com.indexOf("Com" + i) == -1)
+                                            break;
+                                        concaténations = com;
+                                        if (i < 10)
+                                            concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 5);
+                                        else if (i < 100)
+                                            concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 6);
+                                        else
+                                            concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 7);
 
-    /**
-     * méthode qui créer l'évent listeneur
-     *
-     * @return
-     */
-    private ValueEventListener BdTempsRel() {
-        return new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                //on récupére les valeurs
-                String chaine = snapshot.getValue().toString();
-                gererCome.clear();
-                //récupérer les commentaires
-                if (chercheCom == false) {
-                    if (chaine.contains("commentaire=")) {
-                        chaine = chaine.substring(chaine.indexOf("commentaire=") + 12);
-                        //récupérer tout les commentaire
-                        while (chaine.contains(";")) {
-                            gererCome.add(chaine.substring(0, chaine.indexOf(";")));
-                            chaine = chaine.substring(chaine.indexOf(";") + 1);
+                                        if (concaténations.indexOf(",") == -1)
+                                            concaténations = concaténations.substring(0, concaténations.indexOf("}"));
+                                        else
+                                            concaténations = concaténations.substring(0, concaténations.indexOf(","));
+                                        i++;
+                                        gererCome.add(concaténations);
+                                    }
+
+                                }
+                                final RecyclerView recyclerView = findViewById(R.id.commentaire);
+                                recyclerView.setLayoutManager(new LinearLayoutManager(InfoPoste.this));
+                                ComAdapter adapter = new ComAdapter(gererCome, InfoPoste.this);
+                                recyclerView.setAdapter(adapter);
+                            }
+                        } else {
+                            Toast.makeText(InfoPoste.this, "Error getting documents", Toast.LENGTH_SHORT).show();
                         }
                     }
-                    final RecyclerView recyclerView = findViewById(R.id.commentaire);
-                    final ComAdapter adapter = new ComAdapter(gererCome, getApplicationContext());
-                    recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                    recyclerView.setAdapter(adapter);
-                    chercheCom = true;
-                } else
-
-                    //on passe que une fois si la personne a cliquer sur commenter
-                    if (addCom == false) {
-                        String adCommentaire = "";
-                        //on regarde si on as des commentaire si oui on les récupére touse
-                        if (chaine.contains("commentaire=")) {
-                            chaine = chaine.substring(chaine.indexOf("commentaire=") + 12);
-                            //récupérer tout les commentaire
-                            while (chaine.contains(";")) {
-                                gererCome.add(chaine.substring(0, chaine.indexOf(";")));
-                                chaine = chaine.substring(chaine.indexOf(";") + 1);
-                            }
-                            //on les concaténe
-                            for (int i = 0; i < gererCome.size(); i++) {
-                                adCommentaire += gererCome.get(i);
-                                adCommentaire += ";";
-                            }
-                        }
-                        DatabaseReference myRef = database.getReference("commentaireImage/" + nomImage + "/commentaire");
-                        myRef.setValue(adCommentaire + commmenter.getText().toString() + ";");
-                        gererCome.clear();
-                        addCom = true;
-                        //on actualise les commentaires
-                        chercheCom = false;
-                    }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        };
+                });
     }
+
 
     /**
      * lister pour l'actions de revenir a la page d'acceuil.
@@ -192,8 +215,6 @@ public class InfoPoste extends AppCompatActivity {
         btnR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatabaseReference myRef = database.getReference("commentaireImage/" + nomImage);
-                myRef.removeEventListener(BdTempsRel());
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 finish();
             }
@@ -211,6 +232,7 @@ public class InfoPoste extends AppCompatActivity {
             nomImage = Uri.parse(photoPath).getPath();
             nomImage = nomImage.substring(nomImage.indexOf("images/") + 7);
             Glide.with(this /* context */).load(photoPath).into(imagePoste);
+            uuid = extra.getString("name");
         }
     }
 }
