@@ -1,4 +1,4 @@
-package com.example.instantlike;
+package com.example.instantlike.Poste;
 
 import static android.content.ContentValues.TAG;
 
@@ -20,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.instantlike.Adapter.ComAdapter;
 import com.example.instantlike.Connection.Login;
+import com.example.instantlike.HomePage;
+import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -223,7 +225,7 @@ public class InfoPoste extends AppCompatActivity {
         btnR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                startActivity(new Intent(getApplicationContext(), HomePage.class));
                 finish();
             }
         });

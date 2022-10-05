@@ -14,7 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.instantlike.MainActivity;
+import com.example.instantlike.HomePage;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -113,7 +113,7 @@ public class Register extends AppCompatActivity {
                                     Log.d("TAG", "onSuccess: Le profil a été créer pour" + userID);
                                 }
                             });
-                            startActivity(new Intent(getApplicationContext(), com.example.instantlike.MainActivity.class));
+                            startActivity(new Intent(getApplicationContext(), HomePage.class));
                         } else {
                             //si cela a échoué pour une quelquonque raison
                             Toast.makeText(Register.this, "Error! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -129,7 +129,7 @@ public class Register extends AppCompatActivity {
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                startActivity(new Intent(getApplicationContext(), HomePage.class));
             }
         });
     }

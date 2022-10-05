@@ -15,7 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.instantlike.MainActivity;
+import com.example.instantlike.HomePage;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -53,7 +53,7 @@ public class Login extends AppCompatActivity {
         if (fAuth.getCurrentUser() != null)
             userId = fAuth.getCurrentUser().getUid();
         if (userId != null) {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            startActivity(new Intent(getApplicationContext(), HomePage.class));
             finish();
         }
 
@@ -94,7 +94,7 @@ public class Login extends AppCompatActivity {
                             Toast.makeText(Login.this, "Connexion réussi", Toast.LENGTH_SHORT).show();
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
-                            startActivity(new Intent(getApplicationContext(), com.example.instantlike.MainActivity.class));
+                            startActivity(new Intent(getApplicationContext(), HomePage.class));
                         } else {
                             Toast.makeText(Login.this, "Erreur! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             updateUI(null);
@@ -163,7 +163,7 @@ public class Login extends AppCompatActivity {
 
         if (account != null) {
             Toast.makeText(this, "You Signed In successfully", Toast.LENGTH_LONG).show();
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(this, HomePage.class));
 
         } else {
             Toast.makeText(this, "You Didnt signed in", Toast.LENGTH_LONG).show();

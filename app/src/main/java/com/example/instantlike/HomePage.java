@@ -1,7 +1,5 @@
 package com.example.instantlike;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,16 +19,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.instantlike.Adapter.ImageAdapter;
 import com.example.instantlike.Connection.Login;
+import com.example.instantlike.Poste.CreationPoste;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -44,7 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity {
+public class HomePage extends AppCompatActivity {
     // vidéo pour l'appareile photo : https://www.youtube.com/watch?v=8890GpBwn9w
     // vidéo pour les liste view : https://www.youtube.com/watch?v=KY5vOVNqkGM
     private static final int RETOUR_PHOTO = 1;
@@ -158,13 +152,13 @@ public class MainActivity extends AppCompatActivity {
                                 descImage.add(desc);
                             }
                             final RecyclerView recyclerView = findViewById(R.id.recyclerView);
-                            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                            recyclerView.setLayoutManager(new LinearLayoutManager(HomePage.this));
 
-                            ImageAdapter adapter = new ImageAdapter(imageListUri, imageListName, MainActivity.this, titreImage, descImage, imageName);
+                            ImageAdapter adapter = new ImageAdapter(imageListUri, imageListName, HomePage.this, titreImage, descImage, imageName);
                             recyclerView.setAdapter(adapter);
 
                         } else {
-                            Toast.makeText(MainActivity.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(HomePage.this, "Error getting documents", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -178,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         poste.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), Poste.class));
+                startActivity(new Intent(getApplicationContext(), CreationPoste.class));
                 finish();
             }
         });
@@ -211,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 File photoFile = File.createTempFile("photo" + time, ".jpg", photoDir);
                 photoPath = photoFile.getAbsolutePath();
-                photoUir = FileProvider.getUriForFile(MainActivity.this, MainActivity.this.getApplicationContext().getPackageName() + ".provider", photoFile);
+                photoUir = FileProvider.getUriForFile(HomePage.this, HomePage.this.getApplicationContext().getPackageName() + ".provider", photoFile);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUir);
                 startActivityForResult(intent, RETOUR_PHOTO);
             } catch (IOException e) {
@@ -233,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         // on regarde si le résultat de la photo et un  sucer si oui on peux créer un poste
         if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK) {
-            Intent intent = new Intent(getApplicationContext(), Poste.class);//créations de la page Game
+            Intent intent = new Intent(getApplicationContext(), CreationPoste.class);//créations de la page Game
             intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
             intent.putExtra("uri", photoUir);
             startActivity(intent);//on lance l'activiter
