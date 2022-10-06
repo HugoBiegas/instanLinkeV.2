@@ -8,6 +8,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -19,7 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.instantlike.Adapter.ImageAdapter;
 import com.example.instantlike.Connection.Login;
+import com.example.instantlike.InteractionUtilisateur.UtilisateurMP;
 import com.example.instantlike.Poste.CreationPoste;
+import com.example.instantlike.Poste.InfoPoste;
+import com.example.instantlike.Profil.ProfilInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -51,6 +55,7 @@ public class HomePage extends AppCompatActivity {
     private ArrayList<String> imageName = new ArrayList<>();
     private ArrayList<String> titreImage = new ArrayList<>();
     private ArrayList<String> descImage = new ArrayList<>();
+    private ImageButton home,message,profilInfoPoste;
 
 
     public void onStart() {
@@ -79,9 +84,43 @@ public class HomePage extends AppCompatActivity {
     private void iniActivity() {
         adImage = findViewById(R.id.adImageBtn);
         poste = findViewById(R.id.poste);
+        home = findViewById(R.id.HomeBTNPost);
+        message = findViewById(R.id.MessageBTNPost);
+        profilInfoPoste = findViewById(R.id.InfoPorofilBTNPost);
         recupérationImage();
         adPoste();
         imageScrol();
+        cliquemessage();
+        cliqueProfilInfoPost();
+        cliqueHome();
+    }
+    private void cliquemessage(){
+        message.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), UtilisateurMP.class));
+                finish();
+            }
+        });
+    }
+    private void cliqueProfilInfoPost(){
+        profilInfoPoste.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), ProfilInfo.class));
+                finish();
+            }
+        });
+    }
+
+    private void cliqueHome(){
+        home.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), HomePage.class));
+                finish();
+            }
+        });
     }
 
     /**

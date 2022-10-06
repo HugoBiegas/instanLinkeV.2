@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomePage">
+    tools:context=".HomePage"
+    android:background="@color/black">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -32,5 +33,43 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="300dp"
         android:text="poste" />
+
+    <ImageButton
+        android:clickable="true"
+        android:src="@drawable/homeactif"
+        android:id="@+id/HomeBTNPost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/black"
+        android:layout_marginTop="7dp"
+        android:layout_below="@+id/recyclerView"
+        android:layout_toLeftOf="@+id/MessageBTNPost"
+        android:text="Button"
+        android:layout_marginRight="30dp"/>
+
+    <ImageButton
+        android:clickable="true"
+        android:background="@color/black"
+        android:src="@drawable/messagenonactif"
+        android:layout_marginTop="7dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/MessageBTNPost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/recyclerView"
+        android:text="Button" />
+
+    <ImageButton
+        android:clickable="true"
+        android:src="@drawable/infoprofilnonactif"
+        android:background="@color/black"
+        android:layout_marginTop="7dp"
+        android:id="@+id/InfoPorofilBTNPost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/recyclerView"
+        android:layout_toRightOf="@+id/MessageBTNPost"
+        android:text="Button"
+        android:layout_marginLeft="30dp"/>
 
 </RelativeLayout>

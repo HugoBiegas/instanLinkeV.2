@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Poste.CreationPoste"
-    >
+    android:background="@color/black" >
 
     <ImageView
         android:id="@+id/imagePoste"
@@ -31,10 +31,11 @@
 
     <EditText
         android:id="@+id/titre"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/imagePoste"
         android:ems="10"
+        android:background="@color/white"
         android:hint="Titre"
         android:inputType="textPersonName" />
 

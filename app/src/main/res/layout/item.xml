@@ -2,31 +2,99 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/linearborder">
+    android:background="@color/black">
 
     <ImageView
+        android:id="@+id/iconUtilisateurPost"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:src="@color/white"/>
+
+    <TextView
+        android:id="@+id/NomUtilisateurPost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="nom"
+        android:layout_toRightOf="@+id/iconUtilisateurPost"
+        android:textColor="@color/white"
+        android:textSize="15dp"
+        android:layout_marginTop="15dp"/>
+
+
+    <ImageView
+        android:textColor="@color/white"
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="800px"
-        android:layout_marginTop="30dp"
-        android:background="@drawable/linearborder" />
+        android:layout_below="@+id/iconUtilisateurPost" />
 
     <TextView
         android:id="@+id/titre"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:text="Image du siécle"
-        android:textSize="50px"></TextView>
+        android:layout_toRightOf="@+id/iconUtilisateurPost"
+        android:textColor="@color/white"
+        android:textSize="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/NomUtilisateurPost"/>
 
     <TextView
+        android:textColor="@color/white"
         android:id="@+id/descriptions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/imageView"
+        android:layout_below="@+id/LikeBTNPost"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:text="trés belle image fait en 1945"></TextView>
+
+    <Button
+        android:id="@+id/btnPostFollow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/iconUtilisateurPost"
+        android:layout_marginLeft="200dp"
+        android:layout_marginTop="10dp"
+        android:text="Follow" />
+
+    <ImageButton
+        android:background="@color/black"
+        android:src="@drawable/like"
+        android:layout_marginLeft="10dp"
+        android:id="@+id/LikeBTNPost"
+        android:layout_below="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Button"
+        android:clickable="true"/>
+
+    <ImageButton
+        android:background="@color/black"
+        android:layout_toRightOf="@+id/LikeBTNPost"
+        android:src="@drawable/partage"
+        android:layout_marginLeft="10dp"
+        android:id="@+id/partagePost"
+        android:layout_below="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Button"
+        android:clickable="true"/>
+
+    <TextView
+        android:id="@+id/nbLike"
+        android:layout_toRightOf="@+id/partagePost"
+        android:layout_below="@+id/imageView"
+        android:layout_marginLeft="250dp"
+        android:textColor="@color/white"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 Likes" />
 
 </RelativeLayout>

@@ -5,12 +5,15 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.instantlike.Poste.InfoPoste;
 import com.example.instantlike.R;
 import com.squareup.picasso.Picasso;
@@ -22,6 +25,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private ArrayList<String> imageListUri, imageListName, titre, descriptions, imageName;
     private Context context;
     private TextView titreView, descriptionsView;
+    private ImageButton Like,partage;
 
     /**
      * initialise les variables quand on appelle la clase avec les paramétres données
@@ -94,6 +98,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             imageView = itemView.findViewById(R.id.imageView);
             titreView = itemView.findViewById(R.id.titre);
             descriptionsView = itemView.findViewById(R.id.descriptions);
+            Like = itemView.findViewById(R.id.LikeBTNPost);
+            partage = itemView.findViewById(R.id.partagePost);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -101,6 +107,18 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                     intent.putExtra("image", imageListUri.get(getAdapterPosition()));
                     intent.putExtra("name", imageListName.get(getAdapterPosition()));
                     context.startActivity(intent);
+                }
+            });
+            Like.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(context, "ces liker !", Toast.LENGTH_SHORT).show();
+                }
+            });
+            partage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(context, "ces partager !", Toast.LENGTH_SHORT).show();
                 }
             });
 

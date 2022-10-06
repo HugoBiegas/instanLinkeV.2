@@ -1,4 +1,4 @@
-package com.example.instantlike.InteractionUtilisateur;
+package com.example.instantlike.Profil;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,24 +8,24 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.example.instantlike.HomePage;
-import com.example.instantlike.Profil.ProfilInfo;
+import com.example.instantlike.InteractionUtilisateur.UtilisateurMP;
 import com.example.instantlike.R;
 
-public class UtilisateurMP extends AppCompatActivity {
+public class ProfilInfo extends AppCompatActivity {
 
     private ImageButton home,message,profilInfoPoste;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_utilisateur_mp);
+        setContentView(R.layout.activity_profil_info);
         iniActivity();
     }
 
     private void iniActivity() {
-        home = findViewById(R.id.HomeBTNMpUtilisateur);
-        message = findViewById(R.id.MessageBTNMpUtilisateur);
-        profilInfoPoste = findViewById(R.id.InfoPorofilBTNMpUtilisateur);
+        home = findViewById(R.id.HomeBTNInfoProfil);
+        message = findViewById(R.id.MessageBTNInfoProfil);
+        profilInfoPoste = findViewById(R.id.InfoPorofilBTNInfoProfil);
         cliquemessage();
         cliqueProfilInfoPost();
         cliqueHome();
@@ -58,5 +58,4 @@ public class UtilisateurMP extends AppCompatActivity {
             }
         });
     }
-
 }
