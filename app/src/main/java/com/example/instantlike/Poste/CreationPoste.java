@@ -206,7 +206,7 @@ public class CreationPoste extends AppCompatActivity {
         donnée.put("Titre", Titre);
         donnée.put("Descriptions", desc);
         donnée.put("Like", 0);
-        donnée.put("DatePoste", new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date()));
+        donnée.put("DatePoste", new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
         donnée.put("UserPoste", userID);
         documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override

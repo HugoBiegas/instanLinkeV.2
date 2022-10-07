@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.example.instantlike.Adapter.ComAdapter;
 import com.example.instantlike.Connection.Login;
 import com.example.instantlike.HomePage;
+import com.example.instantlike.Profil.ProfilInfo;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -46,6 +47,7 @@ public class InfoPoste extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private String uuid;
     private FirebaseAuth fAuth = FirebaseAuth.getInstance();
+    private Boolean retourInfo;
 
     public void onStart() {
         super.onStart();
@@ -225,7 +227,10 @@ public class InfoPoste extends AppCompatActivity {
         btnR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), HomePage.class));
+                if (retourInfo)
+                    startActivity(new Intent(getApplicationContext(), ProfilInfo.class));
+                else
+                    startActivity(new Intent(getApplicationContext(), HomePage.class));
                 finish();
             }
         });
@@ -243,6 +248,7 @@ public class InfoPoste extends AppCompatActivity {
             nomImage = nomImage.substring(nomImage.indexOf("images/") + 7);
             Glide.with(this /* context */).load(photoPath).into(imagePoste);
             uuid = extra.getString("name");
+            retourInfo = extra.getBoolean("retour");
         }
     }
 }

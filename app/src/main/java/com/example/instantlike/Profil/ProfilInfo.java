@@ -8,13 +8,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.instantlike.Adapter.ImageAdapter;
+import com.example.instantlike.Adapter.PublicationAdapter;
 import com.example.instantlike.Connection.Login;
 import com.example.instantlike.HomePage;
 import com.example.instantlike.InteractionUtilisateur.UtilisateurMP;
@@ -32,6 +35,9 @@ import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import java.text.DateFormat;
+import java.util.ArrayList;
+
 public class ProfilInfo extends AppCompatActivity {
 
     private ImageButton home,message,profilInfoPoste;
@@ -40,6 +46,8 @@ public class ProfilInfo extends AppCompatActivity {
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser currentUser;
     private int nbPoste = 0, nbSuivi=0,nbFollow=0;
+    private ArrayList<String> imageListUri = new ArrayList<>(), NomImagePoste= new ArrayList<>(), DatePoste= new ArrayList<>(),LikePoste= new ArrayList<>();
+
 
     public void onStart() {
         super.onStart();
@@ -74,6 +82,43 @@ public class ProfilInfo extends AppCompatActivity {
         nomUtilisateur();
         publicationNB();
         followSuivi();
+
+    }
+    private void PublicationUtilisateur() {
+        //bar de progrations de la conections a firebase
+        //créations du recycler
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images");
+        //on vas chercher les images dans la BD
+        storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+            @Override
+            public void onSuccess(ListResult listResult) {
+                for (int i = 0; i < NomImagePoste.size(); i++) {
+                    // on fait une boucle pour stocker les images une par une
+                    for (StorageReference fileRef : listResult.getItems()) {
+                        if (fileRef.getName().equals(NomImagePoste.get(i))){
+                            //actualisations pour avoir un chiffre différent a chaque foi
+                            fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    //on récupére uri qui est le lien ou trouver les données
+                                    imageListUri.add(uri.toString());
+                                    Log.d("item", uri.toString());
+                                }
+                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    final RecyclerView recyclerView = findViewById(R.id.recyclerViewUtilisateurInfo);
+                                    recyclerView.setLayoutManager(new LinearLayoutManager(ProfilInfo.this));
+                                    PublicationAdapter adapter = new PublicationAdapter(imageListUri, ProfilInfo.this, DatePoste, LikePoste, NomImagePoste);
+                                    recyclerView.setAdapter(adapter);
+                                }
+                            });
+                            break;
+                        }
+                    }
+                }
+            }
+        });
     }
     private void followSuivi(){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -122,9 +167,29 @@ public class ProfilInfo extends AppCompatActivity {
                                 //récupérations du nom de l'image
                                 if(userposte.equals(currentUser.getUid())){
                                     nbPoste++;
+                                    NomImagePoste.add(document.getId());
+                                    //nb Like
+                                    String like = document.getData().toString();
+
+                                    like = like.substring(like.indexOf("Like=") + 5);
+                                    if (like.indexOf(",") == -1)
+                                        like = like.substring(0, like.indexOf("}"));
+                                    else
+                                        like = like.substring(0, like.indexOf(","));
+                                    LikePoste.add(like);
+
+                                    //date du poste
+                                    String dateposte = document.getData().toString();
+                                    dateposte = dateposte.substring(dateposte.indexOf("DatePoste=") + 10);
+                                    if (dateposte.indexOf(",") == -1)
+                                        dateposte = dateposte.substring(0, dateposte.indexOf("}"));
+                                    else
+                                        dateposte = dateposte.substring(0, dateposte.indexOf(","));
+                                    DatePoste.add(dateposte);
                                 }
                             }
                             publications.setText("Publications : "+nbPoste);
+                            PublicationUtilisateur();
                         } else {
                             Toast.makeText(ProfilInfo.this, "Error getting documents", Toast.LENGTH_SHORT).show();
                         }

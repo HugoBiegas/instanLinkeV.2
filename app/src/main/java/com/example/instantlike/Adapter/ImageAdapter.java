@@ -113,6 +113,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                     Intent intent = new Intent(context, InfoPoste.class);
                     intent.putExtra("image", imageListUri.get(getAdapterPosition()));
                     intent.putExtra("name", imageListName.get(getAdapterPosition()));
+                    intent.putExtra("retour", false);
                     context.startActivity(intent);
                 }
             });
