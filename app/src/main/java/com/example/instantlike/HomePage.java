@@ -56,11 +56,11 @@ public class HomePage extends AppCompatActivity {
     private ArrayList<String> imageName = new ArrayList<>();
     private ArrayList<String> titreImage = new ArrayList<>();
     private ArrayList<String> descImage = new ArrayList<>();
-    private ImageButton home,message,profilInfoPoste;
+    private ImageButton home, message, profilInfoPoste;
 
     private ArrayList<String> iconListToken = new ArrayList<String>();
-    private int incrémentPostUtilisateur=0;
-    private  ArrayList<String> iconList = new ArrayList<>();
+    private int incrémentPostUtilisateur = 0;
+    private ArrayList<String> iconList = new ArrayList<>();
     private ArrayList<String> nomUster = new ArrayList<String>();
     private FirebaseUser currentUser;
 
@@ -101,7 +101,8 @@ public class HomePage extends AppCompatActivity {
         cliqueProfilInfoPost();
         cliqueHome();
     }
-    private void cliquemessage(){
+
+    private void cliquemessage() {
         message.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,7 +111,8 @@ public class HomePage extends AppCompatActivity {
             }
         });
     }
-    private void cliqueProfilInfoPost(){
+
+    private void cliqueProfilInfoPost() {
         profilInfoPoste.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -120,7 +122,7 @@ public class HomePage extends AppCompatActivity {
         });
     }
 
-    private void cliqueHome(){
+    private void cliqueHome() {
         home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -176,10 +178,10 @@ public class HomePage extends AppCompatActivity {
         storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
             @Override
             public void onSuccess(ListResult listResult) {
-                for (int i=0; i<iconListToken.size();i++){
+                for (int i = 0; i < iconListToken.size(); i++) {
                     for (StorageReference fileRef : listResult.getItems()) {
                         String c = fileRef.getName();
-                        if(c.contains(iconListToken.get(i)) == true){
+                        if (c.contains(iconListToken.get(i)) == true) {
                             //actualisations pour avoir un chiffre différent a chaque foi
                             fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
@@ -192,7 +194,7 @@ public class HomePage extends AppCompatActivity {
                                 public void onSuccess(Uri uri) {
                                     final RecyclerView recyclerView = findViewById(R.id.recyclerView);
                                     recyclerView.setLayoutManager(new LinearLayoutManager(HomePage.this));
-                                    ImageAdapter adapter = new ImageAdapter(imageListUri, imageListName, HomePage.this, titreImage, descImage, imageName, iconList,nomUster);
+                                    ImageAdapter adapter = new ImageAdapter(imageListUri, imageListName, HomePage.this, titreImage, descImage, imageName, iconList, nomUster);
                                     recyclerView.setAdapter(adapter);
                                 }
                             });
@@ -242,7 +244,9 @@ public class HomePage extends AppCompatActivity {
                                     desc = desc.substring(0, desc.indexOf(","));
                                 descImage.add(desc);
                             }
+                            //récupérer nom uilisateur
                             nomUtilisateur();
+                            //récupérer les icone de l'utiliisateur
                             iconUtilisateur();
                         } else {
                             Toast.makeText(HomePage.this, "Error getting documents", Toast.LENGTH_SHORT).show();
@@ -263,7 +267,7 @@ public class HomePage extends AppCompatActivity {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     //récupérations du nom de l'image
                                     String userName = document.getId();
-                                    if (userName.equals(iconListToken.get(i))){
+                                    if (userName.equals(iconListToken.get(i))) {
                                         String user = document.getData().toString();
                                         user = user.substring(user.indexOf("username=") + 9);
                                         if (user.indexOf(",") == -1)

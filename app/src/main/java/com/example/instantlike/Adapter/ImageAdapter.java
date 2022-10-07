@@ -23,15 +23,15 @@ import java.util.ArrayList;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
-    private ArrayList<String> imageListUri, imageListName, titre, descriptions, imageName, iconList,nomUster;
+    private ArrayList<String> imageListUri, imageListName, titre, descriptions, imageName, iconList, nomUster;
     private Context context;
     private TextView titreView, descriptionsView, nomUtilisateur;
-    private ImageButton Like,partage;
+    private ImageButton Like, partage;
 
     /**
      * initialise les variables quand on appelle la clase avec les paramétres données
      */
-    public ImageAdapter(ArrayList<String> imageListUri, ArrayList<String> imageListName, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> imageName, ArrayList<String> iconList,ArrayList<String> nomUster) {
+    public ImageAdapter(ArrayList<String> imageListUri, ArrayList<String> imageListName, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> imageName, ArrayList<String> iconList, ArrayList<String> nomUster) {
         this.imageListUri = imageListUri;
         this.imageListName = imageListName;
         this.context = context;
@@ -95,7 +95,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView imageView,Icone;
+        ImageView imageView, Icone;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
