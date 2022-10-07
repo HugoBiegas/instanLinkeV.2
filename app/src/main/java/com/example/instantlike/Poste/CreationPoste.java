@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.instantlike.Connection.Login;
 import com.example.instantlike.HomePage;
+import com.example.instantlike.Profil.ProfilInfo;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -190,6 +191,12 @@ public class CreationPoste extends AppCompatActivity {
                     posterImage(photoUri);
                     //rajouter dans firebase le titre et le commentaire
                     ajoutBDFirestore(titre.getText().toString(), descriptions.getText().toString());
+                    likeIni();
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     startActivity(new Intent(getApplicationContext(), HomePage.class));
                     finish();
                 } else
@@ -215,6 +222,17 @@ public class CreationPoste extends AppCompatActivity {
             }
         });
 
+    }
+    private void likeIni(){
+        DocumentReference documentReference = fStore.collection("like").document(uuid);
+        Map<String, Object> donnée = new HashMap<>();
+        donnée.put("nbLike", 0);
+        documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("TAG", "onSuccess: Les données son créer");
+            }
+        });
     }
 
     /**
