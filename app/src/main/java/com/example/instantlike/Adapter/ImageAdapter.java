@@ -13,13 +13,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.example.instantlike.HomePage;
 import com.example.instantlike.Poste.InfoPoste;
-import com.example.instantlike.Profil.ProfilInfo;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,13 +24,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firestore.v1.WriteResult;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -43,8 +36,14 @@ import java.util.Map;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
-    private ArrayList<String> imageListUri, imageListName, titre, descriptions, imageName, iconList, nomUster;
-    private Context context;
+    private final ArrayList<String> imageListUri;
+    private final ArrayList<String> imageListName;
+    private final ArrayList<String> titre;
+    private final ArrayList<String> descriptions;
+    private final ArrayList<String> imageName;
+    private final ArrayList<String> iconList;
+    private final ArrayList<String> nomUster;
+    private final Context context;
     private TextView titreView, descriptionsView, nomUtilisateur, likeNbActu;
     private ImageButton Like, partage;
     private Button follow;

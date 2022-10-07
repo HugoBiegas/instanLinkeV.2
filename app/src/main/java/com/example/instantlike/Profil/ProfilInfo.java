@@ -1,10 +1,5 @@
 package com.example.instantlike.Profil;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,11 +7,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.instantlike.Adapter.ImageAdapter;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.instantlike.Adapter.PublicationAdapter;
 import com.example.instantlike.Connection.Login;
 import com.example.instantlike.HomePage;
@@ -35,18 +33,17 @@ import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 
 public class ProfilInfo extends AppCompatActivity {
 
-    private ImageButton home,message,profilInfoPoste;
-    private TextView nom,publications,follower,suivi;
+    private ImageButton home, message, profilInfoPoste;
+    private TextView nom, publications, follower, suivi;
     private ImageView icon;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser currentUser;
-    private int nbPoste = 0, nbSuivi=0,nbFollow=0;
-    private ArrayList<String> imageListUri = new ArrayList<>(), NomImagePoste= new ArrayList<>(), DatePoste= new ArrayList<>(),LikePoste= new ArrayList<>();
+    private int nbPoste = 0, nbSuivi = 0, nbFollow = 0;
+    private ArrayList<String> imageListUri = new ArrayList<>(), NomImagePoste = new ArrayList<>(), DatePoste = new ArrayList<>(), LikePoste = new ArrayList<>();
 
 
     public void onStart() {
@@ -84,6 +81,7 @@ public class ProfilInfo extends AppCompatActivity {
         followSuivi();
 
     }
+
     private void PublicationUtilisateur() {
         //bar de progrations de la conections a firebase
         //créations du recycler
@@ -95,7 +93,7 @@ public class ProfilInfo extends AppCompatActivity {
                 for (int i = 0; i < NomImagePoste.size(); i++) {
                     // on fait une boucle pour stocker les images une par une
                     for (StorageReference fileRef : listResult.getItems()) {
-                        if (fileRef.getName().equals(NomImagePoste.get(i))){
+                        if (fileRef.getName().equals(NomImagePoste.get(i))) {
                             //actualisations pour avoir un chiffre différent a chaque foi
                             fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
@@ -120,7 +118,8 @@ public class ProfilInfo extends AppCompatActivity {
             }
         });
     }
-    private void followSuivi(){
+
+    private void followSuivi() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("followSuivi")
                 .get()
@@ -130,16 +129,16 @@ public class ProfilInfo extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String followSuivi = document.getId();
-                                String Suivi = followSuivi.substring(followSuivi.indexOf(":")+1);
-                                String follow = followSuivi.substring(0,followSuivi.indexOf(":"));
-                                if (Suivi.equals(currentUser.getUid())){
+                                String Suivi = followSuivi.substring(followSuivi.indexOf(":") + 1);
+                                String follow = followSuivi.substring(0, followSuivi.indexOf(":"));
+                                if (Suivi.equals(currentUser.getUid())) {
                                     nbSuivi++;
-                                }else if (follow.equals(currentUser.getUid())){
+                                } else if (follow.equals(currentUser.getUid())) {
                                     nbFollow++;
                                 }
                             }
-                            follower.setText("Follower : "+nbFollow);
-                            suivi.setText("Suivi : "+nbSuivi);
+                            follower.setText("Follower : " + nbFollow);
+                            suivi.setText("Suivi : " + nbSuivi);
                         } else {
                             Toast.makeText(ProfilInfo.this, "Error getting documents", Toast.LENGTH_SHORT).show();
                         }
@@ -148,8 +147,7 @@ public class ProfilInfo extends AppCompatActivity {
     }
 
 
-
-    private void publicationNB(){
+    private void publicationNB() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("images")
                 .get()
@@ -165,7 +163,7 @@ public class ProfilInfo extends AppCompatActivity {
                                 else
                                     userposte = userposte.substring(0, userposte.indexOf(","));
                                 //récupérations du nom de l'image
-                                if(userposte.equals(currentUser.getUid())){
+                                if (userposte.equals(currentUser.getUid())) {
                                     nbPoste++;
                                     NomImagePoste.add(document.getId());
                                     //nb Like
@@ -188,7 +186,7 @@ public class ProfilInfo extends AppCompatActivity {
                                     DatePoste.add(dateposte);
                                 }
                             }
-                            publications.setText("Publications : "+nbPoste);
+                            publications.setText("Publications : " + nbPoste);
                             PublicationUtilisateur();
                         } else {
                             Toast.makeText(ProfilInfo.this, "Error getting documents", Toast.LENGTH_SHORT).show();
@@ -198,7 +196,7 @@ public class ProfilInfo extends AppCompatActivity {
     }
 
 
-    private void nomUtilisateur(){
+    private void nomUtilisateur() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users")
                 .get()
@@ -208,7 +206,7 @@ public class ProfilInfo extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 //récupérations du nom de l'image
-                                if(document.getId().equals(currentUser.getUid())){
+                                if (document.getId().equals(currentUser.getUid())) {
                                     String nomUser = document.getData().toString();
                                     nomUser = nomUser.substring(nomUser.indexOf("username=") + 9);
                                     if (nomUser.indexOf(",") == -1)
@@ -233,18 +231,18 @@ public class ProfilInfo extends AppCompatActivity {
         storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
             @Override
             public void onSuccess(ListResult listResult) {
-                    for (StorageReference fileRef : listResult.getItems()) {
-                        if (fileRef.getName().contains(currentUser.getUid().toString())){
-                            //actualisations pour avoir un chiffre différent a chaque foi
-                            fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    Picasso.get().load(uri.toString()).into(icon);
-                                }
-                            });
-                        }
-
+                for (StorageReference fileRef : listResult.getItems()) {
+                    if (fileRef.getName().contains(currentUser.getUid().toString())) {
+                        //actualisations pour avoir un chiffre différent a chaque foi
+                        fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Picasso.get().load(uri.toString()).into(icon);
+                            }
+                        });
                     }
+
+                }
 
                 // on fait une boucle pour stocker les images une par une
             }
@@ -253,17 +251,7 @@ public class ProfilInfo extends AppCompatActivity {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-    private void cliquemessage(){
+    private void cliquemessage() {
         message.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -272,7 +260,8 @@ public class ProfilInfo extends AppCompatActivity {
             }
         });
     }
-    private void cliqueProfilInfoPost(){
+
+    private void cliqueProfilInfoPost() {
         profilInfoPoste.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -282,7 +271,7 @@ public class ProfilInfo extends AppCompatActivity {
         });
     }
 
-    private void cliqueHome(){
+    private void cliqueHome() {
         home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

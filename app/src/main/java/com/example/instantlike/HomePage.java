@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.collection.ArraySet;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,7 +22,6 @@ import com.example.instantlike.Adapter.ImageAdapter;
 import com.example.instantlike.Connection.Login;
 import com.example.instantlike.InteractionUtilisateur.UtilisateurMP;
 import com.example.instantlike.Poste.CreationPoste;
-import com.example.instantlike.Poste.InfoPoste;
 import com.example.instantlike.Profil.ProfilInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;

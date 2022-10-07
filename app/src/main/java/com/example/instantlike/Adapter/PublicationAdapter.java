@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,7 +16,6 @@ import com.example.instantlike.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class PublicationAdapter extends RecyclerView.Adapter<PublicationAdapter.ViewHolder> {
 
@@ -29,7 +27,7 @@ public class PublicationAdapter extends RecyclerView.Adapter<PublicationAdapter.
     /**
      * initialise les variables quand on appelle la clase avec les paramétres données
      */
-    public PublicationAdapter(ArrayList<String> iconListUri, Context context, ArrayList<String> date, ArrayList<String> like,ArrayList<String> imageListName) {
+    public PublicationAdapter(ArrayList<String> iconListUri, Context context, ArrayList<String> date, ArrayList<String> like, ArrayList<String> imageListName) {
         this.iconListUri = iconListUri;
         this.context = context;
         this.date = date;

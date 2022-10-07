@@ -20,7 +20,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.instantlike.Connection.Login;
 import com.example.instantlike.HomePage;
-import com.example.instantlike.Profil.ProfilInfo;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -223,7 +222,8 @@ public class CreationPoste extends AppCompatActivity {
         });
 
     }
-    private void likeIni(){
+
+    private void likeIni() {
         DocumentReference documentReference = fStore.collection("like").document(uuid);
         Map<String, Object> donnée = new HashMap<>();
         donnée.put("nbLike", 0);
