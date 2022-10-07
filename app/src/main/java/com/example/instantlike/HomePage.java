@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.collection.ArraySet;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -57,12 +58,18 @@ public class HomePage extends AppCompatActivity {
     private ArrayList<String> descImage = new ArrayList<>();
     private ImageButton home,message,profilInfoPoste;
 
+    private ArrayList<String> iconListToken = new ArrayList<String>();
+    private int incrémentPostUtilisateur=0;
+    private  ArrayList<String> iconList = new ArrayList<>();
+    private ArrayList<String> nomUster = new ArrayList<String>();
+    private FirebaseUser currentUser;
+
 
     public void onStart() {
         super.onStart();
         // Check si l'user est connecté
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
@@ -162,6 +169,43 @@ public class HomePage extends AppCompatActivity {
         });
     }
 
+    private void iconUtilisateur() {
+        //créations du recycler
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone");
+        //on vas chercher les images dans la BD
+        storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+            @Override
+            public void onSuccess(ListResult listResult) {
+                for (int i=0; i<iconListToken.size();i++){
+                    for (StorageReference fileRef : listResult.getItems()) {
+                        String c = fileRef.getName();
+                        if(c.contains(iconListToken.get(i)) == true){
+                            //actualisations pour avoir un chiffre différent a chaque foi
+                            fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    //on récupére uri qui est le lien ou trouver les données
+                                    iconList.add(uri.toString());
+                                }
+                            }).addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    final RecyclerView recyclerView = findViewById(R.id.recyclerView);
+                                    recyclerView.setLayoutManager(new LinearLayoutManager(HomePage.this));
+                                    ImageAdapter adapter = new ImageAdapter(imageListUri, imageListName, HomePage.this, titreImage, descImage, imageName, iconList,nomUster);
+                                    recyclerView.setAdapter(adapter);
+                                }
+                            });
+                            break;
+                        }
+                    }
+                }
+                // on fait une boucle pour stocker les images une par une
+            }
+        });
+
+    }
+
     private void titreDescNomImage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("images")
@@ -173,6 +217,14 @@ public class HomePage extends AppCompatActivity {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 //récupérations du nom de l'image
                                 imageName.add(document.getId());
+                                //récupérations la personne qui a poster le com
+                                String user = document.getData().toString();
+                                user = user.substring(user.indexOf("UserPoste=") + 10);
+                                if (user.indexOf(",") == -1)
+                                    user = user.substring(0, user.indexOf("}"));
+                                else
+                                    user = user.substring(0, user.indexOf(","));
+                                iconListToken.add(user);
                                 //récupérations des titre
                                 String titre = document.getData().toString();
                                 titre = titre.substring(titre.indexOf("Titre=") + 6);
@@ -190,12 +242,8 @@ public class HomePage extends AppCompatActivity {
                                     desc = desc.substring(0, desc.indexOf(","));
                                 descImage.add(desc);
                             }
-                            final RecyclerView recyclerView = findViewById(R.id.recyclerView);
-                            recyclerView.setLayoutManager(new LinearLayoutManager(HomePage.this));
-
-                            ImageAdapter adapter = new ImageAdapter(imageListUri, imageListName, HomePage.this, titreImage, descImage, imageName);
-                            recyclerView.setAdapter(adapter);
-
+                            nomUtilisateur();
+                            iconUtilisateur();
                         } else {
                             Toast.makeText(HomePage.this, "Error getting documents", Toast.LENGTH_SHORT).show();
                         }
@@ -203,6 +251,36 @@ public class HomePage extends AppCompatActivity {
                 });
     }
 
+    private void nomUtilisateur() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (int i = 0; i < iconListToken.size(); i++) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    //récupérations du nom de l'image
+                                    String userName = document.getId();
+                                    if (userName.equals(iconListToken.get(i))){
+                                        String user = document.getData().toString();
+                                        user = user.substring(user.indexOf("username=") + 9);
+                                        if (user.indexOf(",") == -1)
+                                            user = user.substring(0, user.indexOf("}"));
+                                        else
+                                            user = user.substring(0, user.indexOf(","));
+                                        nomUster.add(user);
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            Toast.makeText(HomePage.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
 
     /**
      * méthode pour aller ajouter un poste tout en supriment les event listeneur

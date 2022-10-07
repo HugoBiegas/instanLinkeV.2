@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.instantlike.HomePage;
 import com.example.instantlike.Poste.InfoPoste;
 import com.example.instantlike.R;
 import com.squareup.picasso.Picasso;
@@ -22,21 +23,23 @@ import java.util.ArrayList;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
-    private ArrayList<String> imageListUri, imageListName, titre, descriptions, imageName;
+    private ArrayList<String> imageListUri, imageListName, titre, descriptions, imageName, iconList,nomUster;
     private Context context;
-    private TextView titreView, descriptionsView;
+    private TextView titreView, descriptionsView, nomUtilisateur;
     private ImageButton Like,partage;
 
     /**
      * initialise les variables quand on appelle la clase avec les paramétres données
      */
-    public ImageAdapter(ArrayList<String> imageListUri, ArrayList<String> imageListName, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> imageName) {
+    public ImageAdapter(ArrayList<String> imageListUri, ArrayList<String> imageListName, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> imageName, ArrayList<String> iconList,ArrayList<String> nomUster) {
         this.imageListUri = imageListUri;
         this.imageListName = imageListName;
         this.context = context;
         this.titre = titre;
         this.descriptions = descriptions;
         this.imageName = imageName;
+        this.iconList = iconList;
+        this.nomUster = nomUster;
     }
 
     /**
@@ -62,6 +65,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder, int position) {
+        Picasso.get().load(iconList.get(position)).into(holder.Icone);
         //créations du recycleur avec tout les image
         Picasso.get().load(imageListUri.get(position)).into(holder.imageView);
         String testeNomImage = imageListName.get(position);
@@ -72,6 +76,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         }
         titreView.setText(titre.get(i));
         descriptionsView.setText(descriptions.get(i));
+        nomUtilisateur.setText(nomUster.get(position));
     }
 
     /**
@@ -81,7 +86,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     @Override
     public int getItemCount() {
-        return imageListUri.size();
+        return iconList.size();
     }
 
     /**
@@ -90,12 +95,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView imageView;
+        ImageView imageView,Icone;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             //récupérations de l'image
-            imageView = itemView.findViewById(R.id.imageView);
+            imageView = itemView.findViewById(R.id.imageViewpPoste);
+            nomUtilisateur = itemView.findViewById(R.id.NomUtilisateurPost);
+            Icone = itemView.findViewById(R.id.iconUtilisateurPost);
             titreView = itemView.findViewById(R.id.titre);
             descriptionsView = itemView.findViewById(R.id.descriptions);
             Like = itemView.findViewById(R.id.LikeBTNPost);
