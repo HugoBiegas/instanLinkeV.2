@@ -2,11 +2,34 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/linearborder">
+    android:background="@color/black">
+
+    <ImageView
+        android:id="@+id/iconCom"
+        android:layout_width="180px"
+        android:layout_height="180px"
+        android:src="@color/white"
+        />
+
+    <TextView
+        android:id="@+id/nomUtilisateurCom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/iconCom"
+        android:text="nom"
+        android:textColor="@color/white"
+        />
+
     <TextView
         android:id="@+id/unCommentaire"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/iconCom"
+        android:layout_below="@+id/nomUtilisateurCom"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        android:text="com"
+        android:textColor="@color/white"
         />
 
 </RelativeLayout>

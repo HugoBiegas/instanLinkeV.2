@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Poste.InfoPoste">
+    tools:context=".Poste.InfoPoste"
+    android:background="@color/black">
 
     <Button
         android:id="@+id/retourPoste"
@@ -33,13 +34,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/imagePoste"
-        android:hint="commentaire" />
+        android:hint="commentaire"
+        android:background="@color/white"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/commentaire"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/adcommentaire"/>
+        android:layout_below="@+id/adcommentaire"
+        android:background="@color/white"/>
 
 
 </RelativeLayout>

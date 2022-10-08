@@ -43,6 +43,7 @@ public class InfoPoste extends AppCompatActivity {
     private ImageView imagePoste;
     private String photoPath, nomImage;
     private ArrayList<String> gererCome = new ArrayList<>();
+    private ArrayList<String> idUtilisateurCom = new ArrayList<>();
     private EditText commmenter;
     private FirebaseAuth mAuth;
     private String uuid;
@@ -95,6 +96,7 @@ public class InfoPoste extends AppCompatActivity {
                 if (commmenter.getText().toString().length() != 0) {
                     FirebaseFirestore fStore = FirebaseFirestore.getInstance();
                     String userID = fAuth.getCurrentUser().getUid();
+                    //image : personne qui commante
                     DocumentReference documentReference = fStore.collection("commentaire").document(uuid + ":" + userID);
                     documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
@@ -128,7 +130,6 @@ public class InfoPoste extends AppCompatActivity {
                                         i++;
                                     }
                                     donnée.put("Com" + i, commmenter.getText().toString());
-                                    donnée.put("UserCom", userID);
                                     //créations des donnée
                                     documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
@@ -141,7 +142,6 @@ public class InfoPoste extends AppCompatActivity {
                                     //si le document existe pas
                                     Map<String, Object> donnée = new HashMap<>();
                                     donnée.put("Com0", commmenter.getText().toString());
-                                    donnée.put("UserCom", userID);
                                     documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
@@ -182,11 +182,15 @@ public class InfoPoste extends AppCompatActivity {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 //on regarde que se sont bien les commentaire pour cette image
                                 if (document.getId().contains(uuid)) {
+
                                     //récupérations des com
                                     String com = document.getData().toString();
                                     String concaténations;
+                                    String idUser = document.getId();
+                                    idUser = idUser.substring(idUser.indexOf(":")+1);
                                     int i = 0;
                                     while (com.length() != 0) {
+
                                         //on regarde si il a écrie un commentaire
                                         if (com.indexOf("Com" + i) == -1)
                                             break;
@@ -203,13 +207,14 @@ public class InfoPoste extends AppCompatActivity {
                                         else
                                             concaténations = concaténations.substring(0, concaténations.indexOf(","));
                                         i++;
+                                        idUtilisateurCom.add(idUser);
                                         gererCome.add(concaténations);
                                     }
+                                    final RecyclerView recyclerView = findViewById(R.id.commentaire);
+                                    recyclerView.setLayoutManager(new LinearLayoutManager(InfoPoste.this));
+                                    ComAdapter adapter = new ComAdapter(gererCome, InfoPoste.this,idUtilisateurCom);
+                                    recyclerView.setAdapter(adapter);
                                 }
-                                final RecyclerView recyclerView = findViewById(R.id.commentaire);
-                                recyclerView.setLayoutManager(new LinearLayoutManager(InfoPoste.this));
-                                ComAdapter adapter = new ComAdapter(gererCome, InfoPoste.this);
-                                recyclerView.setAdapter(adapter);
                             }
                         } else {
                             Toast.makeText(InfoPoste.this, "Error getting documents", Toast.LENGTH_SHORT).show();
