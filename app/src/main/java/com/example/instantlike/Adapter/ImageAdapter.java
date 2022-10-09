@@ -1,5 +1,7 @@
 package com.example.instantlike.Adapter;
 
+import static android.provider.Settings.System.getString;
+
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -297,6 +299,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 @Override
                 public void onClick(View view) {
                     Toast.makeText(context, "ces partager !", Toast.LENGTH_SHORT).show();
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setType("text/plain");
+                    String shareBody = imageListUri.get(getAdapterPosition());
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
+                    context.startActivity(Intent.createChooser(shareIntent,titre.get(getAdapterPosition())));
                 }
             });
 
