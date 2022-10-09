@@ -24,12 +24,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 public class ComAdapter extends RecyclerView.Adapter<ComAdapter.ViewHolder> {
 
-    private ArrayList<String> comList, idUtilisateurCom,nomUtil, iconUtil;
+    private ArrayList<String> comList, iconUtilisateurCom,nomUtilisateurCom;
     private Context context;
     private TextView com, nom;
     private ImageView icon;
@@ -37,10 +38,11 @@ public class ComAdapter extends RecyclerView.Adapter<ComAdapter.ViewHolder> {
     /**
      * initialise les variables quand on appelle la clase avec les paramétres données
      */
-    public ComAdapter(ArrayList<String> comList, Context context, ArrayList<String> idUtilisateurCom) {
+    public ComAdapter(ArrayList<String> comList, Context context, ArrayList<String> iconUtilisateurCom,ArrayList<String> nomUtilisateurCom) {
         this.comList = comList;
         this.context = context;
-        this.idUtilisateurCom = idUtilisateurCom;
+        this.iconUtilisateurCom = iconUtilisateurCom;
+        this.nomUtilisateurCom =nomUtilisateurCom;
     }
 
     /**
@@ -67,63 +69,10 @@ public class ComAdapter extends RecyclerView.Adapter<ComAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ComAdapter.ViewHolder holder, int position) {
         com.setText(comList.get(position));
-        ininom(position);
-        iniIcon(position);
-
+        nom.setText(nomUtilisateurCom.get(position));
+        Picasso.get().load(iconUtilisateurCom.get(position)).into(icon);
     }
 
-    private void iniIcon(int position) {
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone");
-        //on vas chercher les images dans la BD
-        storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
-            @Override
-            public void onSuccess(ListResult listResult) {
-                for (StorageReference fileRef : listResult.getItems()) {
-                    String c = fileRef.getName();
-                    if (c.contains(idUtilisateurCom.get(position))) {
-                        //actualisations pour avoir un chiffre différent a chaque foi
-                        fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Glide.with(context /* context */).load(uri.toString()).into(icon);                            }
-                        });
-                        break;
-                    }
-                }
-
-                // on fait une boucle pour stocker les images une par une
-            }
-        });
-    }
-
-    private void ininom(int position) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.getId().equals(idUtilisateurCom.get(position))) {
-                                    //date du poste
-                                    String userName = document.getData().toString();
-                                    userName = userName.substring(userName.indexOf("username=") + 9);
-                                    if (userName.indexOf(",") == -1)
-                                        userName = userName.substring(0, userName.indexOf("}"));
-                                    else
-                                        userName = userName.substring(0, userName.indexOf(","));
-                                    Toast.makeText(context, "je passe", Toast.LENGTH_SHORT).show();
-                                    nom.setText(userName);
-                                    break;
-                                }
-                            }
-                        } else {
-                            Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
 
     /**
      * récupérations de la dimentions du recycleur
@@ -131,7 +80,7 @@ public class ComAdapter extends RecyclerView.Adapter<ComAdapter.ViewHolder> {
      * @return
      */
     @Override
-    public int getItemCount() {return idUtilisateurCom.size();}
+    public int getItemCount() {return iconUtilisateurCom.size();}
 
     /**
      * méthode pour définir tout les élément de la view que nous allons utiliser

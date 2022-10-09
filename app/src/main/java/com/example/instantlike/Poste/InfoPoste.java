@@ -33,6 +33,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +52,8 @@ public class InfoPoste extends AppCompatActivity {
     private String uuid;
     private FirebaseAuth fAuth = FirebaseAuth.getInstance();
     private Boolean retourInfo;
+    private ArrayList<String> iconUtilisateurCom = new ArrayList<>();
+    private ArrayList<String> nomUtilisateurCom = new ArrayList<>();
 
     public void onStart() {
         super.onStart();
@@ -134,10 +139,11 @@ public class InfoPoste extends AppCompatActivity {
                                     documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
+                                            commmenter.setText("");
                                             Log.d("TAG", "onSuccess: Les données son créer");
                                         }
                                     });
-                                    commmenter.setText("");
+
                                 } else {
                                     //si le document existe pas
                                     Map<String, Object> donnée = new HashMap<>();
@@ -161,6 +167,9 @@ public class InfoPoste extends AppCompatActivity {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    nomUtilisateurCom.clear();
+                    iconUtilisateurCom.clear();
+                    idUtilisateurCom.clear();
                     gererCome.clear();
                     //actualiser les coms
                     ComeAffichage();
@@ -187,7 +196,7 @@ public class InfoPoste extends AppCompatActivity {
                                     String com = document.getData().toString();
                                     String concaténations;
                                     String idUser = document.getId();
-                                    idUser = idUser.substring(idUser.indexOf(":")+1);
+                                    idUser = idUser.substring(idUser.indexOf(":") + 1);
                                     int i = 0;
                                     while (com.length() != 0) {
 
@@ -210,14 +219,75 @@ public class InfoPoste extends AppCompatActivity {
                                         idUtilisateurCom.add(idUser);
                                         gererCome.add(concaténations);
                                     }
-                                    final RecyclerView recyclerView = findViewById(R.id.commentaire);
-                                    recyclerView.setLayoutManager(new LinearLayoutManager(InfoPoste.this));
-                                    ComAdapter adapter = new ComAdapter(gererCome, InfoPoste.this,idUtilisateurCom);
-                                    recyclerView.setAdapter(adapter);
                                 }
                             }
+                            ininom();
+                            iniIcon();
                         } else {
                             Toast.makeText(InfoPoste.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+
+    private void iniIcon() {
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone");
+        //on vas chercher les images dans la BD
+        storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+            @Override
+            public void onSuccess(ListResult listResult) {
+                for (int i = 0; i < idUtilisateurCom.size(); i++) {
+                    for (StorageReference fileRef : listResult.getItems()) {
+                        String c = fileRef.getName();
+                        if (c.contains(idUtilisateurCom.get(i))) {
+                            //actualisations pour avoir un chiffre différent a chaque foi
+                            fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    iconUtilisateurCom.add(uri.toString());
+                                }
+                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    final RecyclerView recyclerView = findViewById(R.id.commentaire);
+                                    recyclerView.setLayoutManager(new LinearLayoutManager(InfoPoste.this));
+                                    ComAdapter adapter = new ComAdapter(gererCome, InfoPoste.this, iconUtilisateurCom, nomUtilisateurCom);
+                                    recyclerView.setAdapter(adapter);
+                                }
+                            });
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void ininom() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (int i = 0; i < idUtilisateurCom.size(); i++) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    if (document.getId().equals(idUtilisateurCom.get(i))) {
+                                        //date du poste
+                                        String userName = document.getData().toString();
+                                        userName = userName.substring(userName.indexOf("username=") + 9);
+                                        if (userName.indexOf(",") == -1)
+                                            userName = userName.substring(0, userName.indexOf("}"));
+                                        else
+                                            userName = userName.substring(0, userName.indexOf(","));
+                                        nomUtilisateurCom.add(userName);
+                                        break;
+                                    }
+                                }
+                            }
+
                         }
                     }
                 });

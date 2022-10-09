@@ -6,11 +6,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +25,7 @@ import com.example.instantlike.Adapter.ImageAdapter;
 import com.example.instantlike.Connection.Login;
 import com.example.instantlike.InteractionUtilisateur.UtilisateurMP;
 import com.example.instantlike.Poste.CreationPoste;
+import com.example.instantlike.Poste.InfoPoste;
 import com.example.instantlike.Profil.ProfilInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -45,7 +49,6 @@ public class HomePage extends AppCompatActivity {
     // vidéo pour l'appareile photo : https://www.youtube.com/watch?v=8890GpBwn9w
     // vidéo pour les liste view : https://www.youtube.com/watch?v=KY5vOVNqkGM
     private static final int RETOUR_PHOTO = 1;
-    private Button adImage, poste;
     private String photoPath = null;
     private Uri photoUir;
     private FirebaseAuth mAuth;
@@ -63,6 +66,7 @@ public class HomePage extends AppCompatActivity {
     private FirebaseUser currentUser;
 
 
+
     public void onStart() {
         super.onStart();
         // Check si l'user est connecté
@@ -75,11 +79,80 @@ public class HomePage extends AppCompatActivity {
         titreDescNomImage();
     }
 
+    private androidx.appcompat.widget.Toolbar toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        toolbar= findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        photoClique();
+        PosteClique();
         iniActivity();
+    }
+    private void photoClique(){
+        ImageButton photo = findViewById(R.id.action_photo);
+        photo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                adimage();
+            }
+        });
+    }
+    /**
+     * méthode qui mais en place l'appreille photo
+     * avec la créations de a à z de l'image en créent tout les données de l'image
+     */
+    private void adimage() {
+        //on crée l'appareille photo
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // on regarde si la personne a pris une photo et veux la valider
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            // on crée tout les données corespondent a l'image
+            String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+            File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            try {
+                File photoFile = File.createTempFile("photo" + time, ".jpg", photoDir);
+                photoPath = photoFile.getAbsolutePath();
+                photoUir = FileProvider.getUriForFile(HomePage.this, HomePage.this.getApplicationContext().getPackageName() + ".provider", photoFile);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUir);
+                startActivityForResult(intent, RETOUR_PHOTO);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * redéfinitions de la méthode onActivityResult qui permet d'avoir un retour sur la capture faite aux préalable
+     * tout en enlevent tout les évent listeneur
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // on regarde si le résultat de la photo et un  sucer si oui on peux créer un poste
+        if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK) {
+            Intent intent = new Intent(getApplicationContext(), CreationPoste.class);//créations de la page Game
+            intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
+            intent.putExtra("uri", photoUir);
+            startActivity(intent);//on lance l'activiter
+            finish();
+        }
+    }
+
+    private void PosteClique(){
+        ImageButton Poste = findViewById(R.id.action_poste);
+        Poste.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), CreationPoste.class));
+                finish();
+            }
+        });
     }
 
     /**
@@ -87,13 +160,9 @@ public class HomePage extends AppCompatActivity {
      * et de la mise en place des appelle de méthode
      */
     private void iniActivity() {
-        adImage = findViewById(R.id.adImageBtn);
-        poste = findViewById(R.id.poste);
         home = findViewById(R.id.HomeBTNPost);
         message = findViewById(R.id.MessageBTNPost);
         profilInfoPoste = findViewById(R.id.InfoPorofilBTNPost);
-        recupérationImage();
-        adPoste();
         imageScrol();
         cliquemessage();
         cliqueProfilInfoPost();
@@ -284,73 +353,4 @@ public class HomePage extends AppCompatActivity {
                 });
     }
 
-    /**
-     * méthode pour aller ajouter un poste tout en supriment les event listeneur
-     */
-    private void adPoste() {
-        poste.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), CreationPoste.class));
-                finish();
-            }
-        });
-    }
-
-    /**
-     * méthode pour créer l'appareille photo en cliquent sur le btn
-     */
-    private void recupérationImage() {
-        adImage.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                adimage();
-            }
-        });
-    }
-
-    /**
-     * méthode qui mais en place l'appreille photo
-     * avec la créations de a à z de l'image en créent tout les données de l'image
-     */
-    private void adimage() {
-        //on crée l'appareille photo
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // on regarde si la personne a pris une photo et veux la valider
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            // on crée tout les données corespondent a l'image
-            String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
-            File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-            try {
-                File photoFile = File.createTempFile("photo" + time, ".jpg", photoDir);
-                photoPath = photoFile.getAbsolutePath();
-                photoUir = FileProvider.getUriForFile(HomePage.this, HomePage.this.getApplicationContext().getPackageName() + ".provider", photoFile);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUir);
-                startActivityForResult(intent, RETOUR_PHOTO);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * redéfinitions de la méthode onActivityResult qui permet d'avoir un retour sur la capture faite aux préalable
-     * tout en enlevent tout les évent listeneur
-     *
-     * @param requestCode
-     * @param resultCode
-     * @param data
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // on regarde si le résultat de la photo et un  sucer si oui on peux créer un poste
-        if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK) {
-            Intent intent = new Intent(getApplicationContext(), CreationPoste.class);//créations de la page Game
-            intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
-            intent.putExtra("uri", photoUir);
-            startActivity(intent);//on lance l'activiter
-            finish();
-        }
-    }
 }

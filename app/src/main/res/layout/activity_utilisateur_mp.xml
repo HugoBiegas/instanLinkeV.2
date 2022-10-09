@@ -7,14 +7,19 @@
     tools:context=".InteractionUtilisateur.UtilisateurMP"
     android:background="@color/black">
 
+    <!-- Incluez votre toolbar -->
+    <include layout="@layout/activity_toolbar"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMPutilisateur"
         android:layout_width="match_parent"
-        android:layout_height="625dp"
-        android:layout_marginTop="50dp" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
+        android:layout_above="@+id/HomeBTNMpUtilisateur"/>
 
 
     <ImageButton
+        android:layout_alignParentBottom="true"
         android:clickable="true"
         android:src="@drawable/homenonactif"
         android:id="@+id/HomeBTNMpUtilisateur"
@@ -22,12 +27,12 @@
         android:layout_height="wrap_content"
         android:background="@color/black"
         android:layout_marginTop="7dp"
-        android:layout_below="@+id/recyclerViewMPutilisateur"
         android:layout_toLeftOf="@+id/MessageBTNMpUtilisateur"
         android:text="Button"
         android:layout_marginRight="30dp"/>
 
     <ImageButton
+        android:layout_alignParentBottom="true"
         android:clickable="true"
         android:background="@color/black"
         android:src="@drawable/messageactif"
@@ -36,10 +41,10 @@
         android:id="@+id/MessageBTNMpUtilisateur"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/recyclerViewMPutilisateur"
         android:text="Button" />
 
     <ImageButton
+        android:layout_alignParentBottom="true"
         android:clickable="true"
         android:src="@drawable/infoprofilnonactif"
         android:background="@color/black"
@@ -47,7 +52,6 @@
         android:id="@+id/InfoPorofilBTNMpUtilisateur"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/recyclerViewMPutilisateur"
         android:layout_toRightOf="@+id/MessageBTNMpUtilisateur"
         android:text="Button"
         android:layout_marginLeft="30dp"/>
