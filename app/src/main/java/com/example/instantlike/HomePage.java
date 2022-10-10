@@ -16,6 +16,7 @@ import android.widget.Toast;
 import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,7 +33,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -76,7 +80,6 @@ public class HomePage extends AppCompatActivity {
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
         }
-        titreDescNomImage();
     }
 
     private androidx.appcompat.widget.Toolbar toolbar;
@@ -86,10 +89,34 @@ public class HomePage extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         toolbar= findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        testMessage();
         photoClique();
         PosteClique();
         iniActivity();
     }
+
+    //écouteur de images
+    private void testMessage(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference docRef = db.collection("images");
+        docRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (!value.isEmpty()){
+                    imageListUri.clear();
+                    imageListName.clear();
+                    titreImage.clear();
+                    descImage.clear();
+                    imageName.clear();
+                    iconList.clear();
+                    nomUster.clear();
+                    titreDescNomImage();
+                }
+            }
+        });
+    }
+
+
     private void photoClique(){
         ImageButton photo = findViewById(R.id.action_photo);
         photo.setOnClickListener(new View.OnClickListener() {

@@ -10,11 +10,18 @@
     <!-- Incluez votre toolbar -->
     <include layout="@layout/activity_toolbar"/>
 
+    <SearchView
+        android:id="@+id/searchbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMPutilisateur"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="100dp"
         android:layout_above="@+id/HomeBTNMpUtilisateur"/>
 
 

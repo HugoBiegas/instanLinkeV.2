@@ -1,8 +1,5 @@
 package com.example.instantlike.InteractionUtilisateur;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,38 +7,75 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.instantlike.Adapter.MPAdapter;
+import com.example.instantlike.Connection.Login;
 import com.example.instantlike.HomePage;
 import com.example.instantlike.Poste.CreationPoste;
 import com.example.instantlike.Profil.ProfilInfo;
 import com.example.instantlike.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class UtilisateurMP extends AppCompatActivity {
 
-    private ImageButton home,message,profilInfoPoste;
+    private ImageButton home, message, profilInfoPoste;
+    private androidx.appcompat.widget.Toolbar toolbar;
+    private static final int RETOUR_PHOTO = 1;
+    private String photoPath;
+    private Uri photoUir;
+    private ArrayList<String> nomUtilisateurMP = new ArrayList<>();
+    private ArrayList<String> idUtilisateurMp = new ArrayList<>();
+    private ArrayList<String> iconUtilisateurMP = new ArrayList<>();
+    private FirebaseUser currentUser;
+
+    public void onStart() {
+        super.onStart();
+        // Check si l'user est connecté
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            startActivity(new Intent(getApplicationContext(), Login.class));
+            finish();
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_utilisateur_mp);
-        toolbar= findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         photoClique();
         PosteClique();
         iniActivity();
     }
 
-    private androidx.appcompat.widget.Toolbar toolbar;
-    private static final int RETOUR_PHOTO = 1;
-    private  String photoPath;
-    private Uri photoUir;
 
-    private void photoClique(){
+    private void photoClique() {
         ImageButton photo = findViewById(R.id.action_photo);
         photo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,6 +84,7 @@ public class UtilisateurMP extends AppCompatActivity {
             }
         });
     }
+
     /**
      * méthode qui mais en place l'appreille photo
      * avec la créations de a à z de l'image en créent tout les données de l'image
@@ -95,7 +130,7 @@ public class UtilisateurMP extends AppCompatActivity {
         }
     }
 
-    private void PosteClique(){
+    private void PosteClique() {
         ImageButton Poste = findViewById(R.id.action_poste);
         Poste.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,7 +142,6 @@ public class UtilisateurMP extends AppCompatActivity {
     }
 
 
-
     private void iniActivity() {
         home = findViewById(R.id.HomeBTNMpUtilisateur);
         message = findViewById(R.id.MessageBTNMpUtilisateur);
@@ -115,8 +149,11 @@ public class UtilisateurMP extends AppCompatActivity {
         cliquemessage();
         cliqueProfilInfoPost();
         cliqueHome();
+        utilisateurAMP();
     }
-    private void cliquemessage(){
+
+
+    private void cliquemessage() {
         message.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,7 +162,8 @@ public class UtilisateurMP extends AppCompatActivity {
             }
         });
     }
-    private void cliqueProfilInfoPost(){
+
+    private void cliqueProfilInfoPost() {
         profilInfoPoste.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -135,7 +173,7 @@ public class UtilisateurMP extends AppCompatActivity {
         });
     }
 
-    private void cliqueHome(){
+    private void cliqueHome() {
         home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -144,5 +182,72 @@ public class UtilisateurMP extends AppCompatActivity {
             }
         });
     }
+
+    private void utilisateurAMP() {
+        nomUtil();
+    }
+
+    private void nomUtil() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if (!document.getId().equals(currentUser.getUid())){
+                                    //date du poste
+                                    String userName = document.getData().toString();
+                                    userName = userName.substring(userName.indexOf("username=") + 9);
+                                    if (userName.indexOf(",") == -1)
+                                        userName = userName.substring(0, userName.indexOf("}"));
+                                    else
+                                        userName = userName.substring(0, userName.indexOf(","));
+                                    nomUtilisateurMP.add(userName);
+                                    idUtilisateurMp.add(document.getId());
+                                }
+                            }
+                            iconUtil();
+                        }
+                    }
+                });
+    }
+
+    private void iconUtil() {
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone");
+        //on vas chercher les images dans la BD
+        storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+            @Override
+            public void onSuccess(ListResult listResult) {
+                for (int i = 0; i < idUtilisateurMp.size(); i++) {
+                    for (StorageReference fileRef : listResult.getItems()) {
+                        String c = fileRef.getName();
+                        if (c.contains(idUtilisateurMp.get(i))){
+                            //actualisations pour avoir un chiffre différent a chaque foi
+                            fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    iconUtilisateurMP.add(uri.toString());
+                                }
+                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    final RecyclerView recyclerView = findViewById(R.id.recyclerViewMPutilisateur);
+                                    recyclerView.setLayoutManager(new LinearLayoutManager(UtilisateurMP.this));
+                                    MPAdapter adapter = new MPAdapter(UtilisateurMP.this, iconUtilisateurMP, nomUtilisateurMP, idUtilisateurMp);
+                                    recyclerView.setAdapter(adapter);
+                                }
+                            });
+                            break;
+                        }
+
+                    }
+                }
+
+            }
+        });
+    }
+
 
 }
