@@ -24,13 +24,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,6 +46,10 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
     private ArrayList<String> messageEnvoy = new ArrayList<>();
     private ArrayList<String> dateMessage = new ArrayList<>();
     private ArrayList<Boolean> droitOuGauche = new ArrayList<>();
+    private ArrayList<String> messageEnvoyBase = new ArrayList<>();
+    private ArrayList<Date> dateMessageBase = new ArrayList<>();
+    private ArrayList<Boolean> droitOuGaucheBase = new ArrayList<>();
+    private ArrayList<String> dateMessageRéel = new ArrayList<>();
     private FirebaseUser currentUser;
 
     public void onStart() {
@@ -85,13 +89,13 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
         }
     }
 
-    private void testMessage(){
+    private void testMessage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference docRef = db.collection("MP");
         docRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (!value.isEmpty()){
+                if (!value.isEmpty()) {
                     messageEnvoy.clear();
                     dateMessage.clear();
                     droitOuGauche.clear();
@@ -109,6 +113,7 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            //récupérations de tout les messages dans le désordre
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.getId().contains(currentUser.getUid()) && document.getId().contains(idUtilisateur)) {
                                     //date du poste
@@ -118,7 +123,7 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                                         message = message.substring(0, message.indexOf("}"));
                                     else
                                         message = message.substring(0, message.indexOf(","));
-                                    messageEnvoy.add(message);
+                                    messageEnvoyBase.add(message);
 
                                     String date = document.getData().toString();
                                     date = date.substring(date.indexOf("date=") + 5);
@@ -126,17 +131,50 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                                         date = date.substring(0, date.indexOf("}"));
                                     else
                                         date = date.substring(0, date.indexOf(","));
-                                    dateMessage.add(date);
+                                    try {
+                                        dateMessageBase.add(new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss").parse(date));
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                    dateMessageRéel.add(date);
 
                                     String c = document.getId();
                                     c = c.substring(c.indexOf(":") + 1);
-                                    if (c.equals(currentUser.getUid()))
+                                    if (c.contains(currentUser.getUid()))
                                         //droite
-                                        droitOuGauche.add(true);
+                                        droitOuGaucheBase.add(true);
                                     else
                                         //gauche
-                                        droitOuGauche.add(false);
+                                        droitOuGaucheBase.add(false);
                                 }
+                            }
+                            Toast.makeText(MessageEntreUtilisateur.this, ""+dateMessageBase.get(0), Toast.LENGTH_SHORT).show();
+                            //remetre dans le bonne hordre les messages
+                            int positions;
+                            Date ini;
+                            //trier par date de publications
+                            while (dateMessageBase.size() != 0) {
+                                positions = 0;
+                                ini = dateMessageBase.get(0);
+                                if (dateMessageBase.size() != 1){
+                                    for (int i = 1; i < dateMessageBase.size(); i++) {
+                                        if (dateMessageBase.get(i).before(ini)) {
+                                            ini = dateMessageBase.get(i);
+                                            positions = i;
+                                        }
+                                    }
+                                }
+
+                                //remplie les messages
+                                messageEnvoy.add(messageEnvoyBase.get(positions));
+                                droitOuGauche.add(droitOuGaucheBase.get(positions));
+                                dateMessage.add(dateMessageRéel.get(positions));
+
+                                //suprimer les messages
+                                dateMessageBase.remove(positions);
+                                droitOuGaucheBase.remove(positions);
+                                messageEnvoyBase.remove(positions);
+                                dateMessageRéel.remove(positions);
                             }
                             final RecyclerView recyclerView = findViewById(R.id.recyclerViewMP);
                             recyclerView.setLayoutManager(new LinearLayoutManager(MessageEntreUtilisateur.this));
@@ -151,12 +189,11 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
         envoi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MessageEntreUtilisateur.this, "je passe", Toast.LENGTH_SHORT).show();
-                if (message.getText().toString().length() != 0){
+                if (message.getText().toString().length() != 0) {
                     //créations du message dans la BD
-                    String date = new SimpleDateFormat("dd-MM-yyyy-HH-mm-ss").format(new Date());
+                    String date = new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss").format(new Date());
                     FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                    DocumentReference documentReference = fStore.collection("MP").document(currentUser.getUid()+":"+idUtilisateur+"::"+date);
+                    DocumentReference documentReference = fStore.collection("MP").document(currentUser.getUid() + ":" + idUtilisateur + "::" + date);
                     newMessage++;
                     Map<String, Object> donnée = new HashMap<>();
                     donnée.put("message", message.getText().toString());
@@ -168,7 +205,7 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                         }
                     });
                     message.setText("");
-                }else{
+                } else {
                     Toast.makeText(MessageEntreUtilisateur.this, "écriver un message", Toast.LENGTH_SHORT).show();
                 }
             }

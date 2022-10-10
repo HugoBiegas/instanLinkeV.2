@@ -18,10 +18,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MessageUtilisateur extends RecyclerView.Adapter<MessageUtilisateur.ViewHolder> {
 
-    private ArrayList<String> messageUtilisateur, dateMessage;
+    private ArrayList<String> messageUtilisateur;
+    private ArrayList<String> dateMessage;
     private ArrayList<Boolean> droitOuGauche;
     private Context context;
     private TextView nomD, date, nomG;
