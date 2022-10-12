@@ -2,23 +2,17 @@ package com.example.instantlike.Adapter;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.instantlike.InteractionUtilisateur.MessageEntreUtilisateur;
 import com.example.instantlike.R;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class MessageUtilisateur extends RecyclerView.Adapter<MessageUtilisateur.ViewHolder> {
 
@@ -32,11 +26,11 @@ public class MessageUtilisateur extends RecyclerView.Adapter<MessageUtilisateur.
     /**
      * initialise les variables quand on appelle la clase avec les paramétres données
      */
-    public MessageUtilisateur(Context context, ArrayList<String> messageUtilisateur,ArrayList<String> dateMessage, ArrayList<Boolean> droitOuGauche) {
+    public MessageUtilisateur(Context context, ArrayList<String> messageUtilisateur, ArrayList<String> dateMessage, ArrayList<Boolean> droitOuGauche) {
         this.context = context;
         this.messageUtilisateur = messageUtilisateur;
         this.droitOuGauche = droitOuGauche;
-        this.dateMessage =dateMessage;
+        this.dateMessage = dateMessage;
     }
 
     /**
@@ -62,9 +56,9 @@ public class MessageUtilisateur extends RecyclerView.Adapter<MessageUtilisateur.
      */
     @Override
     public void onBindViewHolder(@NonNull MessageUtilisateur.ViewHolder holder, int position) {
-        if (droitOuGauche.get(position)){
+        if (droitOuGauche.get(position)) {
             nomD.setText(messageUtilisateur.get(position));
-        }else {
+        } else {
             nomG.setText(messageUtilisateur.get(position));
         }
         date.setText(dateMessage.get(position));

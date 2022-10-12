@@ -55,6 +55,9 @@ public class InfoPoste extends AppCompatActivity {
     private ArrayList<String> iconUtilisateurCom = new ArrayList<>();
     private ArrayList<String> nomUtilisateurCom = new ArrayList<>();
 
+    /**
+     * verifications que l'utilisateur est bien connecter si non redirections
+     */
     public void onStart() {
         super.onStart();
         // Check si l'user est connecté
@@ -117,8 +120,7 @@ public class InfoPoste extends AppCompatActivity {
                                     //boucle pour reprendre les commentaire créer par cette personne
                                     while (data.length() != 0) {
                                         //on regarde si il a écrie un commentaire
-                                        if (data.indexOf("Com" + i) == -1)
-                                            break;
+                                        if (data.indexOf("Com" + i) == -1) break;
                                         concaténations = data;
                                         if (i < 10)
                                             concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 5);
@@ -180,57 +182,59 @@ public class InfoPoste extends AppCompatActivity {
         });
     }
 
+    /**
+     * affichage de tout les commentaire
+     */
     private void ComeAffichage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("commentaire")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                //on regarde que se sont bien les commentaire pour cette image
-                                if (document.getId().contains(uuid)) {
+        db.collection("commentaire").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        //on regarde que se sont bien les commentaire pour cette image
+                        if (document.getId().contains(uuid)) {
 
-                                    //récupérations des com
-                                    String com = document.getData().toString();
-                                    String concaténations;
-                                    String idUser = document.getId();
-                                    idUser = idUser.substring(idUser.indexOf(":") + 1);
-                                    int i = 0;
-                                    while (com.length() != 0) {
+                            //récupérations des com
+                            String com = document.getData().toString();
+                            String concaténations;
+                            String idUser = document.getId();
+                            idUser = idUser.substring(idUser.indexOf(":") + 1);
+                            int i = 0;
+                            while (com.length() != 0) {
 
-                                        //on regarde si il a écrie un commentaire
-                                        if (com.indexOf("Com" + i) == -1)
-                                            break;
-                                        concaténations = com;
-                                        if (i < 10)
-                                            concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 5);
-                                        else if (i < 100)
-                                            concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 6);
-                                        else
-                                            concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 7);
+                                //on regarde si il a écrie un commentaire
+                                if (com.indexOf("Com" + i) == -1) break;
+                                concaténations = com;
+                                if (i < 10)
+                                    concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 5);
+                                else if (i < 100)
+                                    concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 6);
+                                else
+                                    concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 7);
 
-                                        if (concaténations.indexOf(",") == -1)
-                                            concaténations = concaténations.substring(0, concaténations.indexOf("}"));
-                                        else
-                                            concaténations = concaténations.substring(0, concaténations.indexOf(","));
-                                        i++;
-                                        idUtilisateurCom.add(idUser);
-                                        gererCome.add(concaténations);
-                                    }
-                                }
+                                if (concaténations.indexOf(",") == -1)
+                                    concaténations = concaténations.substring(0, concaténations.indexOf("}"));
+                                else
+                                    concaténations = concaténations.substring(0, concaténations.indexOf(","));
+                                i++;
+                                idUtilisateurCom.add(idUser);
+                                gererCome.add(concaténations);
                             }
-                            ininom();
-                            iniIcon();
-                        } else {
-                            Toast.makeText(InfoPoste.this, "Error getting documents", Toast.LENGTH_SHORT).show();
                         }
                     }
-                });
+                    ininom();
+                    iniIcon();
+                } else {
+                    Toast.makeText(InfoPoste.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
-
+    /**
+     * récupérations des Icon de utilisateur
+     */
     private void iniIcon() {
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone");
         //on vas chercher les images dans la BD
@@ -264,33 +268,32 @@ public class InfoPoste extends AppCompatActivity {
         });
     }
 
+    /**
+     * récupérations du nom d'utilisateur
+     */
     private void ininom() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (int i = 0; i < idUtilisateurCom.size(); i++) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    if (document.getId().equals(idUtilisateurCom.get(i))) {
-                                        //date du poste
-                                        String userName = document.getData().toString();
-                                        userName = userName.substring(userName.indexOf("username=") + 9);
-                                        if (userName.indexOf(",") == -1)
-                                            userName = userName.substring(0, userName.indexOf("}"));
-                                        else
-                                            userName = userName.substring(0, userName.indexOf(","));
-                                        nomUtilisateurCom.add(userName);
-                                        break;
-                                    }
-                                }
+        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (int i = 0; i < idUtilisateurCom.size(); i++) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            if (document.getId().equals(idUtilisateurCom.get(i))) {
+                                //date du poste
+                                String userName = document.getData().toString();
+                                userName = userName.substring(userName.indexOf("username=") + 9);
+                                if (userName.indexOf(",") == -1)
+                                    userName = userName.substring(0, userName.indexOf("}"));
+                                else userName = userName.substring(0, userName.indexOf(","));
+                                nomUtilisateurCom.add(userName);
+                                break;
                             }
-
                         }
                     }
-                });
+                }
+            }
+        });
     }
 
 
@@ -304,8 +307,7 @@ public class InfoPoste extends AppCompatActivity {
             public void onClick(View v) {
                 if (retourInfo)
                     startActivity(new Intent(getApplicationContext(), ProfilInfo.class));
-                else
-                    startActivity(new Intent(getApplicationContext(), HomePage.class));
+                else startActivity(new Intent(getApplicationContext(), HomePage.class));
                 finish();
             }
         });

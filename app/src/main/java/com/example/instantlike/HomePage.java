@@ -6,14 +6,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,7 +22,6 @@ import com.example.instantlike.Adapter.ImageAdapter;
 import com.example.instantlike.Connection.Login;
 import com.example.instantlike.InteractionUtilisateur.UtilisateurMP;
 import com.example.instantlike.Poste.CreationPoste;
-import com.example.instantlike.Poste.InfoPoste;
 import com.example.instantlike.Profil.ProfilInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -64,13 +59,14 @@ public class HomePage extends AppCompatActivity {
     private ImageButton home, message, profilInfoPoste;
 
     private ArrayList<String> iconListToken = new ArrayList<String>();
-    private int incrémentPostUtilisateur = 0;
     private ArrayList<String> iconList = new ArrayList<>();
     private ArrayList<String> nomUster = new ArrayList<String>();
     private FirebaseUser currentUser;
+    private androidx.appcompat.widget.Toolbar toolbar;
 
-
-
+    /**
+     * vérificatiosn que l'utilisateur est bien connecter
+     */
     public void onStart() {
         super.onStart();
         // Check si l'user est connecté
@@ -82,12 +78,12 @@ public class HomePage extends AppCompatActivity {
         }
     }
 
-    private androidx.appcompat.widget.Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        toolbar= findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         testMessage();
         photoClique();
@@ -95,14 +91,16 @@ public class HomePage extends AppCompatActivity {
         iniActivity();
     }
 
-    //écouteur de images
-    private void testMessage(){
+    /**
+     * écoueur pour mettre a jour les image a chaque nouvelle images poster
+     */
+    private void testMessage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference docRef = db.collection("images");
         docRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (!value.isEmpty()){
+                if (!value.isEmpty()) {
                     imageListUri.clear();
                     imageListName.clear();
                     titreImage.clear();
@@ -116,8 +114,10 @@ public class HomePage extends AppCompatActivity {
         });
     }
 
-
-    private void photoClique(){
+    /**
+     * clique pour ouvrire l'appareil photo
+     */
+    private void photoClique() {
         ImageButton photo = findViewById(R.id.action_photo);
         photo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,6 +126,7 @@ public class HomePage extends AppCompatActivity {
             }
         });
     }
+
     /**
      * méthode qui mais en place l'appreille photo
      * avec la créations de a à z de l'image en créent tout les données de l'image
@@ -171,7 +172,10 @@ public class HomePage extends AppCompatActivity {
         }
     }
 
-    private void PosteClique(){
+    /**
+     * BTN pour créer un poste
+     */
+    private void PosteClique() {
         ImageButton Poste = findViewById(R.id.action_poste);
         Poste.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,6 +200,9 @@ public class HomePage extends AppCompatActivity {
         cliqueHome();
     }
 
+    /**
+     * afficher tout les personne posible a mp
+     */
     private void cliquemessage() {
         message.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -206,6 +213,9 @@ public class HomePage extends AppCompatActivity {
         });
     }
 
+    /**
+     * permet d'aller sur les informations du profil
+     */
     private void cliqueProfilInfoPost() {
         profilInfoPoste.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,6 +226,9 @@ public class HomePage extends AppCompatActivity {
         });
     }
 
+    /**
+     * permet de se rendre sur la page d'aceuil
+     */
     private void cliqueHome() {
         home.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -265,6 +278,9 @@ public class HomePage extends AppCompatActivity {
         });
     }
 
+    /**
+     * récupére les icon des utilisateur
+     */
     private void iconUtilisateur() {
         //créations du recycler
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone");
@@ -302,82 +318,78 @@ public class HomePage extends AppCompatActivity {
 
     }
 
+    /**
+     * récupére les descriptions titre et nom des image du poste
+     */
     private void titreDescNomImage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("images")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                //récupérations du nom de l'image
-                                imageName.add(document.getId());
-                                //récupérations la personne qui a poster le com
-                                String user = document.getData().toString();
-                                user = user.substring(user.indexOf("UserPoste=") + 10);
-                                if (user.indexOf(",") == -1)
-                                    user = user.substring(0, user.indexOf("}"));
-                                else
-                                    user = user.substring(0, user.indexOf(","));
-                                iconListToken.add(user);
-                                //récupérations des titre
-                                String titre = document.getData().toString();
-                                titre = titre.substring(titre.indexOf("Titre=") + 6);
-                                if (titre.indexOf(",") == -1)
-                                    titre = titre.substring(0, titre.indexOf("}"));
-                                else
-                                    titre = titre.substring(0, titre.indexOf(","));
-                                titreImage.add(titre);
-                                //récupérations des descriptions
-                                String desc = document.getData().toString();
-                                desc = desc.substring(desc.indexOf("Descriptions=") + 13);
-                                if (desc.indexOf(",") == -1)
-                                    desc = desc.substring(0, desc.indexOf("}"));
-                                else
-                                    desc = desc.substring(0, desc.indexOf(","));
-                                descImage.add(desc);
-                            }
-                            //récupérer nom uilisateur
-                            nomUtilisateur();
-                            //récupérer les icone de l'utiliisateur
-                            iconUtilisateur();
-                        } else {
-                            Toast.makeText(HomePage.this, "Error getting documents", Toast.LENGTH_SHORT).show();
-                        }
+        db.collection("images").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        //récupérations du nom de l'image
+                        imageName.add(document.getId());
+                        //récupérations la personne qui a poster le com
+                        String user = document.getData().toString();
+                        user = user.substring(user.indexOf("UserPoste=") + 10);
+                        if (user.indexOf(",") == -1) user = user.substring(0, user.indexOf("}"));
+                        else user = user.substring(0, user.indexOf(","));
+                        iconListToken.add(user);
+                        //récupérations des titre
+                        String titre = document.getData().toString();
+                        titre = titre.substring(titre.indexOf("Titre=") + 6);
+                        if (titre.indexOf(",") == -1)
+                            titre = titre.substring(0, titre.indexOf("}"));
+                        else titre = titre.substring(0, titre.indexOf(","));
+                        titreImage.add(titre);
+                        //récupérations des descriptions
+                        String desc = document.getData().toString();
+                        desc = desc.substring(desc.indexOf("Descriptions=") + 13);
+                        if (desc.indexOf(",") == -1) desc = desc.substring(0, desc.indexOf("}"));
+                        else desc = desc.substring(0, desc.indexOf(","));
+                        descImage.add(desc);
                     }
-                });
+                    //récupérer nom uilisateur
+                    nomUtilisateur();
+                    //récupérer les icone de l'utiliisateur
+                    iconUtilisateur();
+                } else {
+                    Toast.makeText(HomePage.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
+    /**
+     * récupére le nom de l'utilisteur du poste
+     */
     private void nomUtilisateur() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (int i = 0; i < iconListToken.size(); i++) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    //récupérations du nom de l'image
-                                    String userName = document.getId();
-                                    if (userName.equals(iconListToken.get(i))) {
-                                        String user = document.getData().toString();
-                                        user = user.substring(user.indexOf("username=") + 9);
-                                        if (user.indexOf(",") == -1)
-                                            user = user.substring(0, user.indexOf("}"));
-                                        else
-                                            user = user.substring(0, user.indexOf(","));
-                                        nomUster.add(user);
-                                        break;
-                                    }
-                                }
+        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (int i = 0; i < iconListToken.size(); i++) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            //récupérations du nom de l'image
+                            String userName = document.getId();
+                            if (userName.equals(iconListToken.get(i))) {
+                                String user = document.getData().toString();
+                                user = user.substring(user.indexOf("username=") + 9);
+                                if (user.indexOf(",") == -1)
+                                    user = user.substring(0, user.indexOf("}"));
+                                else user = user.substring(0, user.indexOf(","));
+                                nomUster.add(user);
+                                break;
                             }
-                        } else {
-                            Toast.makeText(HomePage.this, "Error getting documents", Toast.LENGTH_SHORT).show();
                         }
                     }
-                });
+                } else {
+                    Toast.makeText(HomePage.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
 }

@@ -52,8 +52,14 @@ public class ProfilInfo extends AppCompatActivity {
     private FirebaseUser currentUser;
     private int nbPoste = 0, nbSuivi = 0, nbFollow = 0;
     private ArrayList<String> imageListUri = new ArrayList<>(), NomImagePoste = new ArrayList<>(), DatePoste = new ArrayList<>(), LikePoste = new ArrayList<>();
+    private androidx.appcompat.widget.Toolbar toolbar;
+    private static final int RETOUR_PHOTO = 1;
+    private String photoPath;
+    private Uri photoUir;
 
-
+    /**
+     * verificaitons si l'utilisateur est connecter
+     */
     public void onStart() {
         super.onStart();
         // Check si l'user est connecté
@@ -64,24 +70,21 @@ public class ProfilInfo extends AppCompatActivity {
         }
     }
 
-    private androidx.appcompat.widget.Toolbar toolbar;
-    private static final int RETOUR_PHOTO = 1;
-    private  String photoPath;
-    private Uri photoUir;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil_info);
-        toolbar= findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         photoClique();
         PosteClique();
         iniActivity();
     }
 
-
-    private void photoClique(){
+    /**
+     * clique pour prendre une photo
+     */
+    private void photoClique() {
         ImageButton photo = findViewById(R.id.action_photo);
         photo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +93,7 @@ public class ProfilInfo extends AppCompatActivity {
             }
         });
     }
+
     /**
      * méthode qui mais en place l'appreille photo
      * avec la créations de a à z de l'image en créent tout les données de l'image
@@ -135,7 +139,10 @@ public class ProfilInfo extends AppCompatActivity {
         }
     }
 
-    private void PosteClique(){
+    /**
+     * clique pour faire un poste
+     */
+    private void PosteClique() {
         ImageButton Poste = findViewById(R.id.action_poste);
         Poste.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,6 +172,9 @@ public class ProfilInfo extends AppCompatActivity {
 
     }
 
+    /**
+     * affichage des publications de l'utilisateur
+     */
     private void PublicationUtilisateur() {
         //bar de progrations de la conections a firebase
         //créations du recycler
@@ -202,111 +212,113 @@ public class ProfilInfo extends AppCompatActivity {
         });
     }
 
+    /**
+     * permet de récupérer le nombre de personne qui suive et qui follow la personne
+     */
     private void followSuivi() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("followSuivi")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String followSuivi = document.getId();
-                                String Suivi = followSuivi.substring(followSuivi.indexOf(":") + 1);
-                                String follow = followSuivi.substring(0, followSuivi.indexOf(":"));
-                                if (Suivi.equals(currentUser.getUid())) {
-                                    nbSuivi++;
-                                } else if (follow.equals(currentUser.getUid())) {
-                                    nbFollow++;
-                                }
-                            }
-                            follower.setText("Follower : " + nbFollow);
-                            suivi.setText("Suivi : " + nbSuivi);
-                        } else {
-                            Toast.makeText(ProfilInfo.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+        db.collection("followSuivi").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    //récupére tout les folow possible et tris
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String followSuivi = document.getId();
+                        String Suivi = followSuivi.substring(followSuivi.indexOf(":") + 1);
+                        String follow = followSuivi.substring(0, followSuivi.indexOf(":"));
+                        if (Suivi.equals(currentUser.getUid())) {
+                            nbSuivi++;
+                        } else if (follow.equals(currentUser.getUid())) {
+                            nbFollow++;
                         }
                     }
-                });
+                    //initialisations des champs
+                    follower.setText("Follower : " + nbFollow);
+                    suivi.setText("Suivi : " + nbSuivi);
+                } else {
+                    Toast.makeText(ProfilInfo.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
-
+    /**
+     * récupére le nombre de publications de la personne + tout les imfo utilise des publications
+     */
     private void publicationNB() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("images")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String userposte = document.getData().toString();
-                                userposte = userposte.substring(userposte.indexOf("UserPoste=") + 10);
-                                if (userposte.indexOf(",") == -1)
-                                    userposte = userposte.substring(0, userposte.indexOf("}"));
-                                else
-                                    userposte = userposte.substring(0, userposte.indexOf(","));
-                                //récupérations du nom de l'image
-                                if (userposte.equals(currentUser.getUid())) {
-                                    nbPoste++;
-                                    NomImagePoste.add(document.getId());
-                                    //nb Like
-                                    String like = document.getData().toString();
+        db.collection("images").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String userposte = document.getData().toString();
+                        userposte = userposte.substring(userposte.indexOf("UserPoste=") + 10);
+                        if (userposte.indexOf(",") == -1)
+                            userposte = userposte.substring(0, userposte.indexOf("}"));
+                        else userposte = userposte.substring(0, userposte.indexOf(","));
+                        //récupérations du nom de l'image
+                        if (userposte.equals(currentUser.getUid())) {
+                            nbPoste++;
+                            NomImagePoste.add(document.getId());
+                            //nb Like
+                            String like = document.getData().toString();
 
-                                    like = like.substring(like.indexOf("Like=") + 5);
-                                    if (like.indexOf(",") == -1)
-                                        like = like.substring(0, like.indexOf("}"));
-                                    else
-                                        like = like.substring(0, like.indexOf(","));
-                                    LikePoste.add(like);
+                            like = like.substring(like.indexOf("Like=") + 5);
+                            if (like.indexOf(",") == -1)
+                                like = like.substring(0, like.indexOf("}"));
+                            else like = like.substring(0, like.indexOf(","));
+                            LikePoste.add(like);
 
-                                    //date du poste
-                                    String dateposte = document.getData().toString();
-                                    dateposte = dateposte.substring(dateposte.indexOf("DatePoste=") + 10);
-                                    if (dateposte.indexOf(",") == -1)
-                                        dateposte = dateposte.substring(0, dateposte.indexOf("}"));
-                                    else
-                                        dateposte = dateposte.substring(0, dateposte.indexOf(","));
-                                    DatePoste.add(dateposte);
-                                }
-                            }
-                            publications.setText("Publications : " + nbPoste);
-                            PublicationUtilisateur();
-                        } else {
-                            Toast.makeText(ProfilInfo.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                            //date du poste
+                            String dateposte = document.getData().toString();
+                            dateposte = dateposte.substring(dateposte.indexOf("DatePoste=") + 10);
+                            if (dateposte.indexOf(",") == -1)
+                                dateposte = dateposte.substring(0, dateposte.indexOf("}"));
+                            else dateposte = dateposte.substring(0, dateposte.indexOf(","));
+                            DatePoste.add(dateposte);
                         }
                     }
-                });
+                    publications.setText("Publications : " + nbPoste);
+                    PublicationUtilisateur();
+                } else {
+                    Toast.makeText(ProfilInfo.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
-
+    /**
+     * réucpére le nom de l'utilisateur
+     */
     private void nomUtilisateur() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                //récupérations du nom de l'image
-                                if (document.getId().equals(currentUser.getUid())) {
-                                    String nomUser = document.getData().toString();
-                                    nomUser = nomUser.substring(nomUser.indexOf("username=") + 9);
-                                    if (nomUser.indexOf(",") == -1)
-                                        nomUser = nomUser.substring(0, nomUser.indexOf("}"));
-                                    else
-                                        nomUser = nomUser.substring(0, nomUser.indexOf(","));
-                                    nom.setText(nomUser);
-                                }
-                            }
-                        } else {
-                            Toast.makeText(ProfilInfo.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        //récupérations du nom de l'image
+                        if (document.getId().equals(currentUser.getUid())) {
+                            String nomUser = document.getData().toString();
+                            nomUser = nomUser.substring(nomUser.indexOf("username=") + 9);
+                            if (nomUser.indexOf(",") == -1)
+                                nomUser = nomUser.substring(0, nomUser.indexOf("}"));
+                            else nomUser = nomUser.substring(0, nomUser.indexOf(","));
+                            nom.setText(nomUser);
                         }
                     }
-                });
+                } else {
+                    Toast.makeText(ProfilInfo.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
     }
 
+    /**
+     * récupére l'icon de l'utilisateur
+     */
     private void iconUtilisateur() {
         //créations du recycler
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone");
@@ -333,7 +345,9 @@ public class ProfilInfo extends AppCompatActivity {
 
     }
 
-
+    /**
+     * permet d'ouvrire les mp possible
+     */
     private void cliquemessage() {
         message.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -344,6 +358,9 @@ public class ProfilInfo extends AppCompatActivity {
         });
     }
 
+    /**
+     * permet d'avoir les info des post
+     */
     private void cliqueProfilInfoPost() {
         profilInfoPoste.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -354,6 +371,9 @@ public class ProfilInfo extends AppCompatActivity {
         });
     }
 
+    /**
+     * permet d'aller a la page d'aceuil
+     */
     private void cliqueHome() {
         home.setOnClickListener(new View.OnClickListener() {
             @Override

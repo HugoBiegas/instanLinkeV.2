@@ -7,7 +7,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -51,6 +50,9 @@ public class UtilisateurMP extends AppCompatActivity {
     private ArrayList<String> iconUtilisateurMP = new ArrayList<>();
     private FirebaseUser currentUser;
 
+    /**
+     * récupérations de l'id de l'utilisateur ou redirections a la connection
+     */
     public void onStart() {
         super.onStart();
         // Check si l'user est connecté
@@ -67,14 +69,30 @@ public class UtilisateurMP extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_utilisateur_mp);
+        iniActivity();
+    }
+
+    /**
+     * initialisations des variable est liste des méthodes utiliser
+     */
+    private void iniActivity() {
+        home = findViewById(R.id.HomeBTNMpUtilisateur);
+        message = findViewById(R.id.MessageBTNMpUtilisateur);
+        profilInfoPoste = findViewById(R.id.InfoPorofilBTNMpUtilisateur);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         photoClique();
         PosteClique();
-        iniActivity();
+        cliquemessage();
+        cliqueProfilInfoPost();
+        cliqueHome();
+        utilisateurAMP();
     }
 
 
+    /**
+     * listeneur du clique pour les photo
+     */
     private void photoClique() {
         ImageButton photo = findViewById(R.id.action_photo);
         photo.setOnClickListener(new View.OnClickListener() {
@@ -130,6 +148,9 @@ public class UtilisateurMP extends AppCompatActivity {
         }
     }
 
+    /**
+     * listeneur pour aller sur la créations d'un poste
+     */
     private void PosteClique() {
         ImageButton Poste = findViewById(R.id.action_poste);
         Poste.setOnClickListener(new View.OnClickListener() {
@@ -141,18 +162,9 @@ public class UtilisateurMP extends AppCompatActivity {
         });
     }
 
-
-    private void iniActivity() {
-        home = findViewById(R.id.HomeBTNMpUtilisateur);
-        message = findViewById(R.id.MessageBTNMpUtilisateur);
-        profilInfoPoste = findViewById(R.id.InfoPorofilBTNMpUtilisateur);
-        cliquemessage();
-        cliqueProfilInfoPost();
-        cliqueHome();
-        utilisateurAMP();
-    }
-
-
+    /**
+     * listeneur pour voir les personne a Mp
+     */
     private void cliquemessage() {
         message.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,6 +175,9 @@ public class UtilisateurMP extends AppCompatActivity {
         });
     }
 
+    /**
+     * listeneur pour aller sur le profil
+     */
     private void cliqueProfilInfoPost() {
         profilInfoPoste.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,6 +188,9 @@ public class UtilisateurMP extends AppCompatActivity {
         });
     }
 
+    /**
+     * listeneur pour la page d'acueil
+     */
     private void cliqueHome() {
         home.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -183,37 +201,44 @@ public class UtilisateurMP extends AppCompatActivity {
         });
     }
 
+    /**
+     * liste des personnes qu'on peux mp
+     */
     private void utilisateurAMP() {
         nomUtil();
     }
 
+    /**
+     * méthode qui vas chercher tout les nom des utiliseurs a mp sof soi même
+     */
     private void nomUtil() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (!document.getId().equals(currentUser.getUid())){
-                                    //date du poste
-                                    String userName = document.getData().toString();
-                                    userName = userName.substring(userName.indexOf("username=") + 9);
-                                    if (userName.indexOf(",") == -1)
-                                        userName = userName.substring(0, userName.indexOf("}"));
-                                    else
-                                        userName = userName.substring(0, userName.indexOf(","));
-                                    nomUtilisateurMP.add(userName);
-                                    idUtilisateurMp.add(document.getId());
-                                }
-                            }
-                            iconUtil();
+        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        if (!document.getId().equals(currentUser.getUid())) {
+                            //date du poste
+                            String userName = document.getData().toString();
+                            userName = userName.substring(userName.indexOf("username=") + 9);
+                            if (userName.indexOf(",") == -1)
+                                userName = userName.substring(0, userName.indexOf("}"));
+                            else userName = userName.substring(0, userName.indexOf(","));
+                            nomUtilisateurMP.add(userName);
+                            idUtilisateurMp.add(document.getId());
                         }
                     }
-                });
+                    //méthode pour récupe les icons
+                    iconUtil();
+                }
+            }
+        });
     }
 
+    /**
+     * méthode qui vas chercher tout les icon des utiliseurs a mp sof soi même
+     */
     private void iconUtil() {
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone");
         //on vas chercher les images dans la BD
@@ -223,7 +248,7 @@ public class UtilisateurMP extends AppCompatActivity {
                 for (int i = 0; i < idUtilisateurMp.size(); i++) {
                     for (StorageReference fileRef : listResult.getItems()) {
                         String c = fileRef.getName();
-                        if (c.contains(idUtilisateurMp.get(i))){
+                        if (c.contains(idUtilisateurMp.get(i))) {
                             //actualisations pour avoir un chiffre différent a chaque foi
                             fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override

@@ -1,8 +1,5 @@
 package com.example.instantlike.Connection;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,6 +11,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.instantlike.HomePage;
 import com.example.instantlike.R;
@@ -42,6 +42,11 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         //Recherche sur le layout activity_login
+        iniActivity();
+
+    }
+
+    private void iniActivity() {
         mEmail = findViewById(R.id.editTextEmail);
         mPassword = findViewById(R.id.editTextPassword);
         mLoginBtn = findViewById(R.id.buttonLogin);
@@ -50,16 +55,21 @@ public class Login extends AppCompatActivity {
         fAuth = FirebaseAuth.getInstance();
         forgotTextLink = findViewById(R.id.forgotTextLink);
         mAuth = FirebaseAuth.getInstance();
-        if (fAuth.getCurrentUser() != null)
-            userId = fAuth.getCurrentUser().getUid();
+        //teste pour savoir si il est connecter ou non
+        if (fAuth.getCurrentUser() != null) userId = fAuth.getCurrentUser().getUid();
         if (userId != null) {
             startActivity(new Intent(getApplicationContext(), HomePage.class));
             finish();
         }
+        BtnConnection();
+        BtnRegister();
+        BtnMdpOublier();
+    }
 
-        Source:
-        https:
-//prograide.com/pregunta/43777/comment-detecter-si-un-utilisateur-est-dej-connecte--firebase
+    /**
+     * listeneur pour le clique de la connections et tchec des champs
+     */
+    private void BtnConnection() {
         //Vérification des champs avant d'appuyer sur le bouton
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,8 +115,12 @@ public class Login extends AppCompatActivity {
                 });
             }
         });
+    }
 
-
+    /**
+     * listeneur pour le clique pour créer le compte
+     */
+    private void BtnRegister() {
         //Bouton switch layout Creer compte
         mCreateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,8 +128,12 @@ public class Login extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), Register.class));
             }
         });
+    }
 
-
+    /**
+     * listeneur pour le clique du mdp oublier par mail
+     */
+    private void BtnMdpOublier() {
         //Partie qui va suivre va concerner le reset de mdp
         //Popup quand on va appuyer sur le TextView forgotTextLink du layout login
         forgotTextLink.setOnClickListener(new View.OnClickListener() {
@@ -159,14 +177,19 @@ public class Login extends AppCompatActivity {
         });
     }
 
-    public void updateUI(FirebaseUser account) {
+    /**
+     * permet de verifier si la connections est un succer ou non
+     *
+     * @param account
+     */
+    private void updateUI(FirebaseUser account) {
 
         if (account != null) {
-            Toast.makeText(this, "You Signed In successfully", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "vous êtes connecté", Toast.LENGTH_LONG).show();
             startActivity(new Intent(this, HomePage.class));
 
         } else {
-            Toast.makeText(this, "You Didnt signed in", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "connection faile", Toast.LENGTH_LONG).show();
         }
 
     }

@@ -40,7 +40,6 @@ public class CreationPoste extends AppCompatActivity {
     private Button retour, poster;
     private Bitmap image;
     private ImageView imagePoste;
-    private String imageName;
     private Uri photoUri;
     private String uuid;
     private EditText titre, descriptions;
@@ -50,6 +49,9 @@ public class CreationPoste extends AppCompatActivity {
     private FirebaseFirestore fStore;
     private ProgressBar progressBar;
 
+    /**
+     * méthode qui verifie que la personne et connecter et la redirige si non
+     */
     public void onStart() {
         super.onStart();
         // Check si l'user est connecté
@@ -81,8 +83,7 @@ public class CreationPoste extends AppCompatActivity {
             photoUri = extra.getParcelable("uri");
             imagePoste.setImageBitmap(image);
             ajoutImage.setVisibility(View.INVISIBLE);
-        } else
-            ajoutImageTel();
+        } else ajoutImageTel();
     }
 
     /**
@@ -199,12 +200,18 @@ public class CreationPoste extends AppCompatActivity {
                     startActivity(new Intent(getApplicationContext(), HomePage.class));
                     finish();
                 } else
-                    Toast.makeText(CreationPoste.this, "sisisez une image ou une vidéo,un titre et une descriptions", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CreationPoste.this, "saisisez une image ,un titre et une descriptions", Toast.LENGTH_SHORT).show();
             }
         });
 
     }
 
+    /**
+     * ajouter  l'image dans firestore
+     *
+     * @param Titre
+     * @param desc
+     */
     private void ajoutBDFirestore(String Titre, String desc) {
         String userID = fAuth.getCurrentUser().getUid();
         DocumentReference documentReference = fStore.collection("images").document(uuid);
@@ -223,6 +230,9 @@ public class CreationPoste extends AppCompatActivity {
 
     }
 
+    /**
+     * initialisations des like pour une image
+     */
     private void likeIni() {
         DocumentReference documentReference = fStore.collection("like").document(uuid);
         Map<String, Object> donnée = new HashMap<>();

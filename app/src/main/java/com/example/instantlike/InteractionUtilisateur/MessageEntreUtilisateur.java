@@ -52,6 +52,9 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
     private ArrayList<String> dateMessageRéel = new ArrayList<>();
     private FirebaseUser currentUser;
 
+    /**
+     * verifications si l'utilisateur et connecter
+     */
     public void onStart() {
         super.onStart();
         // Check si l'user est connecté
@@ -78,6 +81,9 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
         testMessage();
     }
 
+    /**
+     * récupérations des extrats ces a dire nom icon et idUtilisateur qui se fait mp
+     */
     private void extrat() {
         Bundle extra = getIntent().getExtras();//récuper l'extrat envoiller par roomActivity
         if (extra != null) {
@@ -89,6 +95,9 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
         }
     }
 
+    /**
+     * listeneur qui actualisa a chaque changement de la collection MP de firebase
+     */
     private void testMessage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference docRef = db.collection("MP");
@@ -96,6 +105,7 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (!value.isEmpty()) {
+                    //clear de tout les listes pour pas avoir de message en double
                     messageEnvoy.clear();
                     dateMessage.clear();
                     droitOuGauche.clear();
@@ -105,86 +115,87 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
         });
     }
 
+    /**
+     * initialisations des messages
+     */
     private void iniMassage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("MP")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            //récupérations de tout les messages dans le désordre
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.getId().contains(currentUser.getUid()) && document.getId().contains(idUtilisateur)) {
-                                    //date du poste
-                                    String message = document.getData().toString();
-                                    message = message.substring(message.indexOf("message=") + 8);
-                                    if (message.indexOf(",") == -1)
-                                        message = message.substring(0, message.indexOf("}"));
-                                    else
-                                        message = message.substring(0, message.indexOf(","));
-                                    messageEnvoyBase.add(message);
+        db.collection("MP").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    //récupérations de tout les messages dans le désordre
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        if (document.getId().contains(currentUser.getUid()) && document.getId().contains(idUtilisateur)) {
+                            //date du poste
+                            String message = document.getData().toString();
+                            message = message.substring(message.indexOf("message=") + 8);
+                            if (message.indexOf(",") == -1)
+                                message = message.substring(0, message.indexOf("}"));
+                            else message = message.substring(0, message.indexOf(","));
+                            messageEnvoyBase.add(message);
 
-                                    String date = document.getData().toString();
-                                    date = date.substring(date.indexOf("date=") + 5);
-                                    if (date.indexOf(",") == -1)
-                                        date = date.substring(0, date.indexOf("}"));
-                                    else
-                                        date = date.substring(0, date.indexOf(","));
-                                    try {
-                                        dateMessageBase.add(new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss").parse(date));
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
-                                    }
-                                    dateMessageRéel.add(date);
-
-                                    String c = document.getId();
-                                    c = c.substring(c.indexOf(":") + 1);
-                                    if (c.contains(currentUser.getUid()))
-                                        //droite
-                                        droitOuGaucheBase.add(true);
-                                    else
-                                        //gauche
-                                        droitOuGaucheBase.add(false);
-                                }
+                            String date = document.getData().toString();
+                            date = date.substring(date.indexOf("date=") + 5);
+                            if (date.indexOf(",") == -1)
+                                date = date.substring(0, date.indexOf("}"));
+                            else date = date.substring(0, date.indexOf(","));
+                            try {
+                                dateMessageBase.add(new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss").parse(date));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
                             }
-                            Toast.makeText(MessageEntreUtilisateur.this, ""+dateMessageBase.get(0), Toast.LENGTH_SHORT).show();
-                            //remetre dans le bonne hordre les messages
-                            int positions;
-                            Date ini;
-                            //trier par date de publications
-                            while (dateMessageBase.size() != 0) {
-                                positions = 0;
-                                ini = dateMessageBase.get(0);
-                                if (dateMessageBase.size() != 1){
-                                    for (int i = 1; i < dateMessageBase.size(); i++) {
-                                        if (dateMessageBase.get(i).before(ini)) {
-                                            ini = dateMessageBase.get(i);
-                                            positions = i;
-                                        }
-                                    }
-                                }
+                            dateMessageRéel.add(date);
 
-                                //remplie les messages
-                                messageEnvoy.add(messageEnvoyBase.get(positions));
-                                droitOuGauche.add(droitOuGaucheBase.get(positions));
-                                dateMessage.add(dateMessageRéel.get(positions));
-
-                                //suprimer les messages
-                                dateMessageBase.remove(positions);
-                                droitOuGaucheBase.remove(positions);
-                                messageEnvoyBase.remove(positions);
-                                dateMessageRéel.remove(positions);
-                            }
-                            final RecyclerView recyclerView = findViewById(R.id.recyclerViewMP);
-                            recyclerView.setLayoutManager(new LinearLayoutManager(MessageEntreUtilisateur.this));
-                            MessageUtilisateur adapter = new MessageUtilisateur(MessageEntreUtilisateur.this, messageEnvoy, dateMessage, droitOuGauche);
-                            recyclerView.setAdapter(adapter);
+                            String c = document.getId();
+                            c = c.substring(c.indexOf(":") + 1);
+                            if (c.contains(currentUser.getUid()))
+                                //droite
+                                droitOuGaucheBase.add(true);
+                            else
+                                //gauche
+                                droitOuGaucheBase.add(false);
                         }
                     }
-                });
+                    //remetre dans le bonne hordre les messages
+                    int positions;
+                    Date ini;
+                    //trier par date de publications
+                    while (dateMessageBase.size() != 0) {
+                        positions = 0;
+                        ini = dateMessageBase.get(0);
+                        if (dateMessageBase.size() != 1) {
+                            for (int i = 1; i < dateMessageBase.size(); i++) {
+                                if (dateMessageBase.get(i).before(ini)) {
+                                    ini = dateMessageBase.get(i);
+                                    positions = i;
+                                }
+                            }
+                        }
+
+                        //remplie les messages
+                        messageEnvoy.add(messageEnvoyBase.get(positions));
+                        droitOuGauche.add(droitOuGaucheBase.get(positions));
+                        dateMessage.add(dateMessageRéel.get(positions));
+
+                        //suprimer les messages
+                        dateMessageBase.remove(positions);
+                        droitOuGaucheBase.remove(positions);
+                        messageEnvoyBase.remove(positions);
+                        dateMessageRéel.remove(positions);
+                    }
+                    final RecyclerView recyclerView = findViewById(R.id.recyclerViewMP);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(MessageEntreUtilisateur.this));
+                    MessageUtilisateur adapter = new MessageUtilisateur(MessageEntreUtilisateur.this, messageEnvoy, dateMessage, droitOuGauche);
+                    recyclerView.setAdapter(adapter);
+                }
+            }
+        });
     }
 
+    /**
+     * listeneur pour envoyer un message avec tout les données de base : date et le message
+     */
     private void envoyerMessage() {
         envoi.setOnClickListener(new View.OnClickListener() {
             @Override

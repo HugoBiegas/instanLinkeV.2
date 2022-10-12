@@ -1,7 +1,5 @@
 package com.example.instantlike.Adapter;
 
-import static android.provider.Settings.System.getString;
-
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -95,8 +93,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         String testeNomImage = imageListName.get(position);
         int i;
         for (i = 0; i < imageName.size(); i++) {
-            if (imageName.get(i).equals(testeNomImage))
-                break;
+            if (imageName.get(i).equals(testeNomImage)) break;
         }
         titreView.setText(titre.get(i));
         descriptionsView.setText(descriptions.get(i));
@@ -107,78 +104,71 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     private void iniFollow(int position) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("images")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.getId().equals(imageListName.get(position))) {
-                                    //date du poste
-                                    String userSuivi = document.getData().toString();
-                                    userSuivi = userSuivi.substring(userSuivi.indexOf("UserPoste=") + 10);
-                                    if (userSuivi.indexOf(",") == -1)
-                                        userSuivi = userSuivi.substring(0, userSuivi.indexOf("}"));
-                                    else
-                                        userSuivi = userSuivi.substring(0, userSuivi.indexOf(","));
+        db.collection("images").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        if (document.getId().equals(imageListName.get(position))) {
+                            //date du poste
+                            String userSuivi = document.getData().toString();
+                            userSuivi = userSuivi.substring(userSuivi.indexOf("UserPoste=") + 10);
+                            if (userSuivi.indexOf(",") == -1)
+                                userSuivi = userSuivi.substring(0, userSuivi.indexOf("}"));
+                            else userSuivi = userSuivi.substring(0, userSuivi.indexOf(","));
 
-                                    FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                                    FirebaseUser userFollow = mAuth.getCurrentUser();
-                                    DocumentReference docRef = fStore.collection("followSuivi").document(userFollow.getUid() + ":" + userSuivi);
+                            FirebaseFirestore fStore = FirebaseFirestore.getInstance();
+                            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                            FirebaseUser userFollow = mAuth.getCurrentUser();
+                            DocumentReference docRef = fStore.collection("followSuivi").document(userFollow.getUid() + ":" + userSuivi);
 
-                                    if (!(userSuivi.equals(userFollow.getUid()))) {
-                                        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if (task.isSuccessful()) {
-                                                    DocumentSnapshot document = task.getResult();
-                                                    if (document.exists())
-                                                        follow.setText("UnFollow");
-                                                }
-                                            }
-                                        });
+                            if (!(userSuivi.equals(userFollow.getUid()))) {
+                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            DocumentSnapshot document = task.getResult();
+                                            if (document.exists()) follow.setText("UnFollow");
+                                        }
                                     }
-                                    break;
-                                }
+                                });
                             }
-                        } else {
-                            Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
+                            break;
                         }
                     }
-                });
+                } else {
+                    Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
 
     }
 
     private void iniLike(int position) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("like")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.getId().equals(imageListName.get(position))) {
-                                    //date du poste
-                                    String like = document.getData().toString();
-                                    like = like.substring(like.indexOf("nbLike=") + 7);
-                                    if (like.indexOf(",") == -1)
-                                        like = like.substring(0, like.indexOf("}"));
-                                    else
-                                        like = like.substring(0, like.indexOf(","));
-                                    int nbLike = Integer.parseInt(like);
-                                    likeNbActu.setText(nbLike + " Likes");
-                                    break;
-                                }
-                            }
-                        } else {
-                            Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
+        db.collection("like").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        if (document.getId().equals(imageListName.get(position))) {
+                            //date du poste
+                            String like = document.getData().toString();
+                            like = like.substring(like.indexOf("nbLike=") + 7);
+                            if (like.indexOf(",") == -1)
+                                like = like.substring(0, like.indexOf("}"));
+                            else like = like.substring(0, like.indexOf(","));
+                            int nbLike = Integer.parseInt(like);
+                            likeNbActu.setText(nbLike + " Likes");
+                            break;
                         }
                     }
-                });
+                } else {
+                    Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     /**
@@ -215,64 +205,62 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 @Override
                 public void onClick(View view) {
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    db.collection("images")
-                            .get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            if (document.getId().equals(imageListName.get(getAdapterPosition()))) {
-                                                //date du poste
-                                                String userSuivi = document.getData().toString();
-                                                userSuivi = userSuivi.substring(userSuivi.indexOf("UserPoste=") + 10);
-                                                if (userSuivi.indexOf(",") == -1)
-                                                    userSuivi = userSuivi.substring(0, userSuivi.indexOf("}"));
-                                                else
-                                                    userSuivi = userSuivi.substring(0, userSuivi.indexOf(","));
+                    db.collection("images").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    if (document.getId().equals(imageListName.get(getAdapterPosition()))) {
+                                        //date du poste
+                                        String userSuivi = document.getData().toString();
+                                        userSuivi = userSuivi.substring(userSuivi.indexOf("UserPoste=") + 10);
+                                        if (userSuivi.indexOf(",") == -1)
+                                            userSuivi = userSuivi.substring(0, userSuivi.indexOf("}"));
+                                        else
+                                            userSuivi = userSuivi.substring(0, userSuivi.indexOf(","));
 
 
-                                                FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                                                passe = false;
-                                                FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                                                FirebaseUser userFollow = mAuth.getCurrentUser();
-                                                if (!(userFollow.getUid().equals(userSuivi))) {
-                                                    DocumentReference docRef = fStore.collection("followSuivi").document(userFollow.getUid() + ":" + userSuivi);
-                                                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                            if (task.isSuccessful()) {
-                                                                DocumentSnapshot document = task.getResult();
-                                                                if (document.exists()) {
-                                                                    Toast.makeText(context, " ces unfollow !", Toast.LENGTH_SHORT).show();
-                                                                    notifyItemChanged(getAdapterPosition());
-                                                                    follow.setText("Follow");
-                                                                    docRef.delete();
-                                                                } else {
-                                                                    Toast.makeText(context, " ces follow !", Toast.LENGTH_SHORT).show();
-                                                                    notifyItemChanged(getAdapterPosition());
-                                                                    follow.setText("UnFollow");
-                                                                    Map<String, Object> donnée = new HashMap<>();
-                                                                    // Update and delete the "capital" field in the document
-                                                                    docRef.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                        @Override
-                                                                        public void onSuccess(Void aVoid) {
-                                                                            Log.d("TAG", "onSuccess: Les données son créer");
-                                                                        }
-                                                                    });
+                                        FirebaseFirestore fStore = FirebaseFirestore.getInstance();
+                                        passe = false;
+                                        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                                        FirebaseUser userFollow = mAuth.getCurrentUser();
+                                        if (!(userFollow.getUid().equals(userSuivi))) {
+                                            DocumentReference docRef = fStore.collection("followSuivi").document(userFollow.getUid() + ":" + userSuivi);
+                                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        DocumentSnapshot document = task.getResult();
+                                                        if (document.exists()) {
+                                                            Toast.makeText(context, " ces unfollow !", Toast.LENGTH_SHORT).show();
+                                                            notifyItemChanged(getAdapterPosition());
+                                                            follow.setText("Follow");
+                                                            docRef.delete();
+                                                        } else {
+                                                            Toast.makeText(context, " ces follow !", Toast.LENGTH_SHORT).show();
+                                                            notifyItemChanged(getAdapterPosition());
+                                                            follow.setText("UnFollow");
+                                                            Map<String, Object> donnée = new HashMap<>();
+                                                            // Update and delete the "capital" field in the document
+                                                            docRef.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void aVoid) {
+                                                                    Log.d("TAG", "onSuccess: Les données son créer");
                                                                 }
-                                                            }
+                                                            });
                                                         }
-                                                    });
-                                                    break;
+                                                    }
                                                 }
-                                            }
+                                            });
+                                            break;
                                         }
-                                    } else {
-                                        Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
                                     }
                                 }
-                            });
+                            } else {
+                                Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
 
 
                 }
@@ -303,7 +291,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                     shareIntent.setType("text/plain");
                     String shareBody = imageListUri.get(getAdapterPosition());
                     shareIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
-                    context.startActivity(Intent.createChooser(shareIntent,titre.get(getAdapterPosition())));
+                    context.startActivity(Intent.createChooser(shareIntent, titre.get(getAdapterPosition())));
                 }
             });
 
@@ -313,52 +301,49 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
             FirebaseUser userid = mAuth.getCurrentUser();
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("like")
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    if (document.getId().equals(imageListName.get(getAdapterPosition()))) {
-                                        //date du poste
-                                        String like = document.getData().toString();
-                                        like = like.substring(like.indexOf("nbLike=") + 7);
-                                        if (like.indexOf(",") == -1)
-                                            like = like.substring(0, like.indexOf("}"));
-                                        else
-                                            like = like.substring(0, like.indexOf(","));
-                                        int nbLike = Integer.parseInt(like);
-                                        FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                                        DocumentReference docRef = fStore.collection("like").document(imageListName.get(getAdapterPosition()));
-                                        Map<String, Object> updates = new HashMap<>();
+            db.collection("like").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            if (document.getId().equals(imageListName.get(getAdapterPosition()))) {
+                                //date du poste
+                                String like = document.getData().toString();
+                                like = like.substring(like.indexOf("nbLike=") + 7);
+                                if (like.indexOf(",") == -1)
+                                    like = like.substring(0, like.indexOf("}"));
+                                else like = like.substring(0, like.indexOf(","));
+                                int nbLike = Integer.parseInt(like);
+                                FirebaseFirestore fStore = FirebaseFirestore.getInstance();
+                                DocumentReference docRef = fStore.collection("like").document(imageListName.get(getAdapterPosition()));
+                                Map<String, Object> updates = new HashMap<>();
 
-                                        if (document.getData().toString().contains(userid.getUid())) {
-                                            Toast.makeText(context, "ces disliker !", Toast.LENGTH_SHORT).show();
-                                            nbLike--;
-                                            updates.put(userid.getUid(), FieldValue.delete());
-                                            updates.put("nbLike", nbLike);
-                                            // Update and delete the "capital" field in the document
-                                            docRef.update(updates);
-                                        } else {
-                                            Toast.makeText(context, "ces liker !", Toast.LENGTH_SHORT).show();
-                                            nbLike++;
-                                            updates.put(userid.getUid(), "");
-                                            updates.put("nbLike", nbLike);
-                                            // Update and delete the "capital" field in the document
-                                            docRef.update(updates);
-                                        }
-                                        notifyItemChanged(getAdapterPosition());
-                                        likeNbActu.setText(nbLike + " Likes");
-
-
-                                    }
+                                if (document.getData().toString().contains(userid.getUid())) {
+                                    Toast.makeText(context, "ces disliker !", Toast.LENGTH_SHORT).show();
+                                    nbLike--;
+                                    updates.put(userid.getUid(), FieldValue.delete());
+                                    updates.put("nbLike", nbLike);
+                                    // Update and delete the "capital" field in the document
+                                    docRef.update(updates);
+                                } else {
+                                    Toast.makeText(context, "ces liker !", Toast.LENGTH_SHORT).show();
+                                    nbLike++;
+                                    updates.put(userid.getUid(), "");
+                                    updates.put("nbLike", nbLike);
+                                    // Update and delete the "capital" field in the document
+                                    docRef.update(updates);
                                 }
-                            } else {
-                                Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
+                                notifyItemChanged(getAdapterPosition());
+                                likeNbActu.setText(nbLike + " Likes");
+
+
                             }
                         }
-                    });
+                    } else {
+                        Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
     }
 }

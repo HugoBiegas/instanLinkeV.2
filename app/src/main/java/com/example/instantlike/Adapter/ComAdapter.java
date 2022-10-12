@@ -2,35 +2,23 @@ package com.example.instantlike.Adapter;
 
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.instantlike.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.ListResult;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
 public class ComAdapter extends RecyclerView.Adapter<ComAdapter.ViewHolder> {
 
-    private ArrayList<String> comList, iconUtilisateurCom,nomUtilisateurCom;
+    private ArrayList<String> comList, iconUtilisateurCom, nomUtilisateurCom;
     private Context context;
     private TextView com, nom;
     private ImageView icon;
@@ -38,11 +26,11 @@ public class ComAdapter extends RecyclerView.Adapter<ComAdapter.ViewHolder> {
     /**
      * initialise les variables quand on appelle la clase avec les paramétres données
      */
-    public ComAdapter(ArrayList<String> comList, Context context, ArrayList<String> iconUtilisateurCom,ArrayList<String> nomUtilisateurCom) {
+    public ComAdapter(ArrayList<String> comList, Context context, ArrayList<String> iconUtilisateurCom, ArrayList<String> nomUtilisateurCom) {
         this.comList = comList;
         this.context = context;
         this.iconUtilisateurCom = iconUtilisateurCom;
-        this.nomUtilisateurCom =nomUtilisateurCom;
+        this.nomUtilisateurCom = nomUtilisateurCom;
     }
 
     /**
@@ -80,7 +68,9 @@ public class ComAdapter extends RecyclerView.Adapter<ComAdapter.ViewHolder> {
      * @return
      */
     @Override
-    public int getItemCount() {return iconUtilisateurCom.size();}
+    public int getItemCount() {
+        return iconUtilisateurCom.size();
+    }
 
     /**
      * méthode pour définir tout les élément de la view que nous allons utiliser

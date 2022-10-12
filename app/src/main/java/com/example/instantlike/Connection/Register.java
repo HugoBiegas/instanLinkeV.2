@@ -1,8 +1,5 @@
 package com.example.instantlike.Connection;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,6 +10,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.instantlike.HomePage;
 import com.example.instantlike.R;
@@ -42,7 +42,11 @@ public class Register extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        iniActivity();
         //Recherche des id sur le layout register
+    }
+
+    private void iniActivity() {
         mEmail = findViewById(R.id.editTextEmail);
         mUser = findViewById(R.id.editTextLogin);
         mPassword = findViewById(R.id.editTextPassword);
@@ -55,8 +59,11 @@ public class Register extends AppCompatActivity {
         fStore = FirebaseFirestore.getInstance();
         progressBar = findViewById(R.id.progressBar);
 
+        BtnRegister();
+        BtnDejatConnecter();
+    }
 
-        //Partie enregistrement du compte avec le bouton mRegisterBtn
+    private void BtnRegister() {
         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,13 +131,16 @@ public class Register extends AppCompatActivity {
                 });
             }
         });
+    }
 
-        //Button switch connexion
+    private void BtnDejatConnecter() {
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), HomePage.class));
+                startActivity(new Intent(getApplicationContext(), Login.class));
             }
         });
     }
+
+
 }
