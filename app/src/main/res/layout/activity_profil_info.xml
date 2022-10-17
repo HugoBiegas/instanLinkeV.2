@@ -59,12 +59,23 @@
 
     <Button
         android:id="@+id/buttonUtilisateurProfil"
-        android:layout_width="300dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/iconUtilisateurProfil"
         android:layout_marginTop="30dp"
-        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="10dp"
+        android:background="#808080"
         android:text="Modifier le profil" />
+
+    <Button
+        android:background="#FF0000"
+        android:id="@+id/buttonDéconnecter"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/iconUtilisateurProfil"
+        android:layout_marginTop="30dp"
+        android:layout_toRightOf="@id/buttonUtilisateurProfil"
+        android:text="déconnection" />
 
     <TextView
         android:id="@+id/textVosPublications"
