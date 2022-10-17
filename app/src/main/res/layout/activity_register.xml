@@ -8,6 +8,21 @@
     android:orientation="vertical"
     tools:context=".Connection.Register">
 
+    <ImageView
+        android:id="@+id/iconUtilisateurCréationCompte"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginLeft="30dp"
+        android:background="@color/white"
+        />
+
+    <Button
+        android:id="@+id/ajoutImageCreationCompt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ajouter image"
+        />
+
     <EditText
         android:id="@+id/editTextEmail"
         android:layout_width="match_parent"

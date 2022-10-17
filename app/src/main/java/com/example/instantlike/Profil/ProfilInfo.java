@@ -46,15 +46,18 @@ import java.util.Date;
 
 public class ProfilInfo extends AppCompatActivity {
 
+    private static final int RETOUR_PHOTO = 1;
     private ImageButton home, message, profilInfoPoste;
     private TextView nom, publications, follower, suivi;
     private ImageView icon;
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser currentUser;
     private int nbPoste = 0, nbSuivi = 0, nbFollow = 0;
-    private ArrayList<String> imageListUri = new ArrayList<>(), NomImagePoste = new ArrayList<>(), DatePoste = new ArrayList<>(), LikePoste = new ArrayList<>();
+    private final ArrayList<String> imageListUri = new ArrayList<>();
+    private final ArrayList<String> NomImagePoste = new ArrayList<>();
+    private final ArrayList<String> DatePoste = new ArrayList<>();
+    private final ArrayList<String> LikePoste = new ArrayList<>();
     private androidx.appcompat.widget.Toolbar toolbar;
-    private static final int RETOUR_PHOTO = 1;
     private String photoPath;
     private Uri photoUir;
     private Button deconnections;
@@ -176,7 +179,10 @@ public class ProfilInfo extends AppCompatActivity {
 
     }
 
-    private  void deconnectionsUser(){
+    /**
+     * bouton pour déconnecter l'utilisateur
+     */
+    private void deconnectionsUser() {
         deconnections.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -342,7 +348,7 @@ public class ProfilInfo extends AppCompatActivity {
             @Override
             public void onSuccess(ListResult listResult) {
                 for (StorageReference fileRef : listResult.getItems()) {
-                    if (fileRef.getName().contains(currentUser.getUid().toString())) {
+                    if (fileRef.getName().contains(currentUser.getUid())) {
                         //actualisations pour avoir un chiffre différent a chaque foi
                         fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
