@@ -180,8 +180,8 @@ public class ProfilInfo extends AppCompatActivity {
         deconnections.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                startActivity(new Intent(getApplicationContext(), UtilisateurMP.class));
+                mAuth.signOut();
+                startActivity(new Intent(getApplicationContext(), Login.class));
                 finish();
             }
         });
