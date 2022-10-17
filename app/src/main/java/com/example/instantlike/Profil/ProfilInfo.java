@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -56,6 +57,7 @@ public class ProfilInfo extends AppCompatActivity {
     private static final int RETOUR_PHOTO = 1;
     private String photoPath;
     private Uri photoUir;
+    private Button deconnections;
 
     /**
      * verificaitons si l'utilisateur est connecter
@@ -162,6 +164,8 @@ public class ProfilInfo extends AppCompatActivity {
         publications = findViewById(R.id.PublicationsUtilisateurProfil);
         follower = findViewById(R.id.FollowerUtilisateurProfil);
         suivi = findViewById(R.id.SuiviUtilisateurProfil);
+        deconnections = findViewById(R.id.buttonDéconnecter);
+        deconnectionsUser();
         cliquemessage();
         cliqueProfilInfoPost();
         cliqueHome();
@@ -170,6 +174,17 @@ public class ProfilInfo extends AppCompatActivity {
         publicationNB();
         followSuivi();
 
+    }
+
+    private  void deconnectionsUser(){
+        deconnections.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                startActivity(new Intent(getApplicationContext(), UtilisateurMP.class));
+                finish();
+            }
+        });
     }
 
     /**
