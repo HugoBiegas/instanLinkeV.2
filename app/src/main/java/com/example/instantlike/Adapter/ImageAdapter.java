@@ -233,12 +233,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                                                         DocumentSnapshot document = task.getResult();
                                                         if (document.exists()) {
                                                             Toast.makeText(context, " ces unfollow !", Toast.LENGTH_SHORT).show();
-                                                            notifyItemChanged(getAdapterPosition());
                                                             follow.setText("Follow");
                                                             docRef.delete();
                                                         } else {
                                                             Toast.makeText(context, " ces follow !", Toast.LENGTH_SHORT).show();
-                                                            notifyItemChanged(getAdapterPosition());
                                                             follow.setText("UnFollow");
                                                             Map<String, Object> donnée = new HashMap<>();
                                                             // Update and delete the "capital" field in the document
@@ -249,6 +247,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                                                                 }
                                                             });
                                                         }
+                                                        notifyItemChanged(getAdapterPosition());
                                                     }
                                                 }
                                             });
@@ -333,10 +332,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                                     // Update and delete the "capital" field in the document
                                     docRef.update(updates);
                                 }
+                                //likeNbActu.setText(nbLike + " Likes");
                                 notifyItemChanged(getAdapterPosition());
-                                likeNbActu.setText(nbLike + " Likes");
-
-
                             }
                         }
                     } else {

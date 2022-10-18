@@ -63,6 +63,8 @@ public class HomePage extends AppCompatActivity {
     private ArrayList<String> nomUster = new ArrayList<String>();
     private FirebaseUser currentUser;
     private androidx.appcompat.widget.Toolbar toolbar;
+    ImageAdapter adapter = new ImageAdapter(imageListUri, imageListName, HomePage.this, titreImage, descImage, imageName, iconList, nomUster);
+
 
     /**
      * vérificatiosn que l'utilisateur est bien connecter
@@ -109,6 +111,7 @@ public class HomePage extends AppCompatActivity {
                     iconList.clear();
                     nomUster.clear();
                     titreDescNomImage();
+                    adapter.notifyDataSetChanged();
                 }
             }
         });
@@ -304,7 +307,6 @@ public class HomePage extends AppCompatActivity {
                                 public void onSuccess(Uri uri) {
                                     final RecyclerView recyclerView = findViewById(R.id.recyclerView);
                                     recyclerView.setLayoutManager(new LinearLayoutManager(HomePage.this));
-                                    ImageAdapter adapter = new ImageAdapter(imageListUri, imageListName, HomePage.this, titreImage, descImage, imageName, iconList, nomUster);
                                     recyclerView.setAdapter(adapter);
                                 }
                             });
