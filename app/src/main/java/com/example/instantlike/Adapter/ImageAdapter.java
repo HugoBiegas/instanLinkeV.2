@@ -47,7 +47,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private TextView titreView, descriptionsView, nomUtilisateur, likeNbActu;
     private ImageButton Like, partage;
     private Button follow;
-    private Boolean passe = false;
 
 
     /**
@@ -88,16 +87,18 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder, int position) {
         Picasso.get().load(iconList.get(position)).into(holder.Icone);
-        //créations du recycleur avec tout les image
-        Picasso.get().load(imageListUri.get(position)).into(holder.imageView);
-        String testeNomImage = imageListName.get(position);
-        int i;
-        for (i = 0; i < imageName.size(); i++) {
-            if (imageName.get(i).equals(testeNomImage)) break;
-        }
-        titreView.setText(titre.get(i));
-        descriptionsView.setText(descriptions.get(i));
+        titreView.setText(titre.get(position));
+        descriptionsView.setText(descriptions.get(position));
         nomUtilisateur.setText(nomUster.get(position));
+        String testeNomImage = imageName.get(position);
+
+        for (int i = 0; i < imageListName.size(); i++) {
+            if (imageListName.get(i).contains(testeNomImage)){
+                Picasso.get().load(imageListUri.get(i)).into(holder.imageView);
+                break;
+            }
+        }
+
         iniLike(position);
         iniFollow(position);
     }
@@ -128,7 +129,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                         if (task.isSuccessful()) {
                                             DocumentSnapshot document = task.getResult();
-                                            if (document.exists()) follow.setText("UnFollow");
+                                            if (document.exists())
+                                                follow.setText("UnFollow");
                                         }
                                     }
                                 });
@@ -201,6 +203,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             partage = itemView.findViewById(R.id.partagePost);
             follow = itemView.findViewById(R.id.btnPostFollow);
             likeNbActu = itemView.findViewById(R.id.nbLike);
+
             follow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -218,10 +221,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                                             userSuivi = userSuivi.substring(0, userSuivi.indexOf("}"));
                                         else
                                             userSuivi = userSuivi.substring(0, userSuivi.indexOf(","));
-
-
                                         FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                                        passe = false;
                                         FirebaseAuth mAuth = FirebaseAuth.getInstance();
                                         FirebaseUser userFollow = mAuth.getCurrentUser();
                                         if (!(userFollow.getUid().equals(userSuivi))) {
@@ -247,7 +247,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                                                                 }
                                                             });
                                                         }
-                                                        notifyItemChanged(getAdapterPosition());
+                                                        for (int i = 0; i < getItemCount(); i++) {
+                                                            notifyItemChanged(i);
+                                                        }
                                                     }
                                                 }
                                             });
@@ -265,23 +267,30 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 }
             });
 
-
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, InfoPoste.class);
-                    intent.putExtra("image", imageListUri.get(getAdapterPosition()));
-                    intent.putExtra("name", imageListName.get(getAdapterPosition()));
+                    String testeNomImage = imageName.get(getAdapterPosition());
+                    int i;
+                    for (i = 0; i < imageListName.size(); i++) {
+                        if (imageListName.get(i).contains(testeNomImage))
+                            break;
+                    }
+                    intent.putExtra("image", imageListUri.get(i));
+                    intent.putExtra("name", imageListName.get(i));
                     intent.putExtra("retour", false);
                     context.startActivity(intent);
                 }
             });
+
             Like.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ajouLike();
                 }
             });
+
             partage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -343,4 +352,5 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             });
         }
     }
+
 }

@@ -49,7 +49,6 @@ public class HomePage extends AppCompatActivity {
     // vidéo pour les liste view : https://www.youtube.com/watch?v=KY5vOVNqkGM
     private static final int RETOUR_PHOTO = 1;
     private String photoPath = null;
-    private Uri photoUir;
     private FirebaseAuth mAuth;
     private final ArrayList<String> imageListUri = new ArrayList<>();
     private final ArrayList<String> imageListName = new ArrayList<>();
@@ -57,11 +56,11 @@ public class HomePage extends AppCompatActivity {
     private ArrayList<String> titreImage = new ArrayList<>();
     private ArrayList<String> descImage = new ArrayList<>();
     private ImageButton home, message, profilInfoPoste;
-
     private ArrayList<String> iconListToken = new ArrayList<String>();
     private ArrayList<String> iconList = new ArrayList<>();
     private ArrayList<String> nomUster = new ArrayList<String>();
     private FirebaseUser currentUser;
+    private Uri photoUir;
     private androidx.appcompat.widget.Toolbar toolbar;
     ImageAdapter adapter = new ImageAdapter(imageListUri, imageListName, HomePage.this, titreImage, descImage, imageName, iconList, nomUster);
 

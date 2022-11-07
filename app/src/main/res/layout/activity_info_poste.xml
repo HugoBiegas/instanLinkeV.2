@@ -35,14 +35,14 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/imagePoste"
         android:hint="commentaire"
-        android:background="@color/white"/>
+        android:textColor="@color/white"
+        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/commentaire"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/adcommentaire"
-        android:background="@color/white"/>
+        android:layout_below="@+id/adcommentaire" />
 
 
 </RelativeLayout>
