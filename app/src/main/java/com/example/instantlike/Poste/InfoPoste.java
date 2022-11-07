@@ -206,6 +206,7 @@ public class InfoPoste extends AppCompatActivity {
                                 if (com.indexOf("Com" + i) == -1)
                                     break;
 
+
                                 concaténations = com;
                                 Toast.makeText(InfoPoste.this, concaténations, Toast.LENGTH_SHORT).show();
                                 if (i < 10){
