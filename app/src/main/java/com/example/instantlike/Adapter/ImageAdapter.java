@@ -47,6 +47,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private TextView titreView, descriptionsView, nomUtilisateur, likeNbActu;
     private ImageButton Like, partage;
     private Button follow;
+    private ImageView imageView, Icone;
+
 
 
     /**
@@ -86,24 +88,26 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder, int position) {
-        Picasso.get().load(iconList.get(position)).into(holder.Icone);
+/*
+        Picasso.get().load(iconList.get(position)).into(Icone);
         titreView.setText(titre.get(position));
         descriptionsView.setText(descriptions.get(position));
         nomUtilisateur.setText(nomUster.get(position));
-        String testeNomImage = imageName.get(position);
 
+        String testeNomImage = imageName.get(position);
         for (int i = 0; i < imageListName.size(); i++) {
-            if (imageListName.get(i).contains(testeNomImage)){
-                Picasso.get().load(imageListUri.get(i)).into(holder.imageView);
+            if (imageListName.get(i).contains(testeNomImage)) {
+                Picasso.get().load(imageListUri.get(i)).into(imageView);
                 break;
             }
         }
+*/
 
-        iniLike(position);
-        iniFollow(position);
+        //iniLike(position);
+        //iniFollow(position);
     }
 
-    private void iniFollow(int position) {
+/*    private void iniFollow(int position) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("images").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -123,7 +127,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                             FirebaseUser userFollow = mAuth.getCurrentUser();
                             DocumentReference docRef = fStore.collection("followSuivi").document(userFollow.getUid() + ":" + userSuivi);
 
-                            if (!(userSuivi.equals(userFollow.getUid()))) {
                                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -134,7 +137,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                                         }
                                     }
                                 });
-                            }
                             break;
                         }
                     }
@@ -145,9 +147,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         });
 
 
-    }
+    }*/
 
-    private void iniLike(int position) {
+    /*private void iniLike(int position) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("like").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -171,7 +173,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 }
             }
         });
-    }
+    }*/
 
     /**
      * récupérations de la dimentions du recycleur
@@ -189,7 +191,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView imageView, Icone;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -204,7 +205,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             follow = itemView.findViewById(R.id.btnPostFollow);
             likeNbActu = itemView.findViewById(R.id.nbLike);
 
-            follow.setOnClickListener(new View.OnClickListener() {
+            /*follow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -263,9 +264,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                         }
                     });
                 }
-            });
+            });*/
 
-            itemView.setOnClickListener(new View.OnClickListener() {
+/*            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, InfoPoste.class);
@@ -280,19 +281,18 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                     intent.putExtra("retour", false);
                     context.startActivity(intent);
                 }
-            });
+            });*/
 
-            Like.setOnClickListener(new View.OnClickListener() {
+/*            Like.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ajouLike();
                 }
-            });
+            });*/
 
             partage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(context, "ces partager !", Toast.LENGTH_SHORT).show();
                     Intent shareIntent = new Intent(Intent.ACTION_SEND);
                     shareIntent.setType("text/plain");
                     String shareBody = imageListUri.get(getAdapterPosition());
@@ -303,7 +303,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
         }
 
-        private void ajouLike() {
+        /*private void ajouLike() {
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
             FirebaseUser userid = mAuth.getCurrentUser();
             FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -348,7 +348,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                     }
                 }
             });
-        }
+        }*/
     }
 
 }

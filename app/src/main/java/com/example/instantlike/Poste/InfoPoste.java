@@ -235,7 +235,6 @@ public class InfoPoste extends AppCompatActivity {
                         }
                     }
                     ininom();
-                    iniIcon();
                 } else {
                     Toast.makeText(InfoPoste.this, "Error getting documents", Toast.LENGTH_SHORT).show();
                 }
@@ -302,6 +301,7 @@ public class InfoPoste extends AppCompatActivity {
                             }
                         }
                     }
+                    iniIcon();
                 }
             }
         });

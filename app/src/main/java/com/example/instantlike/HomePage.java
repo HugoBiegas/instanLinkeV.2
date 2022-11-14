@@ -86,7 +86,7 @@ public class HomePage extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        testMessage();
+        //testMessage();
         photoClique();
         PosteClique();
         iniActivity();
@@ -109,6 +109,7 @@ public class HomePage extends AppCompatActivity {
                     imageName.clear();
                     iconList.clear();
                     nomUster.clear();
+                    imageScrol();
                     titreDescNomImage();
                     adapter.notifyDataSetChanged();
                 }
@@ -196,9 +197,9 @@ public class HomePage extends AppCompatActivity {
         home = findViewById(R.id.HomeBTNPost);
         message = findViewById(R.id.MessageBTNPost);
         profilInfoPoste = findViewById(R.id.InfoPorofilBTNPost);
-        imageScrol();
         cliquemessage();
-        cliqueProfilInfoPost();
+        imageScrol();
+        titreDescNomImage();
         cliqueHome();
     }
 
@@ -249,10 +250,8 @@ public class HomePage extends AppCompatActivity {
      */
     private void imageScrol() {
         //bar de progrations de la conections a firebase
-        final ProgressBar progressBar = findViewById(R.id.progressBar);
         //créations du recycler
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images");
-        progressBar.setVisibility(View.VISIBLE);
         //on vas chercher les images dans la BD
         storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
             @Override
@@ -267,12 +266,6 @@ public class HomePage extends AppCompatActivity {
                             imageListName.add(fileRef.getName());
                             imageListUri.add(uri.toString());
                             Log.d("item", uri.toString());
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            //on ajouter tout les image dans le recycler
-                            progressBar.setVisibility(View.GONE);
                         }
                     });
                 }
@@ -294,7 +287,7 @@ public class HomePage extends AppCompatActivity {
                 for (int i = 0; i < iconListToken.size(); i++) {
                     for (StorageReference fileRef : listResult.getItems()) {
                         String c = fileRef.getName();
-                        if (c.contains(iconListToken.get(i)) == true) {
+                        if (c.equals(iconListToken.get(i))) {
                             //actualisations pour avoir un chiffre différent a chaque foi
                             fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
@@ -381,7 +374,8 @@ public class HomePage extends AppCompatActivity {
                                 user = user.substring(user.indexOf("username=") + 9);
                                 if (user.indexOf(",") == -1)
                                     user = user.substring(0, user.indexOf("}"));
-                                else user = user.substring(0, user.indexOf(","));
+                                else
+                                    user = user.substring(0, user.indexOf(","));
                                 nomUster.add(user);
                                 break;
                             }
