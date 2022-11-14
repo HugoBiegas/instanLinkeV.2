@@ -1,6 +1,8 @@
 package com.example.instantlike.Poste;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
 import com.example.instantlike.Connection.Login;
@@ -29,11 +32,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class CreationPoste extends AppCompatActivity {
 
@@ -115,19 +121,14 @@ public class CreationPoste extends AppCompatActivity {
         ajoutImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //if (ActivityCompat.checkSelfPermission(poste.this, Manifest.permission.MANAGE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                Intent galleryintent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(galleryintent, 1);
-                //} else {
-                //demander la permisions
-                //    if (!ActivityCompat.shouldShowRequestPermissionRationale(poste.this, Manifest.permission.MANAGE_EXTERNAL_STORAGE)) {
-                //         String[] permissions = {Manifest.permission.MANAGE_EXTERNAL_STORAGE};
-                //afficher une demande de permisions
-                //         ActivityCompat.requestPermissions(poste.this, permissions, 2);
-                //    } else {
-                //afficher un message que la permisiions est obligatoir
-                //    }
-                // }
+                String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                if (EasyPermissions.hasPermissions(CreationPoste.this, permissions)) {
+                    Intent galleryintent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(galleryintent, 1);
+                } else {
+                        //afficher une demande de permisions
+                    EasyPermissions.requestPermissions(CreationPoste.this, "Access for storage", 101, permissions);
+                }
             }
         });
     }
@@ -158,6 +159,8 @@ public class CreationPoste extends AppCompatActivity {
             //récupérations de l'image
             Bitmap image2 = BitmapFactory.decodeFile(imgPath);
             Toast.makeText(this, imgPath, Toast.LENGTH_SHORT).show();
+            File f = new File(imgPath);
+            photoUri = Uri.fromFile(f);
             Glide.with(this /* context */).load(image2).into(imagePoste);
             ajoutImage.setVisibility(View.INVISIBLE);
         }
