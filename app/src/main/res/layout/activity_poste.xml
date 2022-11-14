@@ -35,7 +35,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/imagePoste"
         android:ems="10"
-        android:background="@color/white"
         android:hint="Titre"
         android:inputType="textPersonName" />
 
@@ -44,7 +43,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/titre"
-        android:background="#F1FDDC"
         android:gravity="top|left"
         android:hint="description"
         android:inputType="textMultiLine|text"
