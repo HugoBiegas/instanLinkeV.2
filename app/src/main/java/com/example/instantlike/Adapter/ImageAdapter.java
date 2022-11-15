@@ -36,11 +36,11 @@ import java.util.Map;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
-    private final ArrayList<String> imageListUri;
-    private final ArrayList<String> imageListName;
+    private final ArrayList<String> imageListUriStorage;
+    private final ArrayList<String> imageListNameStorage;
     private final ArrayList<String> titre;
     private final ArrayList<String> descriptions;
-    private final ArrayList<String> imageName;
+    private final ArrayList<String> imageNameFirebase;
     private final ArrayList<String> iconList;
     private final ArrayList<String> nomUster;
     private final Context context;
@@ -53,14 +53,15 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     /**
      * initialise les variables quand on appelle la clase avec les paramétres données
+     * Constructeur
      */
     public ImageAdapter(ArrayList<String> imageListUri, ArrayList<String> imageListName, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> imageName, ArrayList<String> iconList, ArrayList<String> nomUster) {
-        this.imageListUri = imageListUri;
-        this.imageListName = imageListName;
+        this.imageListUriStorage = imageListUri;
+        this.imageListNameStorage = imageListName;
+        this.imageNameFirebase = imageName;
         this.context = context;
         this.titre = titre;
         this.descriptions = descriptions;
-        this.imageName = imageName;
         this.iconList = iconList;
         this.nomUster = nomUster;
     }
@@ -88,21 +89,17 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder, int position) {
-/*
         Picasso.get().load(iconList.get(position)).into(Icone);
         titreView.setText(titre.get(position));
         descriptionsView.setText(descriptions.get(position));
         nomUtilisateur.setText(nomUster.get(position));
-
-        String testeNomImage = imageName.get(position);
-        for (int i = 0; i < imageListName.size(); i++) {
-            if (imageListName.get(i).contains(testeNomImage)) {
-                Picasso.get().load(imageListUri.get(i)).into(imageView);
+        String NomImage = imageNameFirebase.get(position);
+       for (int i = 0; i < imageListNameStorage.size(); i++) {
+            if (NomImage.equals(imageListNameStorage.get(i))){
+                Picasso.get().load(imageListUriStorage.get(i)).into(imageView);
                 break;
             }
         }
-*/
-
         //iniLike(position);
         //iniFollow(position);
     }
@@ -182,7 +179,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     @Override
     public int getItemCount() {
-        return iconList.size();
+        return imageListUriStorage.size();
     }
 
     /**
@@ -295,7 +292,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 public void onClick(View view) {
                     Intent shareIntent = new Intent(Intent.ACTION_SEND);
                     shareIntent.setType("text/plain");
-                    String shareBody = imageListUri.get(getAdapterPosition());
+                    String shareBody = imageListUriStorage.get(getAdapterPosition());
                     shareIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
                     context.startActivity(Intent.createChooser(shareIntent, titre.get(getAdapterPosition())));
                 }
