@@ -179,7 +179,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     @Override
     public int getItemCount() {
-        return imageListUriStorage.size();
+        return iconList.size();
     }
 
     /**
@@ -263,22 +263,23 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 }
             });*/
 
-/*            itemView.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, InfoPoste.class);
-                    String testeNomImage = imageName.get(getAdapterPosition());
+                    String NomImage = imageNameFirebase.get(getAdapterPosition());
                     int i;
-                    for (i = 0; i < imageListName.size(); i++) {
-                        if (imageListName.get(i).contains(testeNomImage))
+                    for (i = 0; i < imageListNameStorage.size(); i++) {
+                        if (NomImage.equals(imageListNameStorage.get(i))){
                             break;
+                        }
                     }
-                    intent.putExtra("image", imageListUri.get(i));
-                    intent.putExtra("name", imageListName.get(i));
+                    intent.putExtra("image", imageListUriStorage.get(i));
+                    intent.putExtra("name", imageListNameStorage.get(i));
                     intent.putExtra("retour", false);
                     context.startActivity(intent);
                 }
-            });*/
+            });
 
 /*            Like.setOnClickListener(new View.OnClickListener() {
                 @Override
