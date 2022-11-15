@@ -2,7 +2,6 @@ package com.example.instantlike.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.instantlike.Poste.InfoPoste;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -48,7 +44,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private ImageButton Like, partage;
     private Button follow;
     private ImageView imageView, Icone;
-
 
 
     /**
@@ -94,13 +89,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         descriptionsView.setText(descriptions.get(position));
         nomUtilisateur.setText(nomUster.get(position));
         String NomImage = imageNameFirebase.get(position);
-       for (int i = 0; i < imageListNameStorage.size(); i++) {
-            if (NomImage.equals(imageListNameStorage.get(i))){
+        int i;
+        for (i = 0; i < imageListNameStorage.size(); i++) {
+            if (NomImage.equals(imageListNameStorage.get(i))) {
                 Picasso.get().load(imageListUriStorage.get(i)).into(imageView);
                 break;
             }
         }
-        //iniLike(position);
+        iniLike(position,i);
         //iniFollow(position);
     }
 
@@ -146,31 +142,24 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     }*/
 
-    /*private void iniLike(int position) {
+    private void iniLike(int position, int i) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("like").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
+                    int cpt = 0;
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        if (document.getId().equals(imageListName.get(position))) {
-                            //date du poste
-                            String like = document.getData().toString();
-                            like = like.substring(like.indexOf("nbLike=") + 7);
-                            if (like.indexOf(",") == -1)
-                                like = like.substring(0, like.indexOf("}"));
-                            else like = like.substring(0, like.indexOf(","));
-                            int nbLike = Integer.parseInt(like);
-                            likeNbActu.setText(nbLike + " Likes");
-                            break;
-                        }
+                        if (document.getId().contains(imageListNameStorage.get(i)))
+                            cpt++;
                     }
+                    likeNbActu.setText(cpt + " Likes");
                 } else {
                     Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-    }*/
+    }
 
     /**
      * récupérations de la dimentions du recycleur
@@ -270,7 +259,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                     String NomImage = imageNameFirebase.get(getAdapterPosition());
                     int i;
                     for (i = 0; i < imageListNameStorage.size(); i++) {
-                        if (NomImage.equals(imageListNameStorage.get(i))){
+                        if (NomImage.equals(imageListNameStorage.get(i))) {
                             break;
                         }
                     }
@@ -281,12 +270,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 }
             });
 
-/*            Like.setOnClickListener(new View.OnClickListener() {
+            Like.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ajouLike();
                 }
-            });*/
+            });
 
             partage.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -301,7 +290,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
         }
 
-        /*private void ajouLike() {
+        private void ajouLike() {
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
             FirebaseUser userid = mAuth.getCurrentUser();
             FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -309,44 +298,26 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            if (document.getId().equals(imageListName.get(getAdapterPosition()))) {
-                                //date du poste
-                                String like = document.getData().toString();
-                                like = like.substring(like.indexOf("nbLike=") + 7);
-                                if (like.indexOf(",") == -1)
-                                    like = like.substring(0, like.indexOf("}"));
-                                else like = like.substring(0, like.indexOf(","));
-                                int nbLike = Integer.parseInt(like);
-                                FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                                DocumentReference docRef = fStore.collection("like").document(imageListName.get(getAdapterPosition()));
-                                Map<String, Object> updates = new HashMap<>();
-
-                                if (document.getData().toString().contains(userid.getUid())) {
-                                    Toast.makeText(context, "ces disliker !", Toast.LENGTH_SHORT).show();
-                                    nbLike--;
-                                    updates.put(userid.getUid(), FieldValue.delete());
-                                    updates.put("nbLike", nbLike);
-                                    // Update and delete the "capital" field in the document
-                                    docRef.update(updates);
-                                } else {
-                                    Toast.makeText(context, "ces liker !", Toast.LENGTH_SHORT).show();
-                                    nbLike++;
-                                    updates.put(userid.getUid(), "");
-                                    updates.put("nbLike", nbLike);
-                                    // Update and delete the "capital" field in the document
-                                    docRef.update(updates);
-                                }
-                                //likeNbActu.setText(nbLike + " Likes");
-                                notifyItemChanged(getAdapterPosition());
+                        String NomImage = imageNameFirebase.get(getAdapterPosition());
+                        int i;
+                        for (i = 0; i < imageListNameStorage.size(); i++) {
+                            if (NomImage.equals(imageListNameStorage.get(i))) {
+                                break;
                             }
                         }
+
+                        FirebaseFirestore fStore = FirebaseFirestore.getInstance();
+                        DocumentReference docRef = fStore.collection("like").document(imageListNameStorage.get(i) + ":" + userid);
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("nbLike", 1);
+                        docRef.update(updates);
+                        notifyItemChanged(i);
                     } else {
                         Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
-        }*/
+        }
     }
 
 }
