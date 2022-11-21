@@ -120,8 +120,7 @@ public class InfoPoste extends AppCompatActivity {
                                     //boucle pour reprendre les commentaire créer par cette personne
                                     while (data.length() != 0) {
                                         //on regarde si il a écrie un commentaire
-                                        if (data.indexOf("Com" + i) == -1)
-                                            break;
+                                        if (data.indexOf("Com" + i) == -1) break;
                                         concaténations = data;
                                         if (i < 10)
                                             concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 5);
@@ -203,31 +202,29 @@ public class InfoPoste extends AppCompatActivity {
                             int i = 0;
                             while (com.length() != 0) {
                                 //on regarde si il a écrie un commentaire
-                                if (com.indexOf("Com") == -1)
-                                    break;
+                                if (com.indexOf("Com") == -1) break;
 
                                 concaténations = com;
-                                Toast.makeText(InfoPoste.this, concaténations, Toast.LENGTH_SHORT).show();
-                                if (i < 10){
+                                if (i < 10) {
                                     concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 5);
-                                    String pass1 = com.substring(0, com.indexOf("Com"+ i + "="));
-                                    String pass2 = com.substring(com.indexOf("Com" + i + "=") + 5,com.length());
-                                    com = pass1+pass2;
-                                }else if (i < 100){
+                                    String pass1 = com.substring(0, com.indexOf("Com" + i + "="));
+                                    String pass2 = com.substring(com.indexOf("Com" + i + "=") + 5, com.length());
+                                    com = pass1 + pass2;
+                                } else if (i < 100) {
                                     concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 6);
-                                    String pass1 = com.substring(0, com.indexOf("Com"+ i + "="));
-                                    String pass2 = com.substring(com.indexOf("Com" + i + "=") + 6,com.length());
-                                    com = pass1+pass2;
-                                }else{
+                                    String pass1 = com.substring(0, com.indexOf("Com" + i + "="));
+                                    String pass2 = com.substring(com.indexOf("Com" + i + "=") + 6, com.length());
+                                    com = pass1 + pass2;
+                                } else {
                                     concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 7);
-                                    String pass1 = com.substring(0, com.indexOf("Com"+ i + "="));
-                                    String pass2 = com.substring(com.indexOf("Com" + i + "=") + 7,com.length());
-                                    com = pass1+pass2;
+                                    String pass1 = com.substring(0, com.indexOf("Com" + i + "="));
+                                    String pass2 = com.substring(com.indexOf("Com" + i + "=") + 7, com.length());
+                                    com = pass1 + pass2;
                                 }
 
-                                if (concaténations.indexOf(",") == -1){
+                                if (concaténations.indexOf(",") == -1) {
                                     concaténations = concaténations.substring(0, concaténations.indexOf("}"));
-                                }else{
+                                } else {
                                     concaténations = concaténations.substring(0, concaténations.indexOf(","));
                                 }
                                 i++;

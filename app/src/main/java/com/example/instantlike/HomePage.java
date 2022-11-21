@@ -63,6 +63,7 @@ public class HomePage extends AppCompatActivity {
     private androidx.appcompat.widget.Toolbar toolbar;
     RecyclerView recyclerView;
     ImageAdapter adapter = new ImageAdapter(imageListUriStorage, imageListNameStorage, HomePage.this, titreImage, descImage, imageNameFirebase, iconList, nomUster);
+    static Boolean passe=false;
 
 
     /**
@@ -291,19 +292,20 @@ public class HomePage extends AppCompatActivity {
                 for (int i = 0; i < iconListToken.size(); i++) {
                     for (StorageReference fileRef : listResult.getItems()) {
                         c = fileRef.getName();
-                        if (c.equals(iconListToken.get(i))) {
+                        if (iconListToken.get(i).equals(c)) {
                             //actualisations pour avoir un chiffre différent a chaque foi
                             fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     //on récupére uri qui est le lien ou trouver les données
-                                    iconList.add(uri.toString());
+                                        iconList.add(uri.toString());
                                 }
-                            }).addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                                 @Override
-                                public void onSuccess(Uri uri) {
-                                    adapter.notifyDataSetChanged();
-
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful() && iconList.size() == iconListToken.size()){
+                                        adapter.notifyDataSetChanged();
+                                    }
                                 }
                             });
                             break;

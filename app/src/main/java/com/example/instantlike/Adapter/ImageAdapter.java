@@ -3,6 +3,8 @@ package com.example.instantlike.Adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.instantlike.Poste.InfoPoste;
@@ -23,9 +27,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
@@ -88,7 +95,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder, int position) {
-        Picasso.get().load(imageListUriStorage.get(position)).into(imageView);
         String NomImage = imageListNameStorage.get(position);
         int i;
         for (i = 0; i < imageListNameStorage.size(); i++) {
@@ -97,11 +103,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             }
         }
         if(i< iconList.size()){
+            Picasso.get().load(imageListUriStorage.get(position)).into(imageView);
             Picasso.get().load(iconList.get(i)).into(Icone);
             titreView.setText(titre.get(i));
             descriptionsView.setText(descriptions.get(i));
             nomUtilisateur.setText(nomUster.get(i));
-            //iniLike(position);
+            iniLike(position);
             //iniFollow(position);
         }
     }
@@ -148,7 +155,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     }*/
 
-/*    private void iniLike(int position) {
+   private void iniLike(int position) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("like").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -160,13 +167,31 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                             cpt++;
                     }
                     likeNbActu.setText(cpt + " Likes");
+                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                    FirebaseUser userid = mAuth.getCurrentUser();
+                    FirebaseFirestore fStore = FirebaseFirestore.getInstance();
+                    CollectionReference documentReference = fStore.collection("like");
+                    documentReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @RequiresApi(api = Build.VERSION_CODES.M)
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()){
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    if (document.getId().equals(imageListNameStorage.get(position)+":"+ userid)){
+                                        Like.setImageIcon(Icon.createWithContentUri("@drawable/liker"));
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    });
 
                 } else {
                     Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-    }*/
+    }
 
     /**
      * récupérations de la dimentions du recycleur
@@ -175,7 +200,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     @Override
     public int getItemCount() {
-        return iconList.size();
+        return imageListNameStorage.size();
     }
 
     /**
@@ -270,12 +295,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 }
             });
 
-/*            Like.setOnClickListener(new View.OnClickListener() {
+            Like.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ajouLike();
                 }
-            });*/
+            });
 
             partage.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -290,7 +315,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
         }
 
-/*        private void ajouLike() {
+        private void ajouLike() {
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
             FirebaseUser userid = mAuth.getCurrentUser();
             FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -304,7 +329,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                 if (!documentSnapshot.exists()){
-                                    Like.setBackground(Drawable.createFromPath("@drawable/like"));
+                                    Like.setBackground(Drawable.createFromPath("@drawable/liker"));
                                     Map<String, Object> donnée = new HashMap<>();
                                     donnée.put("nbLike", 0);
                                     documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -319,12 +344,13 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                                 }
                             }
                         });
+                        notifyItemChanged(getAdapterPosition());
                     } else {
                         Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
-        }*/
+        }
     }
 
 }
