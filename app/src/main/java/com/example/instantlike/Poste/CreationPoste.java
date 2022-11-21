@@ -194,7 +194,6 @@ public class CreationPoste extends AppCompatActivity {
                     posterImage(photoUri);
                     //rajouter dans firebase le titre et le commentaire
                     ajoutBDFirestore(titre.getText().toString(), descriptions.getText().toString());
-                    likeIni();
                     try {
                         Thread.sleep(2000);
                     } catch (InterruptedException e) {
@@ -233,20 +232,6 @@ public class CreationPoste extends AppCompatActivity {
 
     }
 
-    /**
-     * initialisations des like pour une image
-     */
-    private void likeIni() {
-        DocumentReference documentReference = fStore.collection("like").document(uuid);
-        Map<String, Object> donnée = new HashMap<>();
-        donnée.put("nbLike", 0);
-        documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d("TAG", "onSuccess: Les données son créer");
-            }
-        });
-    }
 
     /**
      * méthode permettent de rendre chaque image unique

@@ -203,29 +203,32 @@ public class InfoPoste extends AppCompatActivity {
                             int i = 0;
                             while (com.length() != 0) {
                                 //on regarde si il a écrie un commentaire
-                                if (com.indexOf("Com" + i) == -1)
+                                if (com.indexOf("Com") == -1)
                                     break;
-
 
                                 concaténations = com;
                                 Toast.makeText(InfoPoste.this, concaténations, Toast.LENGTH_SHORT).show();
                                 if (i < 10){
                                     concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 5);
-                                    com = com.substring(com.indexOf("Com" + i + "=") + 5,com.length());
+                                    String pass1 = com.substring(0, com.indexOf("Com"+ i + "="));
+                                    String pass2 = com.substring(com.indexOf("Com" + i + "=") + 5,com.length());
+                                    com = pass1+pass2;
                                 }else if (i < 100){
                                     concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 6);
-                                    com = com.substring(com.indexOf("Com" + i + "=") + 6,com.length());
+                                    String pass1 = com.substring(0, com.indexOf("Com"+ i + "="));
+                                    String pass2 = com.substring(com.indexOf("Com" + i + "=") + 6,com.length());
+                                    com = pass1+pass2;
                                 }else{
                                     concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 7);
-                                    com = com.substring(com.indexOf("Com" + i + "=") + 7,com.length());
+                                    String pass1 = com.substring(0, com.indexOf("Com"+ i + "="));
+                                    String pass2 = com.substring(com.indexOf("Com" + i + "=") + 7,com.length());
+                                    com = pass1+pass2;
                                 }
 
                                 if (concaténations.indexOf(",") == -1){
                                     concaténations = concaténations.substring(0, concaténations.indexOf("}"));
-                                    com = com.substring(com.indexOf("}") + 1,com.length());
                                 }else{
                                     concaténations = concaténations.substring(0, concaténations.indexOf(","));
-                                    com = com.substring(com.indexOf(",") + 1,com.length());
                                 }
                                 i++;
 

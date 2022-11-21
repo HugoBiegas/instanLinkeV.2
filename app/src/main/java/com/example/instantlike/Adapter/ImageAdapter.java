@@ -2,6 +2,8 @@ package com.example.instantlike.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +19,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.instantlike.Poste.InfoPoste;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -84,20 +88,22 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder, int position) {
-        Picasso.get().load(iconList.get(position)).into(Icone);
-        titreView.setText(titre.get(position));
-        descriptionsView.setText(descriptions.get(position));
-        nomUtilisateur.setText(nomUster.get(position));
-        String NomImage = imageNameFirebase.get(position);
+        Picasso.get().load(imageListUriStorage.get(position)).into(imageView);
+        String NomImage = imageListNameStorage.get(position);
         int i;
         for (i = 0; i < imageListNameStorage.size(); i++) {
-            if (NomImage.equals(imageListNameStorage.get(i))) {
-                Picasso.get().load(imageListUriStorage.get(i)).into(imageView);
+            if (NomImage.contains(imageNameFirebase.get(i))) {
                 break;
             }
         }
-        iniLike(position,i);
-        //iniFollow(position);
+        if(i< iconList.size()){
+            Picasso.get().load(iconList.get(i)).into(Icone);
+            titreView.setText(titre.get(i));
+            descriptionsView.setText(descriptions.get(i));
+            nomUtilisateur.setText(nomUster.get(i));
+            //iniLike(position);
+            //iniFollow(position);
+        }
     }
 
 /*    private void iniFollow(int position) {
@@ -142,7 +148,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     }*/
 
-    private void iniLike(int position, int i) {
+/*    private void iniLike(int position) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("like").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -150,16 +156,17 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 if (task.isSuccessful()) {
                     int cpt = 0;
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        if (document.getId().contains(imageListNameStorage.get(i)))
+                        if (document.getId().contains(imageListNameStorage.get(position)))
                             cpt++;
                     }
                     likeNbActu.setText(cpt + " Likes");
+
                 } else {
                     Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-    }
+    }*/
 
     /**
      * récupérations de la dimentions du recycleur
@@ -256,26 +263,19 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, InfoPoste.class);
-                    String NomImage = imageNameFirebase.get(getAdapterPosition());
-                    int i;
-                    for (i = 0; i < imageListNameStorage.size(); i++) {
-                        if (NomImage.equals(imageListNameStorage.get(i))) {
-                            break;
-                        }
-                    }
-                    intent.putExtra("image", imageListUriStorage.get(i));
-                    intent.putExtra("name", imageListNameStorage.get(i));
+                    intent.putExtra("image", imageListUriStorage.get(getAdapterPosition()));
+                    intent.putExtra("name", imageListNameStorage.get(getAdapterPosition()));
                     intent.putExtra("retour", false);
                     context.startActivity(intent);
                 }
             });
 
-            Like.setOnClickListener(new View.OnClickListener() {
+/*            Like.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ajouLike();
                 }
-            });
+            });*/
 
             partage.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -290,7 +290,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
         }
 
-        private void ajouLike() {
+/*        private void ajouLike() {
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
             FirebaseUser userid = mAuth.getCurrentUser();
             FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -298,26 +298,33 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
-                        String NomImage = imageNameFirebase.get(getAdapterPosition());
-                        int i;
-                        for (i = 0; i < imageListNameStorage.size(); i++) {
-                            if (NomImage.equals(imageListNameStorage.get(i))) {
-                                break;
-                            }
-                        }
-
                         FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                        DocumentReference docRef = fStore.collection("like").document(imageListNameStorage.get(i) + ":" + userid);
-                        Map<String, Object> updates = new HashMap<>();
-                        updates.put("nbLike", 1);
-                        docRef.update(updates);
-                        notifyItemChanged(i);
+                        DocumentReference documentReference = fStore.collection("like").document(imageListNameStorage.get(getAdapterPosition()) + ":" + userid);
+                        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                if (!documentSnapshot.exists()){
+                                    Like.setBackground(Drawable.createFromPath("@drawable/like"));
+                                    Map<String, Object> donnée = new HashMap<>();
+                                    donnée.put("nbLike", 0);
+                                    documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d("TAG", "onSuccess: Les données son créer");
+                                        }
+                                    });
+                                }else{
+                                    Like.setBackground(Drawable.createFromPath("@drawable/like"));
+                                    documentReference.delete();
+                                }
+                            }
+                        });
                     } else {
                         Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
-        }
+        }*/
     }
 
 }

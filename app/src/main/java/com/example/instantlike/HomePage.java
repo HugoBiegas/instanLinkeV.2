@@ -77,6 +77,11 @@ public class HomePage extends AppCompatActivity {
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
         }
+        recyclerView = findViewById(R.id.recyclerView);
+        LinearLayoutManager manager = new LinearLayoutManager(HomePage.this);
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(adapter);
     }
 
 
@@ -297,11 +302,8 @@ public class HomePage extends AppCompatActivity {
                             }).addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
-                                    recyclerView = findViewById(R.id.recyclerView);
-                                    LinearLayoutManager manager = new LinearLayoutManager(HomePage.this);
-                                    recyclerView.setLayoutManager(manager);
-                                    recyclerView.setHasFixedSize(true);
-                                    recyclerView.setAdapter(adapter);
+                                    adapter.notifyDataSetChanged();
+
                                 }
                             });
                             break;
