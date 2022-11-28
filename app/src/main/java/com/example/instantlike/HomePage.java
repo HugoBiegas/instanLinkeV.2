@@ -62,8 +62,7 @@ public class HomePage extends AppCompatActivity {
     private Uri photoUir;
     private androidx.appcompat.widget.Toolbar toolbar;
     RecyclerView recyclerView;
-    ImageAdapter adapter = new ImageAdapter(imageListUriStorage, imageListNameStorage, HomePage.this, titreImage, descImage, imageNameFirebase, iconList, nomUster);
-    static Boolean passe=false;
+    ImageAdapter adapter = new ImageAdapter(imageListUriStorage, imageListNameStorage, HomePage.this, titreImage, descImage, iconList, nomUster);
 
 
     /**

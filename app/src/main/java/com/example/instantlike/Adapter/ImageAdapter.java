@@ -47,7 +47,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     private final ArrayList<String> imageListNameStorage;
     private final ArrayList<String> titre;
     private final ArrayList<String> descriptions;
-    private final ArrayList<String> imageNameFirebase;
     private final ArrayList<String> iconList;
     private final ArrayList<String> nomUster;
     private final Context context;
@@ -61,10 +60,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      * initialise les variables quand on appelle la clase avec les paramétres données
      * Constructeur
      */
-    public ImageAdapter(ArrayList<String> imageListUri, ArrayList<String> imageListName, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> imageName, ArrayList<String> iconList, ArrayList<String> nomUster) {
+    public ImageAdapter(ArrayList<String> imageListUri, ArrayList<String> imageListName, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> iconList, ArrayList<String> nomUster) {
         this.imageListUriStorage = imageListUri;
         this.imageListNameStorage = imageListName;
-        this.imageNameFirebase = imageName;
         this.context = context;
         this.titre = titre;
         this.descriptions = descriptions;
@@ -94,23 +92,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      * @param position
      */
     @Override
-    public void onBindViewHolder(@NonNull ImageAdapter.ViewHolder holder, int position) {
-        String NomImage = imageListNameStorage.get(position);
-        int i;
-        for (i = 0; i < imageListNameStorage.size(); i++) {
-            if (NomImage.contains(imageNameFirebase.get(i))) {
-                break;
-            }
-        }
-        if(i< iconList.size()){
-            Picasso.get().load(imageListUriStorage.get(position)).into(imageView);
-            Picasso.get().load(iconList.get(i)).into(Icone);
-            titreView.setText(titre.get(i));
-            descriptionsView.setText(descriptions.get(i));
-            nomUtilisateur.setText(nomUster.get(i));
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Picasso.get().load(imageListUriStorage.get(position)).into(imageView);
+        Picasso.get().load(iconList.get(position)).into(Icone);
+        titreView.setText(titre.get(position));
+        descriptionsView.setText(descriptions.get(position));
+        nomUtilisateur.setText(nomUster.get(position));
             iniLike(position);
             //iniFollow(position);
-        }
     }
 
 /*    private void iniFollow(int position) {
@@ -156,36 +145,21 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     }*/
 
    private void iniLike(int position) {
+       FirebaseAuth mAuth = FirebaseAuth.getInstance();
+       FirebaseUser userid = mAuth.getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("like").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    int cpt = 0;
+                    int cpt=0;
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         if (document.getId().contains(imageListNameStorage.get(position)))
                             cpt++;
+                        if(document.getId().equals(imageListNameStorage.get(position)+":"+userid.getUid()))
+                            Like.setImageResource(R.drawable.liker);
                     }
                     likeNbActu.setText(cpt + " Likes");
-                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                    FirebaseUser userid = mAuth.getCurrentUser();
-                    FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                    CollectionReference documentReference = fStore.collection("like");
-                    documentReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @RequiresApi(api = Build.VERSION_CODES.M)
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()){
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    if (document.getId().equals(imageListNameStorage.get(position)+":"+ userid)){
-                                        Like.setImageIcon(Icon.createWithContentUri("@drawable/liker"));
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    });
-
                 } else {
                     Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
                 }
@@ -200,7 +174,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     @Override
     public int getItemCount() {
-        return imageListNameStorage.size();
+        return iconList.size();
     }
 
     /**
@@ -222,6 +196,13 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             partage = itemView.findViewById(R.id.partagePost);
             follow = itemView.findViewById(R.id.btnPostFollow);
             likeNbActu = itemView.findViewById(R.id.nbLike);
+
+            Like.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ajouLike();
+                }
+            });
 
             /*follow.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -295,13 +276,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 }
             });
 
-            Like.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ajouLike();
-                }
-            });
-
             partage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -324,12 +298,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
                         FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                        DocumentReference documentReference = fStore.collection("like").document(imageListNameStorage.get(getAdapterPosition()) + ":" + userid);
+                        DocumentReference documentReference = fStore.collection("like").document(imageListNameStorage.get(getAdapterPosition()) + ":" + userid.getUid());
                         documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                if (!documentSnapshot.exists()){
-                                    Like.setBackground(Drawable.createFromPath("@drawable/liker"));
+                                if (!documentSnapshot.exists()) {
+                                    Like.setImageResource(R.drawable.liker);
                                     Map<String, Object> donnée = new HashMap<>();
                                     donnée.put("nbLike", 0);
                                     documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -338,13 +312,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                                             Log.d("TAG", "onSuccess: Les données son créer");
                                         }
                                     });
-                                }else{
-                                    Like.setBackground(Drawable.createFromPath("@drawable/like"));
+                                } else {
+                                    Like.setImageResource(R.drawable.like);
                                     documentReference.delete();
                                 }
                             }
                         });
-                        notifyItemChanged(getAdapterPosition());
                     } else {
                         Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
                     }
