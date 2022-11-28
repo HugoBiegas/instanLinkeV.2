@@ -78,11 +78,6 @@ public class HomePage extends AppCompatActivity {
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
         }
-        recyclerView = findViewById(R.id.recyclerView);
-        LinearLayoutManager manager = new LinearLayoutManager(HomePage.this);
-        recyclerView.setLayoutManager(manager);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(adapter);
     }
 
 
@@ -304,7 +299,12 @@ public class HomePage extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<Uri> task) {
                                     if (task.isSuccessful() && iconList.size() == iconListToken.size()){
-                                        adapter.notifyDataSetChanged();
+                                        trieImage();
+                                        recyclerView = findViewById(R.id.recyclerView);
+                                        LinearLayoutManager manager = new LinearLayoutManager(HomePage.this);
+                                        recyclerView.setLayoutManager(manager);
+                                        recyclerView.setHasFixedSize(true);
+                                        recyclerView.setAdapter(adapter);
                                     }
                                 }
                             });
@@ -316,6 +316,22 @@ public class HomePage extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void trieImage(){
+        String NomImage;
+        ArrayList<String> temps =new ArrayList<>();
+        for (int i = 0; i < imageNameFirebase.size(); i++) {
+            NomImage = imageNameFirebase.get(i);
+            for (int j = 0; j < imageNameFirebase.size(); j++) {
+                if (NomImage.equals(imageListNameStorage.get(j))) {
+                    temps.add(imageListUriStorage.get(j));
+                    break;
+                }
+            }
+        }
+        imageListUriStorage.clear();
+        imageListUriStorage.addAll(temps);
     }
 
     /**
