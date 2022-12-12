@@ -310,6 +310,7 @@ public class HomePage extends AppCompatActivity {
                                         recyclerView.setLayoutManager(manager);
                                         recyclerView.setHasFixedSize(true);
                                         recyclerView.setAdapter(adapter);
+
                                     }
                                 }
                             });
