@@ -7,7 +7,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -83,7 +82,6 @@ public class UtilisateurMP extends AppCompatActivity {
         profilInfoPoste = findViewById(R.id.InfoPorofilBTNMpUtilisateur);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
 
         photoClique();
@@ -260,13 +258,13 @@ public class UtilisateurMP extends AppCompatActivity {
                                 public void onSuccess(Uri uri) {
                                     iconUtilisateurMP.add(uri.toString());
                                     String name = uri.getLastPathSegment();
-                                    name = name.substring(name.indexOf("/")+1);
+                                    name = name.substring(name.indexOf("/") + 1);
                                     iconUtilisateurMPToken.add(name);
                                 }
                             }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Uri> task) {
-                                    if(task.isSuccessful() && iconUtilisateurMP.size() == idUtilisateurMp.size()){
+                                    if (task.isSuccessful() && iconUtilisateurMP.size() == idUtilisateurMp.size()) {
                                         triIcon();
                                         final RecyclerView recyclerView = findViewById(R.id.recyclerViewMPutilisateur);
                                         recyclerView.setLayoutManager(new LinearLayoutManager(UtilisateurMP.this));
@@ -284,9 +282,10 @@ public class UtilisateurMP extends AppCompatActivity {
             }
         });
     }
-    private void triIcon(){
+
+    private void triIcon() {
         String NomIcon;
-        ArrayList<String> temps =new ArrayList<>();
+        ArrayList<String> temps = new ArrayList<>();
         for (int i = 0; i < idUtilisateurMp.size(); i++) {
             NomIcon = idUtilisateurMp.get(i);
             for (int j = 0; j < iconUtilisateurMPToken.size(); j++) {

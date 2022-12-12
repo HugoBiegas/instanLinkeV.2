@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,12 +28,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -95,7 +91,6 @@ public class InfoPoste extends AppCompatActivity {
         cliquePosterCom();
         ComeAffichage();
     }
-
 
 
     /**
@@ -268,13 +263,13 @@ public class InfoPoste extends AppCompatActivity {
                                 public void onSuccess(Uri uri) {
                                     iconUtilisateurCom.add(uri.toString());
                                     String name = uri.getLastPathSegment();
-                                    name = name.substring(name.indexOf("/")+1);
+                                    name = name.substring(name.indexOf("/") + 1);
                                     iconUtilisateurToken.add(name);
                                 }
                             }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Uri> task) {
-                                    if (task.isSuccessful() && iconUtilisateurCom.size() == idUtilisateurCom.size()){
+                                    if (task.isSuccessful() && iconUtilisateurCom.size() == idUtilisateurCom.size()) {
                                         triIcon();
                                         final RecyclerView recyclerView = findViewById(R.id.commentaire);
                                         recyclerView.setLayoutManager(new LinearLayoutManager(InfoPoste.this));
@@ -291,9 +286,10 @@ public class InfoPoste extends AppCompatActivity {
             }
         });
     }
-    private void triIcon(){
+
+    private void triIcon() {
         String NomIcon;
-        ArrayList<String> temps =new ArrayList<>();
+        ArrayList<String> temps = new ArrayList<>();
         for (int i = 0; i < idUtilisateurCom.size(); i++) {
             NomIcon = idUtilisateurCom.get(i);
             for (int j = 0; j < iconUtilisateurCom.size(); j++) {

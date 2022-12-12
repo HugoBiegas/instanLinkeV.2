@@ -11,7 +11,6 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,10 +26,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -42,7 +38,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 
 public class HomePage extends AppCompatActivity {
     // vidéo pour l'appareile photo : https://www.youtube.com/watch?v=8890GpBwn9w
@@ -64,7 +59,7 @@ public class HomePage extends AppCompatActivity {
     private Uri photoUir;
     private androidx.appcompat.widget.Toolbar toolbar;
     RecyclerView recyclerView;
-    ImageAdapter adapter = new ImageAdapter(imageListUriStorage,imageListNameStorage, HomePage.this, titreImage, descImage, iconList, nomUster);
+    ImageAdapter adapter = new ImageAdapter(imageListUriStorage, imageListNameStorage, HomePage.this, titreImage, descImage, iconList, nomUster);
 
 
     /**
@@ -278,13 +273,13 @@ public class HomePage extends AppCompatActivity {
                                     //on récupére uri qui est le lien ou trouver les données
                                     iconList.add(uri.toString());
                                     String name = uri.getLastPathSegment();
-                                    name = name.substring(name.indexOf("/")+1);
+                                    name = name.substring(name.indexOf("/") + 1);
                                     iconListName.add(name);
                                 }
                             }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Uri> task) {
-                                    if (task.isSuccessful() && iconList.size() == iconListToken.size()){
+                                    if (task.isSuccessful() && iconList.size() == iconListToken.size()) {
                                         trieImage();
                                         trieIcon();
                                         recyclerView = findViewById(R.id.recyclerView);
@@ -304,9 +299,10 @@ public class HomePage extends AppCompatActivity {
         });
 
     }
-    private void trieIcon(){
+
+    private void trieIcon() {
         String NomIcon;
-        ArrayList<String> temps =new ArrayList<>();
+        ArrayList<String> temps = new ArrayList<>();
         for (int i = 0; i < iconListToken.size(); i++) {
             NomIcon = iconListToken.get(i);
             for (int j = 0; j < iconListName.size(); j++) {
@@ -320,10 +316,10 @@ public class HomePage extends AppCompatActivity {
         iconList.addAll(temps);
     }
 
-    private void trieImage(){
+    private void trieImage() {
         String NomImage;
-        ArrayList<String> tempsURI =new ArrayList<>();
-        ArrayList<String> tempsName =new ArrayList<>();
+        ArrayList<String> tempsURI = new ArrayList<>();
+        ArrayList<String> tempsName = new ArrayList<>();
         for (int i = 0; i < imageNameFirebase.size(); i++) {
             NomImage = imageNameFirebase.get(i);
             for (int j = 0; j < imageNameFirebase.size(); j++) {
@@ -355,10 +351,8 @@ public class HomePage extends AppCompatActivity {
                         //récupérations la personne qui a poster le com
                         String user = document.getData().toString();
                         user = user.substring(user.indexOf("UserPoste=") + 10);
-                        if (user.indexOf(",") == -1)
-                            user = user.substring(0, user.indexOf("}"));
-                        else
-                            user = user.substring(0, user.indexOf(","));
+                        if (user.indexOf(",") == -1) user = user.substring(0, user.indexOf("}"));
+                        else user = user.substring(0, user.indexOf(","));
                         iconListToken.add(user);
                         //récupérations des titre
                         String titre = document.getData().toString();
@@ -402,8 +396,7 @@ public class HomePage extends AppCompatActivity {
                                 user = user.substring(user.indexOf("username=") + 9);
                                 if (user.indexOf(",") == -1)
                                     user = user.substring(0, user.indexOf("}"));
-                                else
-                                    user = user.substring(0, user.indexOf(","));
+                                else user = user.substring(0, user.indexOf(","));
                                 nomUster.add(user);
                                 break;
                             }

@@ -2,7 +2,6 @@ package com.example.instantlike.Poste;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,7 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
 import com.example.instantlike.Connection.Login;
@@ -126,7 +124,7 @@ public class CreationPoste extends AppCompatActivity {
                     Intent galleryintent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     startActivityForResult(galleryintent, 1);
                 } else {
-                        //afficher une demande de permisions
+                    //afficher une demande de permisions
                     EasyPermissions.requestPermissions(CreationPoste.this, "Access for storage", 101, permissions);
                 }
             }
