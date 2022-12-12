@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class HomePage extends AppCompatActivity {
     // vidéo pour l'appareile photo : https://www.youtube.com/watch?v=8890GpBwn9w
@@ -54,6 +55,7 @@ public class HomePage extends AppCompatActivity {
     private ArrayList<String> imageNameFirebase = new ArrayList<>();
     private ArrayList<String> titreImage = new ArrayList<>();
     private ArrayList<String> descImage = new ArrayList<>();
+    private ArrayList<String> iconListName = new ArrayList<>();
     private ImageButton home, message, profilInfoPoste;
     private ArrayList<String> iconListToken = new ArrayList<String>();
     private ArrayList<String> iconList = new ArrayList<>();
@@ -62,7 +64,7 @@ public class HomePage extends AppCompatActivity {
     private Uri photoUir;
     private androidx.appcompat.widget.Toolbar toolbar;
     RecyclerView recyclerView;
-    ImageAdapter adapter = new ImageAdapter(imageListUriStorage, imageListNameStorage, HomePage.this, titreImage, descImage, iconList, nomUster);
+    ImageAdapter adapter = new ImageAdapter(imageListUriStorage,imageListNameStorage, HomePage.this, titreImage, descImage, iconList, nomUster);
 
 
     /**
@@ -293,12 +295,16 @@ public class HomePage extends AppCompatActivity {
                                 public void onSuccess(Uri uri) {
                                     //on récupére uri qui est le lien ou trouver les données
                                         iconList.add(uri.toString());
+                                        String name = uri.getLastPathSegment();
+                                        name = name.substring(name.indexOf("/")+1);
+                                        iconListName.add(name);
                                 }
                             }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Uri> task) {
                                     if (task.isSuccessful() && iconList.size() == iconListToken.size()){
                                         trieImage();
+                                        trieIcon();
                                         recyclerView = findViewById(R.id.recyclerView);
                                         LinearLayoutManager manager = new LinearLayoutManager(HomePage.this);
                                         recyclerView.setLayoutManager(manager);
@@ -315,6 +321,21 @@ public class HomePage extends AppCompatActivity {
             }
         });
 
+    }
+    private void trieIcon(){
+        String NomIcon;
+        ArrayList<String> temps =new ArrayList<>();
+        for (int i = 0; i < iconListToken.size(); i++) {
+            NomIcon = iconListToken.get(i);
+            for (int j = 0; j < iconListName.size(); j++) {
+                if (NomIcon.equals(iconListName.get(j))) {
+                    temps.add(iconList.get(j));
+                    break;
+                }
+            }
+        }
+        iconList.clear();
+        iconList.addAll(temps);
     }
 
     private void trieImage(){

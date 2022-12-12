@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.instantlike.Poste.InfoPoste;
@@ -41,28 +42,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
+public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder> implements View.OnClickListener {
 
     private final ArrayList<String> imageListUriStorage;
-    private final ArrayList<String> imageListNameStorage;
     private final ArrayList<String> titre;
+    private final ArrayList<String> imageListNameStorage;
     private final ArrayList<String> descriptions;
     private final ArrayList<String> iconList;
     private final ArrayList<String> nomUster;
     private final Context context;
-    private TextView titreView, descriptionsView, nomUtilisateur, likeNbActu;
-    private ImageButton Like, partage;
-    private Button follow;
-    private ImageView imageView, Icone;
+    private ArrayList<Integer> cpt = new ArrayList<Integer>();
+    private boolean premierPassage = true;
 
 
     /**
      * initialise les variables quand on appelle la clase avec les paramétres données
      * Constructeur
      */
-    public ImageAdapter(ArrayList<String> imageListUri, ArrayList<String> imageListName, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> iconList, ArrayList<String> nomUster) {
+    public ImageAdapter(ArrayList<String> imageListUri,ArrayList<String> imageListNameStorage, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> iconList, ArrayList<String> nomUster) {
         this.imageListUriStorage = imageListUri;
-        this.imageListNameStorage = imageListName;
+        this.imageListNameStorage = imageListNameStorage;
         this.context = context;
         this.titre = titre;
         this.descriptions = descriptions;
@@ -80,9 +79,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      */
     @NonNull
     @Override
-    public ImageAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ImageAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
-        return new ViewHolder(view);
+        return new MyViewHolder(view);
     }
 
     /**
@@ -92,81 +91,125 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
      * @param position
      */
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Picasso.get().load(imageListUriStorage.get(position)).into(imageView);
-        Picasso.get().load(iconList.get(position)).into(Icone);
-        titreView.setText(titre.get(position));
-        descriptionsView.setText(descriptions.get(position));
-        nomUtilisateur.setText(nomUster.get(position));
-            iniLike(position);
-            //iniFollow(position);
-    }
-
-/*    private void iniFollow(int position) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("images").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        Picasso.get().load(imageListUriStorage.get(holder.getAdapterPosition())).into(holder.imageView);
+        Picasso.get().load(iconList.get(holder.getAdapterPosition())).into(holder.Icone);
+        holder.titreView.setText(titre.get(holder.getAdapterPosition()));
+        holder.descriptionsView.setText(descriptions.get(holder.getAdapterPosition()));
+        holder.nomUtilisateur.setText(nomUster.get(holder.getAdapterPosition()));
+        holder.Like.setImageResource(R.drawable.like);
+        iniLike(holder);
+        Toast.makeText(context, ""+iconList.get(0), Toast.LENGTH_SHORT).show();
+        holder.partage.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        if (document.getId().equals(imageListName.get(position))) {
-                            //date du poste
-                            String userSuivi = document.getData().toString();
-                            userSuivi = userSuivi.substring(userSuivi.indexOf("UserPoste=") + 10);
-                            if (userSuivi.indexOf(",") == -1)
-                                userSuivi = userSuivi.substring(0, userSuivi.indexOf("}"));
-                            else userSuivi = userSuivi.substring(0, userSuivi.indexOf(","));
+            public void onClick(View view) {
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                String shareBody = imageListUriStorage.get(holder.getAdapterPosition());
+                shareIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
+                context.startActivity(Intent.createChooser(shareIntent, titre.get(holder.getAdapterPosition())));
+            }
+        });
 
-                            FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                            FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                            FirebaseUser userFollow = mAuth.getCurrentUser();
-                            DocumentReference docRef = fStore.collection("followSuivi").document(userFollow.getUid() + ":" + userSuivi);
-
-                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            DocumentSnapshot document = task.getResult();
-                                            if (document.exists())
-                                                follow.setText("UnFollow");
-                                        }
-                                    }
-                                });
-                            break;
-                        }
-                    }
-                } else {
-                    Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
-                }
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, InfoPoste.class);
+                intent.putExtra("image", imageListUriStorage.get(holder.getAdapterPosition()));
+                intent.putExtra("name", imageListNameStorage.get(holder.getAdapterPosition()));
+                intent.putExtra("retour", false);
+                context.startActivity(intent);
             }
         });
 
 
-    }*/
 
-   private void iniLike(int position) {
-       FirebaseAuth mAuth = FirebaseAuth.getInstance();
-       FirebaseUser userid = mAuth.getCurrentUser();
+        holder.Like.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //tout les teste et mise a jour du recycler
+                Drawable imagebtn = holder.Like.getDrawable();
+                Drawable newDrawable = ContextCompat.getDrawable(context, R.drawable.like);
+                Drawable newDrawableliker = ContextCompat.getDrawable(context, R.drawable.liker);
+                int newImageId;
+                String newTexte;
+                if (premierPassage && imagebtn.getConstantState().equals(newDrawableliker.getConstantState())){
+                    newImageId = R.drawable.like;
+                    cpt.set(holder.getAdapterPosition(), (cpt.get(holder.getAdapterPosition())-1));
+                    newTexte = cpt.get(holder.getAdapterPosition())+" Likes";
+                    premierPassage = false;
+                }else{
+                    newImageId = (imagebtn.getConstantState().equals(newDrawable.getConstantState())) ? R.drawable.liker : R.drawable.like;
+                    if (imagebtn.getConstantState().equals(newDrawable.getConstantState())){
+                        cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition())+1);
+                        newTexte =cpt.get(holder.getAdapterPosition())+" Likes";
+                    }else{
+                        cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition())-1);
+                        newTexte = cpt.get(holder.getAdapterPosition())+" Likes";
+                    }
+                }
+                holder.Like.setImageResource(newImageId);
+                holder.likeNbActu.setText(newTexte);
+                // mise a jour de la bd avec les like actuel
+                FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                FirebaseUser userid = mAuth.getCurrentUser();
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection("like").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseFirestore fStore = FirebaseFirestore.getInstance();
+                            DocumentReference documentReference = fStore.collection("like").document(userid.getUid() + ":"+ holder.getAdapterPosition());
+                            documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    if (!documentSnapshot.exists()) {
+                                        Map<String, Object> donnée = new HashMap<>();
+                                        donnée.put("nbLike", cpt.get(holder.getAdapterPosition()));
+                                        documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d("TAG", "onSuccess: Les données son créer");
+                                            }
+                                        });
+                                    } else {
+                                        documentReference.delete();
+                                    }
+                                }
+                            });
+                        } else {
+                            Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+
+    private void iniLike(MyViewHolder holder) {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser userid = mAuth.getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("like").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    int cpt=0;
+                    int cpt2=0;
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        if (document.getId().contains(imageListNameStorage.get(position)))
-                            cpt++;
-                        if(document.getId().equals(imageListNameStorage.get(position)+":"+userid.getUid()))
-                            Like.setImageResource(R.drawable.liker);
+                        if (document.getId().contains(":"+holder.getAdapterPosition()))
+                            cpt2++;
+                        if(document.getId().equals(userid.getUid()+":"+holder.getAdapterPosition()))
+                            holder.Like.setImageResource(R.drawable.liker);
                     }
-                    likeNbActu.setText(cpt + " Likes");
+                    cpt.add(cpt2);
+                    holder.likeNbActu.setText(cpt.get(holder.getAdapterPosition()) + " Likes");
                 } else {
                     Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
-
     /**
      * récupérations de la dimentions du recycleur
      *
@@ -177,14 +220,21 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         return iconList.size();
     }
 
+    @Override
+    public void onClick(View view) {
+        Toast.makeText(context, "cc", Toast.LENGTH_SHORT).show();
+    }
+
     /**
      * méthode pour définir tout les éléments de la view que nous allons utiliser
      * est ici mettre une évenement pour chaque clique sur un item
      */
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class MyViewHolder extends RecyclerView.ViewHolder {
+        public TextView titreView, descriptionsView, nomUtilisateur, likeNbActu;
+        public ImageButton Like, partage;
+        public ImageView imageView, Icone;
 
-
-        public ViewHolder(@NonNull View itemView) {
+        public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             //récupérations de l'image
             imageView = itemView.findViewById(R.id.imageViewpPoste);
@@ -194,136 +244,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             descriptionsView = itemView.findViewById(R.id.descriptions);
             Like = itemView.findViewById(R.id.LikeBTNPost);
             partage = itemView.findViewById(R.id.partagePost);
-            follow = itemView.findViewById(R.id.btnPostFollow);
             likeNbActu = itemView.findViewById(R.id.nbLike);
-
-            Like.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ajouLike();
-                }
-            });
-
-            /*follow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    db.collection("images").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    if (document.getId().equals(imageListName.get(getAdapterPosition()))) {
-                                        //date du poste
-                                        String userSuivi = document.getData().toString();
-                                        userSuivi = userSuivi.substring(userSuivi.indexOf("UserPoste=") + 10);
-                                        if (userSuivi.indexOf(",") == -1)
-                                            userSuivi = userSuivi.substring(0, userSuivi.indexOf("}"));
-                                        else
-                                            userSuivi = userSuivi.substring(0, userSuivi.indexOf(","));
-                                        FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                                        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                                        FirebaseUser userFollow = mAuth.getCurrentUser();
-                                        if (!(userFollow.getUid().equals(userSuivi))) {
-                                            DocumentReference docRef = fStore.collection("followSuivi").document(userFollow.getUid() + ":" + userSuivi);
-                                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                    if (task.isSuccessful()) {
-                                                        DocumentSnapshot document = task.getResult();
-                                                        if (document.exists()) {
-                                                            Toast.makeText(context, " ces unfollow !", Toast.LENGTH_SHORT).show();
-                                                            follow.setText("Follow");
-                                                            docRef.delete();
-                                                        } else {
-                                                            Toast.makeText(context, " ces follow !", Toast.LENGTH_SHORT).show();
-                                                            follow.setText("UnFollow");
-                                                            Map<String, Object> donnée = new HashMap<>();
-                                                            // Update and delete the "capital" field in the document
-                                                            docRef.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                @Override
-                                                                public void onSuccess(Void aVoid) {
-                                                                    Log.d("TAG", "onSuccess: Les données son créer");
-                                                                }
-                                                            });
-                                                        }
-                                                        for (int i = 0; i < getItemCount(); i++) {
-                                                            notifyItemChanged(i);
-                                                        }
-                                                    }
-                                                }
-                                            });
-                                            break;
-                                        }
-                                    }
-                                }
-                            } else {
-                                Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }
-            });*/
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(context, InfoPoste.class);
-                    intent.putExtra("image", imageListUriStorage.get(getAdapterPosition()));
-                    intent.putExtra("name", imageListNameStorage.get(getAdapterPosition()));
-                    intent.putExtra("retour", false);
-                    context.startActivity(intent);
-                }
-            });
-
-            partage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                    shareIntent.setType("text/plain");
-                    String shareBody = imageListUriStorage.get(getAdapterPosition());
-                    shareIntent.putExtra(Intent.EXTRA_TEXT, shareBody);
-                    context.startActivity(Intent.createChooser(shareIntent, titre.get(getAdapterPosition())));
-                }
-            });
-
-        }
-
-        private void ajouLike() {
-            FirebaseAuth mAuth = FirebaseAuth.getInstance();
-            FirebaseUser userid = mAuth.getCurrentUser();
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("like").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                        DocumentReference documentReference = fStore.collection("like").document(imageListNameStorage.get(getAdapterPosition()) + ":" + userid.getUid());
-                        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                            @Override
-                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                if (!documentSnapshot.exists()) {
-                                    Like.setImageResource(R.drawable.liker);
-                                    Map<String, Object> donnée = new HashMap<>();
-                                    donnée.put("nbLike", 0);
-                                    documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d("TAG", "onSuccess: Les données son créer");
-                                        }
-                                    });
-                                } else {
-                                    Like.setImageResource(R.drawable.like);
-                                    documentReference.delete();
-                                }
-                            }
-                        });
-                    } else {
-                        Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
         }
     }
-
 }

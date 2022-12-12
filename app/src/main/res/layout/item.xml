@@ -52,15 +52,6 @@
         android:layout_marginBottom="8dp"
         android:text="trés belle image fait en 1945"></TextView>
 
-    <Button
-        android:id="@+id/btnPostFollow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/iconUtilisateurPost"
-        android:layout_marginLeft="150dp"
-        android:layout_marginTop="10dp"
-        android:text="Follow" />
-
     <ImageButton
         android:background="@color/black"
         android:src="@drawable/like"
