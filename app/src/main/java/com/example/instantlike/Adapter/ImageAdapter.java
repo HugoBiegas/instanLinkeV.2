@@ -98,8 +98,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
         holder.descriptionsView.setText(descriptions.get(holder.getAdapterPosition()));
         holder.nomUtilisateur.setText(nomUster.get(holder.getAdapterPosition()));
         holder.Like.setImageResource(R.drawable.like);
-        iniLike(holder);
-        Toast.makeText(context, ""+iconList.get(0), Toast.LENGTH_SHORT).show();
+        iniLike(holder,position);
         holder.partage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -160,7 +159,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                            DocumentReference documentReference = fStore.collection("like").document(userid.getUid() + ":"+ holder.getAdapterPosition());
+                            DocumentReference documentReference = fStore.collection("like").document(userid.getUid() + ":"+imageListNameStorage.get(holder.getAdapterPosition()));
                             documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                 @Override
                                 public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -188,7 +187,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
     }
 
 
-    private void iniLike(MyViewHolder holder) {
+    private void iniLike(MyViewHolder holder, int positions) {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser userid = mAuth.getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -198,9 +197,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
                 if (task.isSuccessful()) {
                     int cpt2=0;
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        if (document.getId().contains(":"+holder.getAdapterPosition()))
+                        if (document.getId().contains(":"+imageListNameStorage.get(positions)))
                             cpt2++;
-                        if(document.getId().equals(userid.getUid()+":"+holder.getAdapterPosition()))
+                        if(document.getId().equals(userid.getUid()+":"+imageListNameStorage.get(positions)))
                             holder.Like.setImageResource(R.drawable.liker);
                     }
                     cpt.add(cpt2);

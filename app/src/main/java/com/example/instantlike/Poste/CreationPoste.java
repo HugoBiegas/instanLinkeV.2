@@ -158,7 +158,6 @@ public class CreationPoste extends AppCompatActivity {
             cursor.close();
             //récupérations de l'image
             Bitmap image2 = BitmapFactory.decodeFile(imgPath);
-            Toast.makeText(this, imgPath, Toast.LENGTH_SHORT).show();
             File f = new File(imgPath);
             photoUri = Uri.fromFile(f);
             Glide.with(this /* context */).load(image2).into(imagePoste);

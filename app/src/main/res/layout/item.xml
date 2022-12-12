@@ -24,11 +24,12 @@
 
 
     <ImageView
-        android:textColor="@color/white"
         android:id="@+id/imageViewpPoste"
         android:layout_width="match_parent"
         android:layout_height="800px"
-        android:layout_below="@+id/iconUtilisateurPost" />
+        android:layout_below="@+id/iconUtilisateurPost"
+        android:layout_marginTop="59dp"
+        android:textColor="@color/white" />
 
     <TextView
         android:id="@+id/titre"

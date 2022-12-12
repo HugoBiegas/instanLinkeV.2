@@ -56,10 +56,10 @@ public class HomePage extends AppCompatActivity {
     private ArrayList<String> titreImage = new ArrayList<>();
     private ArrayList<String> descImage = new ArrayList<>();
     private ArrayList<String> iconListName = new ArrayList<>();
-    private ImageButton home, message, profilInfoPoste;
-    private ArrayList<String> iconListToken = new ArrayList<String>();
+    private ArrayList<String> iconListToken = new ArrayList<>();
     private ArrayList<String> iconList = new ArrayList<>();
-    private ArrayList<String> nomUster = new ArrayList<String>();
+    private ArrayList<String> nomUster = new ArrayList<>();
+    private ImageButton home, message, profilInfoPoste;
     private FirebaseUser currentUser;
     private Uri photoUir;
     private androidx.appcompat.widget.Toolbar toolbar;
@@ -107,9 +107,17 @@ public class HomePage extends AppCompatActivity {
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (!value.isEmpty()) {
                     //récupérer les extrat du poste.
-
-
-                    //adapter.notifyDataSetChanged();
+                    imageListUriStorage.clear();
+                    imageListNameStorage.clear();
+                    titreImage.clear();
+                    descImage.clear();
+                    iconList.clear();
+                    nomUster.clear();
+                    iconList.clear();
+                    iconListName.clear();
+                    iconListToken.clear();
+                    imageNameFirebase.clear();
+                    imageScrol();
                 }
             }
         });
@@ -294,10 +302,10 @@ public class HomePage extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     //on récupére uri qui est le lien ou trouver les données
-                                        iconList.add(uri.toString());
-                                        String name = uri.getLastPathSegment();
-                                        name = name.substring(name.indexOf("/")+1);
-                                        iconListName.add(name);
+                                    iconList.add(uri.toString());
+                                    String name = uri.getLastPathSegment();
+                                    name = name.substring(name.indexOf("/")+1);
+                                    iconListName.add(name);
                                 }
                             }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                                 @Override
@@ -310,7 +318,6 @@ public class HomePage extends AppCompatActivity {
                                         recyclerView.setLayoutManager(manager);
                                         recyclerView.setHasFixedSize(true);
                                         recyclerView.setAdapter(adapter);
-
                                     }
                                 }
                             });
@@ -341,18 +348,22 @@ public class HomePage extends AppCompatActivity {
 
     private void trieImage(){
         String NomImage;
-        ArrayList<String> temps =new ArrayList<>();
+        ArrayList<String> tempsURI =new ArrayList<>();
+        ArrayList<String> tempsName =new ArrayList<>();
         for (int i = 0; i < imageNameFirebase.size(); i++) {
             NomImage = imageNameFirebase.get(i);
             for (int j = 0; j < imageNameFirebase.size(); j++) {
                 if (NomImage.equals(imageListNameStorage.get(j))) {
-                    temps.add(imageListUriStorage.get(j));
+                    tempsURI.add(imageListUriStorage.get(j));
+                    tempsName.add(imageListNameStorage.get(j));
                     break;
                 }
             }
         }
         imageListUriStorage.clear();
-        imageListUriStorage.addAll(temps);
+        imageListNameStorage.clear();
+        imageListUriStorage.addAll(tempsURI);
+        imageListNameStorage.addAll(tempsName);
     }
 
     /**
