@@ -70,7 +70,7 @@ public class MPAdapter extends RecyclerView.Adapter<MPAdapter.ViewHolder> {
      */
     @Override
     public int getItemCount() {
-        return iconUtilisateur.size();
+        return nomUtiliseur.size();
     }
 
     /**

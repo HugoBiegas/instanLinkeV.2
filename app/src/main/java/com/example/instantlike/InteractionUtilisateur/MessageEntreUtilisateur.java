@@ -1,6 +1,7 @@
 package com.example.instantlike.InteractionUtilisateur;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,7 +11,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -76,6 +79,21 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
     private void iniActiviti() {
         envoi = findViewById(R.id.envoyBTN);
         message = findViewById(R.id.messageMP);
+        // Récupérer une référence à la barre d'outils dans la vue
+        Toolbar toolbar = findViewById(R.id.toolbar_retour);
+        // Configurer la barre d'outils pour qu'elle utilise le bouton "Retour" par défaut
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Ajouter un gestionnaire d'événement qui permet de faire un retour en arrière lorsque
+        // le bouton "Retour" est cliqué
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Faire un retour en arrière dans l'historique de navigation
+                onBackPressed();
+            }
+        });
         extrat();
         envoyerMessage();
         testMessage();

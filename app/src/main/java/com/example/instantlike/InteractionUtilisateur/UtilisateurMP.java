@@ -83,6 +83,9 @@ public class UtilisateurMP extends AppCompatActivity {
         profilInfoPoste = findViewById(R.id.InfoPorofilBTNMpUtilisateur);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+
         photoClique();
         PosteClique();
         cliquemessage();

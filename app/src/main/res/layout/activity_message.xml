@@ -7,9 +7,16 @@
     tools:context=".InteractionUtilisateur.MessageEntreUtilisateur"
     android:saveEnabled="false"
     >
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_retour"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </androidx.appcompat.widget.Toolbar>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMP"
+        android:layout_below="@+id/toolbar_retour"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/messageMP"/>
