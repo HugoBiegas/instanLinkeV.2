@@ -96,32 +96,6 @@ public class HomePage extends AppCompatActivity {
         iniActivity();
     }
 
-    /**
-     * écoueur pour mettre a jour les image a chaque nouvelle images poster
-     */
-    private void testMessage() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference docRef = db.collection("images");
-        docRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (!value.isEmpty()) {
-                    //récupérer les extrat du poste.
-                    imageListUriStorage.clear();
-                    imageListNameStorage.clear();
-                    titreImage.clear();
-                    descImage.clear();
-                    iconList.clear();
-                    nomUster.clear();
-                    iconList.clear();
-                    iconListName.clear();
-                    iconListToken.clear();
-                    imageNameFirebase.clear();
-                    imageScrol();
-                }
-            }
-        });
-    }
 
     /**
      * clique pour ouvrire l'appareil photo

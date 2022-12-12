@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,9 +29,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -53,6 +57,7 @@ public class InfoPoste extends AppCompatActivity {
     private FirebaseAuth fAuth = FirebaseAuth.getInstance();
     private Boolean retourInfo;
     private ArrayList<String> iconUtilisateurCom = new ArrayList<>();
+    private ArrayList<String> iconUtilisateurToken = new ArrayList<>();
     private ArrayList<String> nomUtilisateurCom = new ArrayList<>();
 
     /**
@@ -90,6 +95,7 @@ public class InfoPoste extends AppCompatActivity {
         cliquePosterCom();
         ComeAffichage();
     }
+
 
 
     /**
@@ -153,6 +159,7 @@ public class InfoPoste extends AppCompatActivity {
                                     documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
+                                            commmenter.setText("");
                                             Log.d("TAG", "onSuccess: Les données son créer");
                                         }
                                     });
@@ -169,11 +176,11 @@ public class InfoPoste extends AppCompatActivity {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    iconUtilisateurToken.clear();
                     nomUtilisateurCom.clear();
                     iconUtilisateurCom.clear();
                     idUtilisateurCom.clear();
                     gererCome.clear();
-                    //actualiser les coms
                     ComeAffichage();
                 } else {
                     Toast.makeText(InfoPoste.this, "écriver un commentaire pour le poster", Toast.LENGTH_SHORT).show();
@@ -260,14 +267,21 @@ public class InfoPoste extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     iconUtilisateurCom.add(uri.toString());
+                                    String name = uri.getLastPathSegment();
+                                    name = name.substring(name.indexOf("/")+1);
+                                    iconUtilisateurToken.add(name);
                                 }
                             }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Uri> task) {
-                                    final RecyclerView recyclerView = findViewById(R.id.commentaire);
-                                    recyclerView.setLayoutManager(new LinearLayoutManager(InfoPoste.this));
-                                    ComAdapter adapter = new ComAdapter(gererCome, InfoPoste.this, iconUtilisateurCom, nomUtilisateurCom);
-                                    recyclerView.setAdapter(adapter);
+                                    if (task.isSuccessful() && iconUtilisateurCom.size() == idUtilisateurCom.size()){
+                                        triIcon();
+                                        final RecyclerView recyclerView = findViewById(R.id.commentaire);
+                                        recyclerView.setLayoutManager(new LinearLayoutManager(InfoPoste.this));
+                                        ComAdapter adapter = new ComAdapter(gererCome, InfoPoste.this, iconUtilisateurCom, nomUtilisateurCom);
+                                        recyclerView.setAdapter(adapter);
+                                    }
+
                                 }
                             });
                             break;
@@ -276,6 +290,21 @@ public class InfoPoste extends AppCompatActivity {
                 }
             }
         });
+    }
+    private void triIcon(){
+        String NomIcon;
+        ArrayList<String> temps =new ArrayList<>();
+        for (int i = 0; i < idUtilisateurCom.size(); i++) {
+            NomIcon = idUtilisateurCom.get(i);
+            for (int j = 0; j < iconUtilisateurCom.size(); j++) {
+                if (NomIcon.equals(iconUtilisateurToken.get(j))) {
+                    temps.add(iconUtilisateurCom.get(j));
+                    break;
+                }
+            }
+        }
+        iconUtilisateurCom.clear();
+        iconUtilisateurCom.addAll(temps);
     }
 
     /**

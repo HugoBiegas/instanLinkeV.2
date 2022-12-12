@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,6 +49,7 @@ public class UtilisateurMP extends AppCompatActivity {
     private ArrayList<String> nomUtilisateurMP = new ArrayList<>();
     private ArrayList<String> idUtilisateurMp = new ArrayList<>();
     private ArrayList<String> iconUtilisateurMP = new ArrayList<>();
+    private ArrayList<String> iconUtilisateurMPToken = new ArrayList<>();
     private FirebaseUser currentUser;
 
     /**
@@ -254,14 +256,20 @@ public class UtilisateurMP extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     iconUtilisateurMP.add(uri.toString());
+                                    String name = uri.getLastPathSegment();
+                                    name = name.substring(name.indexOf("/")+1);
+                                    iconUtilisateurMPToken.add(name);
                                 }
                             }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Uri> task) {
-                                    final RecyclerView recyclerView = findViewById(R.id.recyclerViewMPutilisateur);
-                                    recyclerView.setLayoutManager(new LinearLayoutManager(UtilisateurMP.this));
-                                    MPAdapter adapter = new MPAdapter(UtilisateurMP.this, iconUtilisateurMP, nomUtilisateurMP, idUtilisateurMp);
-                                    recyclerView.setAdapter(adapter);
+                                    if(task.isSuccessful() && iconUtilisateurMP.size() == idUtilisateurMp.size()){
+                                        triIcon();
+                                        final RecyclerView recyclerView = findViewById(R.id.recyclerViewMPutilisateur);
+                                        recyclerView.setLayoutManager(new LinearLayoutManager(UtilisateurMP.this));
+                                        MPAdapter adapter = new MPAdapter(UtilisateurMP.this, iconUtilisateurMP, nomUtilisateurMP, idUtilisateurMp);
+                                        recyclerView.setAdapter(adapter);
+                                    }
                                 }
                             });
                             break;
@@ -272,6 +280,21 @@ public class UtilisateurMP extends AppCompatActivity {
 
             }
         });
+    }
+    private void triIcon(){
+        String NomIcon;
+        ArrayList<String> temps =new ArrayList<>();
+        for (int i = 0; i < idUtilisateurMp.size(); i++) {
+            NomIcon = idUtilisateurMp.get(i);
+            for (int j = 0; j < iconUtilisateurMPToken.size(); j++) {
+                if (NomIcon.equals(iconUtilisateurMPToken.get(j))) {
+                    temps.add(iconUtilisateurMP.get(j));
+                    break;
+                }
+            }
+        }
+        iconUtilisateurMP.clear();
+        iconUtilisateurMP.addAll(temps);
     }
 
 
