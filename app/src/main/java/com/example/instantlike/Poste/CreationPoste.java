@@ -215,13 +215,14 @@ public class CreationPoste extends AppCompatActivity {
     private void ajoutBDFirestore(String Titre, String desc) {
         String userID = fAuth.getCurrentUser().getUid();
         DocumentReference documentReference = fStore.collection("images").document(uuid);
+        Map<String,String> com = new HashMap<>();
         Map<String, Object> donnée = new HashMap<>();
         donnée.put("Titre", Titre);
         donnée.put("Descriptions", desc);
         donnée.put("DatePoste", new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
         donnée.put("UserPoste", userID);
-        donnée.put("Like", Arrays.asList());
-        donnée.put("commentaire", Arrays.asList());
+        donnée.put("Like",Arrays.asList());
+        donnée.put("commentaire", com);
 
         documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override

@@ -105,16 +105,26 @@ public class InfoPoste extends AppCompatActivity {
             public void onClick(View v) {
                 //si il y a un commentaire
                 if (commmenter.getText().toString().length() != 0) {
+
                     FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                    String userID = fAuth.getCurrentUser().getUid();
                     //image : personne qui commante
                     DocumentReference documentReference = fStore.collection("images").document(nomImage);
-                    documentReference.update("commentaire", FieldValue.arrayUnion(commmenter.getText()))
+                    String userID = fAuth.getCurrentUser().getUid();
+
+                    Map<String, String> com = new HashMap<>();
+                    com.put("id",userID);
+                    com.put("com", commmenter.getText().toString());
+                    documentReference.update("commentaire", FieldValue.arrayUnion(com))
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     commmenter.setText("");
-
+                                    idUtilisateurCom.clear();
+                                    gererCome.clear();
+                                    iconUtilisateurCom.clear();
+                                    iconUtilisateurToken.clear();
+                                    nomUtilisateurCom.clear();
+                                    ComeAffichage();
                                     Log.d("Update", "items array successfully updated!");
                                 }
                             })
@@ -124,18 +134,6 @@ public class InfoPoste extends AppCompatActivity {
                                     Log.w("Update", "Error updating items array", e);
                                 }
                             });
-                    //faire une pose pour l'envoi des données
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    iconUtilisateurToken.clear();
-                    nomUtilisateurCom.clear();
-                    iconUtilisateurCom.clear();
-                    idUtilisateurCom.clear();
-                    gererCome.clear();
-                    ComeAffichage();
                 } else {
                     Toast.makeText(InfoPoste.this, "écriver un commentaire pour le poster", Toast.LENGTH_SHORT).show();
                 }
@@ -148,57 +146,32 @@ public class InfoPoste extends AppCompatActivity {
      */
     private void ComeAffichage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("commentaire").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        DocumentReference item1Ref = db.collection("images").document(nomImage);
+        item1Ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        //on regarde que se sont bien les commentaire pour cette image
-                        if (document.getId().contains(uuid)) {
-                            //récupérations des com
-                            String com = document.getData().toString();
-                            String concaténations;
-                            String idUser = document.getId();
-                            idUser = idUser.substring(idUser.indexOf(":") + 1);
-                            int i = 0;
-                            while (com.length() != 0) {
-                                //on regarde si il a écrie un commentaire
-                                if (com.indexOf("Com") == -1) break;
-
-                                concaténations = com;
-                                if (i < 10) {
-                                    concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 5);
-                                    String pass1 = com.substring(0, com.indexOf("Com" + i + "="));
-                                    String pass2 = com.substring(com.indexOf("Com" + i + "=") + 5, com.length());
-                                    com = pass1 + pass2;
-                                } else if (i < 100) {
-                                    concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 6);
-                                    String pass1 = com.substring(0, com.indexOf("Com" + i + "="));
-                                    String pass2 = com.substring(com.indexOf("Com" + i + "=") + 6, com.length());
-                                    com = pass1 + pass2;
-                                } else {
-                                    concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 7);
-                                    String pass1 = com.substring(0, com.indexOf("Com" + i + "="));
-                                    String pass2 = com.substring(com.indexOf("Com" + i + "=") + 7, com.length());
-                                    com = pass1 + pass2;
-                                }
-
-                                if (concaténations.indexOf(",") == -1) {
-                                    concaténations = concaténations.substring(0, concaténations.indexOf("}"));
-                                } else {
-                                    concaténations = concaténations.substring(0, concaténations.indexOf(","));
-                                }
-                                i++;
-
-                                idUtilisateurCom.add(idUser);
-                                gererCome.add(concaténations);
-                            }
+                    DocumentSnapshot item1Doc = task.getResult();
+                    if (item1Doc.exists()) {
+                        ArrayList<HashMap<String, String>> item = (ArrayList<HashMap<String, String>>) item1Doc.get("commentaire");
+                        HashMap<String, String> chaine;
+                        for (int i = 0; i < item.size(); i++) {
+                            chaine = item.get(i);
+                            gererCome.add(chaine.get("com"));
+                            idUtilisateurCom.add(chaine.get("id"));
                         }
+                        // do something with the location data
+                    } else {
+                        //item not found
                     }
-                    ininom();
                 } else {
-                    Toast.makeText(InfoPoste.this, "Error getting documents", Toast.LENGTH_SHORT).show();
+                    //error getting item
                 }
+            }
+        }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                ininom();
             }
         });
     }
