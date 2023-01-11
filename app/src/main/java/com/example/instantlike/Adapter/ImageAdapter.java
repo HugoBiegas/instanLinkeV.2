@@ -3,6 +3,7 @@ package com.example.instantlike.Adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,25 +14,31 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.instantlike.Poste.InfoPoste;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder> implements View.OnClickListener {
@@ -123,6 +130,11 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
                 Drawable imagebtn = holder.Like.getDrawable();
                 Drawable newDrawable = ContextCompat.getDrawable(context, R.drawable.like);
                 Drawable newDrawableliker = ContextCompat.getDrawable(context, R.drawable.liker);
+                FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                FirebaseUser userid = mAuth.getCurrentUser();
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                DocumentReference itemRef = db.collection("images").document(imageListNameStorage.get(holder.getAdapterPosition()));
+
                 int newImageId;
                 String newTexte;
                 if (premierPassage && imagebtn.getConstantState().equals(newDrawableliker.getConstantState())){
@@ -130,74 +142,82 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
                     cpt.set(holder.getAdapterPosition(), (cpt.get(holder.getAdapterPosition())-1));
                     newTexte = cpt.get(holder.getAdapterPosition())+" Likes";
                     premierPassage = false;
+                    updateLike(itemRef,userid);
                 }else{
                     newImageId = (imagebtn.getConstantState().equals(newDrawable.getConstantState())) ? R.drawable.liker : R.drawable.like;
                     if (imagebtn.getConstantState().equals(newDrawable.getConstantState())){
                         cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition())+1);
                         newTexte =cpt.get(holder.getAdapterPosition())+" Likes";
+                        updateLike(itemRef,userid);
                     }else{
                         cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition())-1);
                         newTexte = cpt.get(holder.getAdapterPosition())+" Likes";
+                        deleteLike(itemRef,userid);
                     }
                 }
                 holder.Like.setImageResource(newImageId);
                 holder.likeNbActu.setText(newTexte);
-                // mise a jour de la bd avec les like actuel
-                FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                FirebaseUser userid = mAuth.getCurrentUser();
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection("like").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                            DocumentReference documentReference = fStore.collection("like").document(userid.getUid() + ":"+imageListNameStorage.get(holder.getAdapterPosition()));
-                            documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                @Override
-                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                    if (!documentSnapshot.exists()) {
-                                        Map<String, Object> donnée = new HashMap<>();
-                                        donnée.put("nbLike", cpt.get(holder.getAdapterPosition()));
-                                        documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d("TAG", "onSuccess: Les données son créer");
-                                            }
-                                        });
-                                    } else {
-                                        documentReference.delete();
-                                    }
-                                }
-                            });
-                        } else {
-                            Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
             }
         });
+    }
+    private  void deleteLike(DocumentReference itemRef,FirebaseUser userid){
+        itemRef.update("Like", FieldValue.arrayRemove(userid.getUid()))
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("Update", "items array successfully updated!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("Update", "Error updating items array", e);
+                    }
+                });
+
+    }
+
+    private  void updateLike(DocumentReference itemRef,FirebaseUser userid){
+        itemRef.update("Like", FieldValue.arrayUnion(userid.getUid()))
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("Update", "items array successfully updated!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("Update", "Error updating items array", e);
+                    }
+                });
     }
 
 
     private void iniLike(MyViewHolder holder, int positions) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser userid = mAuth.getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("like").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        DocumentReference itemRef = db.collection("images").document(imageListNameStorage.get(holder.getAdapterPosition()));
+        itemRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    int cpt2=0;
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        if (document.getId().contains(":"+imageListNameStorage.get(positions)))
-                            cpt2++;
-                        if(document.getId().equals(userid.getUid()+":"+imageListNameStorage.get(positions)))
-                            holder.Like.setImageResource(R.drawable.liker);
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        ArrayList<String> subitems = (ArrayList<String>) document.get("Like");
+                        for (int i = 0; i < subitems.size(); i++) {
+                            if(subitems.get(i).equals(userid.getUid()))
+                                holder.Like.setImageResource(R.drawable.liker);
+                        }
+                        cpt.add(subitems.size());
+                        holder.likeNbActu.setText(subitems.size() + " Likes");
+                    }else {
+                        cpt.add(0);
+                        Log.d("Error", "No such document");
                     }
-                    cpt.add(cpt2);
-                    holder.likeNbActu.setText(cpt.get(holder.getAdapterPosition()) + " Likes");
                 } else {
-                    Toast.makeText(context, "Error getting documents", Toast.LENGTH_SHORT).show();
+                    Log.d("Error", "get failed with ", task.getException());
                 }
             }
         });

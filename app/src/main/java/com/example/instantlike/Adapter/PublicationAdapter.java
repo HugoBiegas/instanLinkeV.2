@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -60,7 +61,8 @@ public class PublicationAdapter extends RecyclerView.Adapter<PublicationAdapter.
     public void onBindViewHolder(@NonNull PublicationAdapter.ViewHolder holder, int position) {
         Picasso.get().load(iconListUri.get(position)).into(holder.iconView);
         datePoste.setText(date.get(position));
-        likePoste.setText(like.get(position));
+        likePoste.setText("Like : "+like.get(position));
+        Toast.makeText(context, ""+like.toString(), Toast.LENGTH_SHORT).show();
     }
 
     /**

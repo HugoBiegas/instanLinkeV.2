@@ -201,6 +201,7 @@ public class Register extends AppCompatActivity {
                                     }
                                 });
                                 startActivity(new Intent(getApplicationContext(), HomePage.class));
+                                finish();
                             } else {
                                 //si cela a échoué pour une quelquonque raison
                                 Toast.makeText(Register.this, "Error! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -233,6 +234,7 @@ public class Register extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getApplicationContext(), Login.class));
+                finish();
             }
         });
     }

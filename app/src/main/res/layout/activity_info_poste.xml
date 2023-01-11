@@ -26,6 +26,7 @@
         android:text="poster"/>
 
     <ImageView
+        android:layout_below="@id/retourPoste"
         android:id="@+id/imagePoste"
         android:layout_width="match_parent"
         android:layout_height="524dp"

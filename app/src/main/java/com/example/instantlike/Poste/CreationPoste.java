@@ -32,6 +32,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -217,7 +218,7 @@ public class CreationPoste extends AppCompatActivity {
         Map<String, Object> donnée = new HashMap<>();
         donnée.put("Titre", Titre);
         donnée.put("Descriptions", desc);
-        donnée.put("Like", 0);
+        donnée.put("Like", Arrays.asList());
         donnée.put("DatePoste", new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
         donnée.put("UserPoste", userID);
         documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {

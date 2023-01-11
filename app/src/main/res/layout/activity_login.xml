@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:noHistory="true"
     tools:context=".Connection.Login"
-    android:saveEnabled="false"
+    android:saveEnabled="true"
     >
 
     <EditText

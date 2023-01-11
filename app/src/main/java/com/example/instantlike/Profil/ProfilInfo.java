@@ -48,7 +48,7 @@ public class ProfilInfo extends AppCompatActivity {
 
     private static final int RETOUR_PHOTO = 1;
     private ImageButton home, message, profilInfoPoste;
-    private TextView nom, publications, follower, suivi;
+    private TextView nom, publications;
     private ImageView icon;
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser currentUser;
@@ -80,7 +80,6 @@ public class ProfilInfo extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil_info);
         toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         photoClique();
         PosteClique();
         iniActivity();
@@ -165,17 +164,14 @@ public class ProfilInfo extends AppCompatActivity {
         icon = findViewById(R.id.iconUtilisateurProfil);
         nom = findViewById(R.id.NomUtilisateurProfil);
         publications = findViewById(R.id.PublicationsUtilisateurProfil);
-        follower = findViewById(R.id.FollowerUtilisateurProfil);
-        suivi = findViewById(R.id.SuiviUtilisateurProfil);
         deconnections = findViewById(R.id.buttonDéconnecter);
         deconnectionsUser();
         cliquemessage();
         cliqueProfilInfoPost();
         cliqueHome();
+        publicationNB();
         iconUtilisateur();
         nomUtilisateur();
-        publicationNB();
-        followSuivi();
 
     }
 
@@ -233,35 +229,6 @@ public class ProfilInfo extends AppCompatActivity {
         });
     }
 
-    /**
-     * permet de récupérer le nombre de personne qui suive et qui follow la personne
-     */
-    private void followSuivi() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("followSuivi").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    //récupére tout les folow possible et tris
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        String followSuivi = document.getId();
-                        String Suivi = followSuivi.substring(followSuivi.indexOf(":") + 1);
-                        String follow = followSuivi.substring(0, followSuivi.indexOf(":"));
-                        if (Suivi.equals(currentUser.getUid())) {
-                            nbSuivi++;
-                        } else if (follow.equals(currentUser.getUid())) {
-                            nbFollow++;
-                        }
-                    }
-                    //initialisations des champs
-                    follower.setText("Follower : " + nbFollow);
-                    suivi.setText("Suivi : " + nbSuivi);
-                } else {
-                    Toast.makeText(ProfilInfo.this, "Error getting documents", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
 
     /**
      * récupére le nombre de publications de la personne + tout les imfo utilise des publications
