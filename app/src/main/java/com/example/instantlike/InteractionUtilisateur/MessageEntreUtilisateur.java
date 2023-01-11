@@ -19,13 +19,16 @@ import com.example.instantlike.Adapter.MessageUtilisateur;
 import com.example.instantlike.Connection.Login;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -34,6 +37,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -143,26 +147,6 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                     //récupérations de tout les messages dans le désordre
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         if (document.getId().contains(currentUser.getUid()) && document.getId().contains(idUtilisateur)) {
-                            //date du poste
-                            String message = document.getData().toString();
-                            message = message.substring(message.indexOf("message=") + 8);
-                            if (message.indexOf(",") == -1)
-                                message = message.substring(0, message.indexOf("}"));
-                            else message = message.substring(0, message.indexOf(","));
-                            messageEnvoyBase.add(message);
-
-                            String date = document.getData().toString();
-                            date = date.substring(date.indexOf("date=") + 5);
-                            if (date.indexOf(",") == -1)
-                                date = date.substring(0, date.indexOf("}"));
-                            else date = date.substring(0, date.indexOf(","));
-                            try {
-                                dateMessageBase.add(new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss").parse(date));
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                            dateMessageRéel.add(date);
-
                             String c = document.getId();
                             c = c.substring(c.indexOf(":") + 1);
                             if (c.contains(currentUser.getUid()))
@@ -171,40 +155,64 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                             else
                                 //gauche
                                 droitOuGaucheBase.add(false);
+                            remplirMessage();
                         }
                     }
-                    //remetre dans le bonne hordre les messages
-                    int positions;
-                    Date ini;
-                    //trier par date de publications
-                    while (dateMessageBase.size() != 0) {
-                        positions = 0;
-                        ini = dateMessageBase.get(0);
-                        if (dateMessageBase.size() != 1) {
-                            for (int i = 1; i < dateMessageBase.size(); i++) {
-                                if (dateMessageBase.get(i).before(ini)) {
-                                    ini = dateMessageBase.get(i);
-                                    positions = i;
-                                }
-                            }
-                        }
-
-                        //remplie les messages
-                        messageEnvoy.add(messageEnvoyBase.get(positions));
-                        droitOuGauche.add(droitOuGaucheBase.get(positions));
-                        dateMessage.add(dateMessageRéel.get(positions));
-
-                        //suprimer les messages
-                        dateMessageBase.remove(positions);
-                        droitOuGaucheBase.remove(positions);
-                        messageEnvoyBase.remove(positions);
-                        dateMessageRéel.remove(positions);
-                    }
-                    final RecyclerView recyclerView = findViewById(R.id.recyclerViewMP);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(MessageEntreUtilisateur.this));
-                    MessageUtilisateur adapter = new MessageUtilisateur(MessageEntreUtilisateur.this, messageEnvoy, dateMessage, droitOuGauche);
-                    recyclerView.setAdapter(adapter);
                 }
+            }
+        });
+    }
+    private void remplirMessage(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference itemRef = db.collection("MP").document(currentUser.getUid()+":"+idUtilisateur);
+        itemRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        ArrayList<String> subitems = (ArrayList<String>) document.get("message");
+                        messageEnvoyBase =subitems;
+                    }else {
+                        Log.d("Error", "No such document");
+                    }
+                } else {
+                    Log.d("Error", "get failed with ", task.getException());
+                }
+            }
+        }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                remplirDate();
+            }
+        });
+    }
+
+    private void remplirDate(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference itemRef = db.collection("MP").document(currentUser.getUid()+":"+idUtilisateur);
+        itemRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        ArrayList<String> subitems = (ArrayList<String>) document.get("date");
+                        dateMessageRéel = subitems;
+                    }else {
+                        Log.d("Error", "No such document");
+                    }
+                } else {
+                    Log.d("Error", "get failed with ", task.getException());
+                }
+            }
+        }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                final RecyclerView recyclerView = findViewById(R.id.recyclerViewMP);
+                recyclerView.setLayoutManager(new LinearLayoutManager(MessageEntreUtilisateur.this));
+                MessageUtilisateur adapter = new MessageUtilisateur(MessageEntreUtilisateur.this, messageEnvoy, dateMessage, droitOuGauche);
+                recyclerView.setAdapter(adapter);
             }
         });
     }
@@ -220,18 +228,57 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                     //créations du message dans la BD
                     String date = new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss").format(new Date());
                     FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                    DocumentReference documentReference = fStore.collection("MP").document(currentUser.getUid() + ":" + idUtilisateur + "::" + date);
-                    newMessage++;
-                    Map<String, Object> donnée = new HashMap<>();
-                    donnée.put("message", message.getText().toString());
-                    donnée.put("date", date);
-                    documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    DocumentReference documentReference = fStore.collection("MP").document(currentUser.getUid() + ":" + idUtilisateur);
+                    documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("TAG", "onSuccess: Les données son créer");
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (documentSnapshot.exists()){
+                                //update la date
+                                documentReference.update("message", FieldValue.arrayUnion(message.getText().toString()))
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                message.setText("");
+
+                                                Log.d("Update", "items array successfully updated!");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w("Update", "Error updating items array", e);
+                                            }
+                                        });
+                                //update le message
+                                documentReference.update("date", FieldValue.arrayUnion(date))
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d("Update", "items array successfully updated!");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w("Update", "Error updating items array", e);
+                                            }
+                                        });
+
+                            }else {
+                                Map<String, Object> donnée = new HashMap<>();
+                                donnée.put("message", Arrays.asList(message.getText().toString()));
+                                donnée.put("date", Arrays.asList(date));
+                                documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        message.setText("");
+                                        Log.d("TAG", "onSuccess: Les données son créer");
+                                    }
+                                });
+                            }
                         }
                     });
-                    message.setText("");
+                    newMessage++;
                 } else {
                     Toast.makeText(MessageEntreUtilisateur.this, "écriver un message", Toast.LENGTH_SHORT).show();
                 }

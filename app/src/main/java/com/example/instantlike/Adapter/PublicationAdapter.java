@@ -20,7 +20,8 @@ import java.util.ArrayList;
 
 public class PublicationAdapter extends RecyclerView.Adapter<PublicationAdapter.ViewHolder> {
 
-    private ArrayList<String> iconListUri, date, like, imageListName;
+    private ArrayList<String> iconListUri, date, imageListName;
+    private ArrayList<Integer> like;
     private Context context;
     private TextView datePoste, likePoste;
 
@@ -28,7 +29,7 @@ public class PublicationAdapter extends RecyclerView.Adapter<PublicationAdapter.
     /**
      * initialise les variables quand on appelle la clase avec les paramétres données
      */
-    public PublicationAdapter(ArrayList<String> iconListUri, Context context, ArrayList<String> date, ArrayList<String> like, ArrayList<String> imageListName) {
+    public PublicationAdapter(ArrayList<String> iconListUri, Context context, ArrayList<String> date, ArrayList<Integer> like, ArrayList<String> imageListName) {
         this.iconListUri = iconListUri;
         this.context = context;
         this.date = date;
@@ -59,12 +60,18 @@ public class PublicationAdapter extends RecyclerView.Adapter<PublicationAdapter.
      */
     @Override
     public void onBindViewHolder(@NonNull PublicationAdapter.ViewHolder holder, int position) {
-        Picasso.get().load(iconListUri.get(position)).into(holder.iconView);
-        datePoste.setText(date.get(position));
-        likePoste.setText("Like : "+like.get(position));
-        Toast.makeText(context, ""+like.toString(), Toast.LENGTH_SHORT).show();
+        trie(holder,position);
     }
-
+    private void  trie(@NonNull PublicationAdapter.ViewHolder holder,int position){
+            for (int j = 0; j < imageListName.size(); j++) {
+                if (iconListUri.get(position).contains(imageListName.get(j))){
+                    Picasso.get().load(iconListUri.get(position)).into(holder.iconView);
+                    datePoste.setText(date.get(j));
+                    likePoste.setText("Like : "+like.get(j));
+                    break;
+                }
+            }
+}
     /**
      * récupérations de la dimentions du recycleur
      *

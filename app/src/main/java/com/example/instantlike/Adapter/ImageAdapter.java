@@ -134,27 +134,21 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
                 FirebaseUser userid = mAuth.getCurrentUser();
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 DocumentReference itemRef = db.collection("images").document(imageListNameStorage.get(holder.getAdapterPosition()));
-
                 int newImageId;
                 String newTexte;
-                if (premierPassage && imagebtn.getConstantState().equals(newDrawableliker.getConstantState())){
-                    newImageId = R.drawable.like;
-                    cpt.set(holder.getAdapterPosition(), (cpt.get(holder.getAdapterPosition())-1));
-                    newTexte = cpt.get(holder.getAdapterPosition())+" Likes";
-                    premierPassage = false;
-                    updateLike(itemRef,userid);
-                }else{
-                    newImageId = (imagebtn.getConstantState().equals(newDrawable.getConstantState())) ? R.drawable.liker : R.drawable.like;
                     if (imagebtn.getConstantState().equals(newDrawable.getConstantState())){
                         cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition())+1);
                         newTexte =cpt.get(holder.getAdapterPosition())+" Likes";
                         updateLike(itemRef,userid);
+                        newImageId =  R.drawable.liker;
+
                     }else{
                         cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition())-1);
                         newTexte = cpt.get(holder.getAdapterPosition())+" Likes";
                         deleteLike(itemRef,userid);
+                        newImageId = R.drawable.like;
+
                     }
-                }
                 holder.Like.setImageResource(newImageId);
                 holder.likeNbActu.setText(newTexte);
             }
@@ -213,7 +207,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
                         cpt.add(subitems.size());
                         holder.likeNbActu.setText(subitems.size() + " Likes");
                     }else {
-                        cpt.add(0);
                         Log.d("Error", "No such document");
                     }
                 } else {

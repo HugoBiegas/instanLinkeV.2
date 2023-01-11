@@ -30,6 +30,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -53,14 +55,15 @@ public class ProfilInfo extends AppCompatActivity {
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseUser currentUser;
     private int nbPoste = 0, nbSuivi = 0, nbFollow = 0;
-    private final ArrayList<String> imageListUri = new ArrayList<>();
-    private final ArrayList<String> NomImagePoste = new ArrayList<>();
-    private final ArrayList<String> DatePoste = new ArrayList<>();
-    private final ArrayList<String> LikePoste = new ArrayList<>();
+    private ArrayList<String> imageListUri = new ArrayList<>();
+    private  ArrayList<String> NomImagePoste = new ArrayList<>();
+    private  ArrayList<String> DatePoste = new ArrayList<>();
+    private  ArrayList<Integer> LikePoste = new ArrayList<>();
     private androidx.appcompat.widget.Toolbar toolbar;
     private String photoPath;
     private Uri photoUir;
     private Button deconnections;
+
 
     /**
      * verificaitons si l'utilisateur est connecter
@@ -212,13 +215,10 @@ public class ProfilInfo extends AppCompatActivity {
                                     imageListUri.add(uri.toString());
                                     Log.d("item", uri.toString());
                                 }
-                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            }).addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
-                                public void onComplete(@NonNull Task<Uri> task) {
-                                    final RecyclerView recyclerView = findViewById(R.id.recyclerViewUtilisateurInfo);
-                                    recyclerView.setLayoutManager(new LinearLayoutManager(ProfilInfo.this));
-                                    PublicationAdapter adapter = new PublicationAdapter(imageListUri, ProfilInfo.this, DatePoste, LikePoste, NomImagePoste);
-                                    recyclerView.setAdapter(adapter);
+                                public void onSuccess(Uri uri) {
+                                    miseEnForme();
                                 }
                             });
                             break;
@@ -227,6 +227,15 @@ public class ProfilInfo extends AppCompatActivity {
                 }
             }
         });
+    }
+    private void miseEnForme(){
+        if (imageListUri.size() == NomImagePoste.size()){
+            final RecyclerView recyclerView = findViewById(R.id.recyclerViewUtilisateurInfo);
+            recyclerView.setLayoutManager(new LinearLayoutManager(ProfilInfo.this));
+            PublicationAdapter adapter = new PublicationAdapter(imageListUri, ProfilInfo.this, DatePoste, LikePoste, NomImagePoste);
+            recyclerView.setAdapter(adapter);
+        }
+
     }
 
 
@@ -249,32 +258,48 @@ public class ProfilInfo extends AppCompatActivity {
                         if (userposte.equals(currentUser.getUid())) {
                             nbPoste++;
                             NomImagePoste.add(document.getId());
-                            //nb Like
-                            String like = document.getData().toString();
+                            //nblike
+                            String likeposte = document.getData().toString();
+                            likeposte = likeposte.substring(likeposte.indexOf("Like=[") + 6);
+                            likeposte = likeposte.substring(0,likeposte.indexOf("]"));
+                            int max = likeposte.length();
+                            int cpt = 0;
+                            for (int i = 0; i < max; i++) {
+                                if (likeposte.length() ==0){
+                                    break;
+                                }else{
+                                    if (likeposte.indexOf(",") == -1 ){
+                                        cpt++;
+                                        break;
+                                    }else{
+                                        likeposte = likeposte.substring(0, likeposte.indexOf(","));
+                                        cpt++;
+                                    }
+                                }
 
-                            like = like.substring(like.indexOf("Like=") + 5);
-                            if (like.indexOf(",") == -1)
-                                like = like.substring(0, like.indexOf("}"));
-                            else like = like.substring(0, like.indexOf(","));
-                            LikePoste.add(like);
+                            }
+                            LikePoste.add(cpt);
 
                             //date du poste
                             String dateposte = document.getData().toString();
                             dateposte = dateposte.substring(dateposte.indexOf("DatePoste=") + 10);
                             if (dateposte.indexOf(",") == -1)
                                 dateposte = dateposte.substring(0, dateposte.indexOf("}"));
-                            else dateposte = dateposte.substring(0, dateposte.indexOf(","));
+                            else
+                                dateposte = dateposte.substring(0, dateposte.indexOf(","));
                             DatePoste.add(dateposte);
                         }
                     }
-                    publications.setText("Publications : " + nbPoste);
                     PublicationUtilisateur();
+                    publications.setText("Publications : " + nbPoste);
                 } else {
                     Toast.makeText(ProfilInfo.this, "Error getting documents", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
+
+
 
     /**
      * réucpére le nom de l'utilisateur

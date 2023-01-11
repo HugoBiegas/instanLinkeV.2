@@ -24,12 +24,14 @@ import com.example.instantlike.HomePage;
 import com.example.instantlike.Profil.ProfilInfo;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -106,65 +108,22 @@ public class InfoPoste extends AppCompatActivity {
                     FirebaseFirestore fStore = FirebaseFirestore.getInstance();
                     String userID = fAuth.getCurrentUser().getUid();
                     //image : personne qui commante
-                    DocumentReference documentReference = fStore.collection("commentaire").document(uuid + ":" + userID);
-                    documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot document = task.getResult();
-                                if (document.exists()) {
-                                    //si il existe on prend les commentaire existant
-                                    Map<String, Object> donnée = new HashMap<>();
-                                    String data = document.getData().toString();
-                                    String concaténations;
-                                    int i = 0;
-                                    //boucle pour reprendre les commentaire créer par cette personne
-                                    while (data.length() != 0) {
-                                        //on regarde si il a écrie un commentaire
-                                        if (data.indexOf("Com" + i) == -1) break;
-                                        concaténations = data;
-                                        if (i < 10)
-                                            concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 5);
-                                        else if (i < 100)
-                                            concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 6);
-                                        else
-                                            concaténations = concaténations.substring(concaténations.indexOf("Com" + i + "=") + 7);
+                    DocumentReference documentReference = fStore.collection("images").document(nomImage);
+                    documentReference.update("commentaire", FieldValue.arrayUnion(commmenter.getText()))
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    commmenter.setText("");
 
-                                        if (concaténations.indexOf(",") == -1)
-                                            concaténations = concaténations.substring(0, concaténations.indexOf("}"));
-                                        else
-                                            concaténations = concaténations.substring(0, concaténations.indexOf(","));
-                                        donnée.put("Com" + i, concaténations);
-                                        i++;
-                                    }
-                                    donnée.put("Com" + i, commmenter.getText().toString());
-                                    //créations des donnée
-                                    documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            commmenter.setText("");
-                                            Log.d("TAG", "onSuccess: Les données son créer");
-                                        }
-                                    });
-
-                                } else {
-                                    //si le document existe pas
-                                    Map<String, Object> donnée = new HashMap<>();
-                                    donnée.put("Com0", commmenter.getText().toString());
-                                    documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            commmenter.setText("");
-                                            Log.d("TAG", "onSuccess: Les données son créer");
-                                        }
-                                    });
-                                    Log.d(TAG, "Document does not exist!");
+                                    Log.d("Update", "items array successfully updated!");
                                 }
-                            } else {
-                                Log.d(TAG, "Failed with: ", task.getException());
-                            }
-                        }
-                    });
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w("Update", "Error updating items array", e);
+                                }
+                            });
                     //faire une pose pour l'envoi des données
                     try {
                         Thread.sleep(1000);

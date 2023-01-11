@@ -218,9 +218,11 @@ public class CreationPoste extends AppCompatActivity {
         Map<String, Object> donnée = new HashMap<>();
         donnée.put("Titre", Titre);
         donnée.put("Descriptions", desc);
-        donnée.put("Like", Arrays.asList());
         donnée.put("DatePoste", new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
         donnée.put("UserPoste", userID);
+        donnée.put("Like", Arrays.asList());
+        donnée.put("commentaire", Arrays.asList());
+
         documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
