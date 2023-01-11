@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -60,18 +59,20 @@ public class PublicationAdapter extends RecyclerView.Adapter<PublicationAdapter.
      */
     @Override
     public void onBindViewHolder(@NonNull PublicationAdapter.ViewHolder holder, int position) {
-        trie(holder,position);
+        trie(holder, position);
     }
-    private void  trie(@NonNull PublicationAdapter.ViewHolder holder,int position){
-            for (int j = 0; j < imageListName.size(); j++) {
-                if (iconListUri.get(position).contains(imageListName.get(j))){
-                    Picasso.get().load(iconListUri.get(position)).into(holder.iconView);
-                    datePoste.setText(date.get(j));
-                    likePoste.setText("Like : "+like.get(j));
-                    break;
-                }
+
+    private void trie(@NonNull PublicationAdapter.ViewHolder holder, int position) {
+        for (int j = 0; j < imageListName.size(); j++) {
+            if (iconListUri.get(position).contains(imageListName.get(j))) {
+                Picasso.get().load(iconListUri.get(position)).into(holder.iconView);
+                datePoste.setText(date.get(j));
+                likePoste.setText("Like : " + like.get(j));
+                break;
             }
-}
+        }
+    }
+
     /**
      * récupérations de la dimentions du recycleur
      *

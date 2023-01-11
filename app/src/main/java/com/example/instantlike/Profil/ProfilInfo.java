@@ -30,8 +30,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -56,9 +54,9 @@ public class ProfilInfo extends AppCompatActivity {
     private FirebaseUser currentUser;
     private int nbPoste = 0, nbSuivi = 0, nbFollow = 0;
     private ArrayList<String> imageListUri = new ArrayList<>();
-    private  ArrayList<String> NomImagePoste = new ArrayList<>();
-    private  ArrayList<String> DatePoste = new ArrayList<>();
-    private  ArrayList<Integer> LikePoste = new ArrayList<>();
+    private ArrayList<String> NomImagePoste = new ArrayList<>();
+    private ArrayList<String> DatePoste = new ArrayList<>();
+    private ArrayList<Integer> LikePoste = new ArrayList<>();
     private androidx.appcompat.widget.Toolbar toolbar;
     private String photoPath;
     private Uri photoUir;
@@ -228,8 +226,9 @@ public class ProfilInfo extends AppCompatActivity {
             }
         });
     }
-    private void miseEnForme(){
-        if (imageListUri.size() == NomImagePoste.size()){
+
+    private void miseEnForme() {
+        if (imageListUri.size() == NomImagePoste.size()) {
             final RecyclerView recyclerView = findViewById(R.id.recyclerViewUtilisateurInfo);
             recyclerView.setLayoutManager(new LinearLayoutManager(ProfilInfo.this));
             PublicationAdapter adapter = new PublicationAdapter(imageListUri, ProfilInfo.this, DatePoste, LikePoste, NomImagePoste);
@@ -261,17 +260,17 @@ public class ProfilInfo extends AppCompatActivity {
                             //nblike
                             String likeposte = document.getData().toString();
                             likeposte = likeposte.substring(likeposte.indexOf("Like=[") + 6);
-                            likeposte = likeposte.substring(0,likeposte.indexOf("]"));
+                            likeposte = likeposte.substring(0, likeposte.indexOf("]"));
                             int max = likeposte.length();
                             int cpt = 0;
                             for (int i = 0; i < max; i++) {
-                                if (likeposte.length() ==0){
+                                if (likeposte.length() == 0) {
                                     break;
-                                }else{
-                                    if (likeposte.indexOf(",") == -1 ){
+                                } else {
+                                    if (likeposte.indexOf(",") == -1) {
                                         cpt++;
                                         break;
-                                    }else{
+                                    } else {
                                         likeposte = likeposte.substring(0, likeposte.indexOf(","));
                                         cpt++;
                                     }
@@ -285,8 +284,7 @@ public class ProfilInfo extends AppCompatActivity {
                             dateposte = dateposte.substring(dateposte.indexOf("DatePoste=") + 10);
                             if (dateposte.indexOf(",") == -1)
                                 dateposte = dateposte.substring(0, dateposte.indexOf("}"));
-                            else
-                                dateposte = dateposte.substring(0, dateposte.indexOf(","));
+                            else dateposte = dateposte.substring(0, dateposte.indexOf(","));
                             DatePoste.add(dateposte);
                         }
                     }
@@ -298,7 +296,6 @@ public class ProfilInfo extends AppCompatActivity {
             }
         });
     }
-
 
 
     /**

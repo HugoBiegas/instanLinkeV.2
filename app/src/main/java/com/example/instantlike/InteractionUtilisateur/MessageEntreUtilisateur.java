@@ -34,7 +34,6 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -147,13 +146,13 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                             String UtilisateurMessage = document.getId();
                             UtilisateurMessage = UtilisateurMessage.substring(UtilisateurMessage.indexOf(":") + 1);
 
-                            if (document.getId().contains(currentUser.getUid()+":"+idUtilisateur))
+                            if (document.getId().contains(currentUser.getUid() + ":" + idUtilisateur))
 
-                                remplirMessage(currentUser.getUid()+":"+idUtilisateur,UtilisateurMessage);
+                                remplirMessage(currentUser.getUid() + ":" + idUtilisateur, UtilisateurMessage);
 
-                            if (document.getId().contains(idUtilisateur+":"+currentUser.getUid()))
+                            if (document.getId().contains(idUtilisateur + ":" + currentUser.getUid()))
 
-                                remplirMessage(idUtilisateur+":"+currentUser.getUid(),UtilisateurMessage);
+                                remplirMessage(idUtilisateur + ":" + currentUser.getUid(), UtilisateurMessage);
                         }
                     }
 
@@ -161,7 +160,8 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
             }
         });
     }
-    private void remplirMessage(String document, String UtilisateurMessage){
+
+    private void remplirMessage(String document, String UtilisateurMessage) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference itemRef = db.collection("MP").document(document);
         itemRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -180,7 +180,7 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                                 //gauche
                                 droitOuGauche.add(false);
                         }
-                    }else {
+                    } else {
                         Log.d("Error", "No such document");
                     }
                 } else {
@@ -195,7 +195,7 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
         });
     }
 
-    private void remplirDate(String document){
+    private void remplirDate(String document) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference itemRef = db.collection("MP").document(document);
         itemRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -205,7 +205,7 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         dateMessage = (ArrayList<String>) document.get("date");
-                    }else {
+                    } else {
                         Log.d("Error", "No such document");
                     }
                 } else {
@@ -238,23 +238,21 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                     documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()){
+                            if (documentSnapshot.exists()) {
                                 //update la date
-                                documentReference.update("message", FieldValue.arrayUnion(message.getText().toString()), "date", FieldValue.arrayUnion(date))
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                message.setText("");
-                                                Log.d("Update", "items array successfully updated!");
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.w("Update", "Error updating items array", e);
-                                            }
-                                        });
-                            }else {
+                                documentReference.update("message", FieldValue.arrayUnion(message.getText().toString()), "date", FieldValue.arrayUnion(date)).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        message.setText("");
+                                        Log.d("Update", "items array successfully updated!");
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w("Update", "Error updating items array", e);
+                                    }
+                                });
+                            } else {
                                 Map<String, Object> donnée = new HashMap<>();
                                 donnée.put("message", Arrays.asList(message.getText().toString()));
                                 donnée.put("date", Arrays.asList(date));

@@ -3,7 +3,6 @@ package com.example.instantlike.Adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,16 +28,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Transaction;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder> implements View.OnClickListener {
 
@@ -58,7 +49,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
      * initialise les variables quand on appelle la clase avec les paramétres données
      * Constructeur
      */
-    public ImageAdapter(ArrayList<String> imageListUri,ArrayList<String> imageListNameStorage, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> iconList, ArrayList<String> nomUster) {
+    public ImageAdapter(ArrayList<String> imageListUri, ArrayList<String> imageListNameStorage, Context context, ArrayList<String> titre, ArrayList<String> descriptions, ArrayList<String> iconList, ArrayList<String> nomUster) {
         this.imageListUriStorage = imageListUri;
         this.imageListNameStorage = imageListNameStorage;
         this.context = context;
@@ -97,7 +88,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
         holder.descriptionsView.setText(descriptions.get(holder.getAdapterPosition()));
         holder.nomUtilisateur.setText(nomUster.get(holder.getAdapterPosition()));
         holder.Like.setImageResource(R.drawable.like);
-        iniLike(holder,position);
+        iniLike(holder, position);
         holder.partage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -121,8 +112,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
         });
 
 
-
-
         holder.Like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,55 +125,52 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
                 DocumentReference itemRef = db.collection("images").document(imageListNameStorage.get(holder.getAdapterPosition()));
                 int newImageId;
                 String newTexte;
-                    if (imagebtn.getConstantState().equals(newDrawable.getConstantState())){
-                        cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition())+1);
-                        newTexte =cpt.get(holder.getAdapterPosition())+" Likes";
-                        updateLike(itemRef,userid);
-                        newImageId =  R.drawable.liker;
+                if (imagebtn.getConstantState().equals(newDrawable.getConstantState())) {
+                    cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition()) + 1);
+                    newTexte = cpt.get(holder.getAdapterPosition()) + " Likes";
+                    updateLike(itemRef, userid);
+                    newImageId = R.drawable.liker;
 
-                    }else{
-                        cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition())-1);
-                        newTexte = cpt.get(holder.getAdapterPosition())+" Likes";
-                        deleteLike(itemRef,userid);
-                        newImageId = R.drawable.like;
+                } else {
+                    cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition()) - 1);
+                    newTexte = cpt.get(holder.getAdapterPosition()) + " Likes";
+                    deleteLike(itemRef, userid);
+                    newImageId = R.drawable.like;
 
-                    }
+                }
                 holder.Like.setImageResource(newImageId);
                 holder.likeNbActu.setText(newTexte);
             }
         });
     }
-    private  void deleteLike(DocumentReference itemRef,FirebaseUser userid){
-        itemRef.update("Like", FieldValue.arrayRemove(userid.getUid()))
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("Update", "items array successfully updated!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("Update", "Error updating items array", e);
-                    }
-                });
+
+    private void deleteLike(DocumentReference itemRef, FirebaseUser userid) {
+        itemRef.update("Like", FieldValue.arrayRemove(userid.getUid())).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Update", "items array successfully updated!");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Update", "Error updating items array", e);
+            }
+        });
 
     }
 
-    private  void updateLike(DocumentReference itemRef,FirebaseUser userid){
-        itemRef.update("Like", FieldValue.arrayUnion(userid.getUid()))
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("Update", "items array successfully updated!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("Update", "Error updating items array", e);
-                    }
-                });
+    private void updateLike(DocumentReference itemRef, FirebaseUser userid) {
+        itemRef.update("Like", FieldValue.arrayUnion(userid.getUid())).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Update", "items array successfully updated!");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w("Update", "Error updating items array", e);
+            }
+        });
     }
 
 
@@ -201,12 +187,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
                     if (document.exists()) {
                         ArrayList<String> subitems = (ArrayList<String>) document.get("Like");
                         for (int i = 0; i < subitems.size(); i++) {
-                            if(subitems.get(i).equals(userid.getUid()))
+                            if (subitems.get(i).equals(userid.getUid()))
                                 holder.Like.setImageResource(R.drawable.liker);
                         }
                         cpt.add(subitems.size());
                         holder.likeNbActu.setText(subitems.size() + " Likes");
-                    }else {
+                    } else {
                         Log.d("Error", "No such document");
                     }
                 } else {
@@ -215,6 +201,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
             }
         });
     }
+
     /**
      * récupérations de la dimentions du recycleur
      *

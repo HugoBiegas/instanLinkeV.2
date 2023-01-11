@@ -22,7 +22,6 @@ import com.example.instantlike.InteractionUtilisateur.UtilisateurMP;
 import com.example.instantlike.Poste.CreationPoste;
 import com.example.instantlike.Profil.ProfilInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,10 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class HomePage extends AppCompatActivity {
     // vidéo pour l'appareile photo : https://www.youtube.com/watch?v=8890GpBwn9w

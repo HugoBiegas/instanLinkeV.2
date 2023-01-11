@@ -1,7 +1,5 @@
 package com.example.instantlike.Poste;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -112,28 +110,26 @@ public class InfoPoste extends AppCompatActivity {
                     String userID = fAuth.getCurrentUser().getUid();
 
                     Map<String, String> com = new HashMap<>();
-                    com.put("id",userID);
+                    com.put("id", userID);
                     com.put("com", commmenter.getText().toString());
-                    documentReference.update("commentaire", FieldValue.arrayUnion(com))
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    commmenter.setText("");
-                                    idUtilisateurCom.clear();
-                                    gererCome.clear();
-                                    iconUtilisateurCom.clear();
-                                    iconUtilisateurToken.clear();
-                                    nomUtilisateurCom.clear();
-                                    ComeAffichage();
-                                    Log.d("Update", "items array successfully updated!");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w("Update", "Error updating items array", e);
-                                }
-                            });
+                    documentReference.update("commentaire", FieldValue.arrayUnion(com)).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            commmenter.setText("");
+                            idUtilisateurCom.clear();
+                            gererCome.clear();
+                            iconUtilisateurCom.clear();
+                            iconUtilisateurToken.clear();
+                            nomUtilisateurCom.clear();
+                            ComeAffichage();
+                            Log.d("Update", "items array successfully updated!");
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("Update", "Error updating items array", e);
+                        }
+                    });
                 } else {
                     Toast.makeText(InfoPoste.this, "écriver un commentaire pour le poster", Toast.LENGTH_SHORT).show();
                 }
