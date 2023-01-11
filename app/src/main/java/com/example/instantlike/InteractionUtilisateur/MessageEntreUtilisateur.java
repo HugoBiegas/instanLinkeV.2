@@ -51,10 +51,7 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
     private ArrayList<String> messageEnvoy = new ArrayList<>();
     private ArrayList<String> dateMessage = new ArrayList<>();
     private ArrayList<Boolean> droitOuGauche = new ArrayList<>();
-    private ArrayList<String> messageEnvoyBase = new ArrayList<>();
-    private ArrayList<Date> dateMessageBase = new ArrayList<>();
     private ArrayList<Boolean> droitOuGaucheBase = new ArrayList<>();
-    private ArrayList<String> dateMessageRéel = new ArrayList<>();
     private FirebaseUser currentUser;
 
     /**
@@ -147,32 +144,42 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                     //récupérations de tout les messages dans le désordre
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         if (document.getId().contains(currentUser.getUid()) && document.getId().contains(idUtilisateur)) {
-                            String c = document.getId();
-                            c = c.substring(c.indexOf(":") + 1);
-                            if (c.contains(currentUser.getUid()))
-                                //droite
-                                droitOuGaucheBase.add(true);
-                            else
-                                //gauche
-                                droitOuGaucheBase.add(false);
-                            remplirMessage();
+                            String UtilisateurMessage = document.getId();
+                            UtilisateurMessage = UtilisateurMessage.substring(UtilisateurMessage.indexOf(":") + 1);
+
+                            if (document.getId().contains(currentUser.getUid()+":"+idUtilisateur))
+
+                                remplirMessage(currentUser.getUid()+":"+idUtilisateur,UtilisateurMessage);
+
+                            if (document.getId().contains(idUtilisateur+":"+currentUser.getUid()))
+
+                                remplirMessage(idUtilisateur+":"+currentUser.getUid(),UtilisateurMessage);
                         }
                     }
+
                 }
             }
         });
     }
-    private void remplirMessage(){
+    private void remplirMessage(String document, String UtilisateurMessage){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference itemRef = db.collection("MP").document(currentUser.getUid()+":"+idUtilisateur);
+        DocumentReference itemRef = db.collection("MP").document(document);
         itemRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        ArrayList<String> subitems = (ArrayList<String>) document.get("message");
-                        messageEnvoyBase =subitems;
+                        messageEnvoy = (ArrayList<String>) document.get("message");
+                        //afficher le message a droit ou a gauche suivant la le destinataire
+                        for (int i = 0; i < messageEnvoy.size(); i++) {
+                            if (UtilisateurMessage.contains(currentUser.getUid()))
+                                //droite
+                                droitOuGauche.add(true);
+                            else
+                                //gauche
+                                droitOuGauche.add(false);
+                        }
                     }else {
                         Log.d("Error", "No such document");
                     }
@@ -183,22 +190,21 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
         }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                remplirDate();
+                remplirDate(document);
             }
         });
     }
 
-    private void remplirDate(){
+    private void remplirDate(String document){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference itemRef = db.collection("MP").document(currentUser.getUid()+":"+idUtilisateur);
+        DocumentReference itemRef = db.collection("MP").document(document);
         itemRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        ArrayList<String> subitems = (ArrayList<String>) document.get("date");
-                        dateMessageRéel = subitems;
+                        dateMessage = (ArrayList<String>) document.get("date");
                     }else {
                         Log.d("Error", "No such document");
                     }
@@ -234,12 +240,11 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             if (documentSnapshot.exists()){
                                 //update la date
-                                documentReference.update("message", FieldValue.arrayUnion(message.getText().toString()))
+                                documentReference.update("message", FieldValue.arrayUnion(message.getText().toString()), "date", FieldValue.arrayUnion(date))
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 message.setText("");
-
                                                 Log.d("Update", "items array successfully updated!");
                                             }
                                         })
@@ -249,21 +254,6 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                                                 Log.w("Update", "Error updating items array", e);
                                             }
                                         });
-                                //update le message
-                                documentReference.update("date", FieldValue.arrayUnion(date))
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d("Update", "items array successfully updated!");
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.w("Update", "Error updating items array", e);
-                                            }
-                                        });
-
                             }else {
                                 Map<String, Object> donnée = new HashMap<>();
                                 donnée.put("message", Arrays.asList(message.getText().toString()));
