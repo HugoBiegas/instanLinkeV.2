@@ -38,6 +38,7 @@ import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -109,10 +110,7 @@ public class InfoPoste extends AppCompatActivity {
                     DocumentReference documentReference = fStore.collection("images").document(nomImage);
                     String userID = fAuth.getCurrentUser().getUid();
 
-                    Map<String, String> com = new HashMap<>();
-                    com.put("id", userID);
-                    com.put("com", commmenter.getText().toString());
-                    documentReference.update("commentaire", FieldValue.arrayUnion(com)).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    documentReference.update("Idcommentaire", FieldValue.arrayUnion(userID), "commentaire", FieldValue.arrayUnion(commmenter.getText().toString())).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             commmenter.setText("");
@@ -142,34 +140,26 @@ public class InfoPoste extends AppCompatActivity {
      */
     private void ComeAffichage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference item1Ref = db.collection("images").document(nomImage);
-        item1Ref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        DocumentReference itemRef = db.collection("images").document(nomImage);
+        itemRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    DocumentSnapshot item1Doc = task.getResult();
-                    if (item1Doc.exists()) {
-                        ArrayList<HashMap<String, String>> item = (ArrayList<HashMap<String, String>>) item1Doc.get("commentaire");
-                        HashMap<String, String> chaine;
-                        for (int i = 0; i < item.size(); i++) {
-                            chaine = item.get(i);
-                            gererCome.add(chaine.get("com"));
-                            idUtilisateurCom.add(chaine.get("id"));
-                        }
-                        // do something with the location data
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        gererCome.addAll((ArrayList<String>) document.get("commentaire"));
+                        idUtilisateurCom.addAll((ArrayList<String>) document.get("Idcommentaire"));
+                        ininom();
                     } else {
-                        //item not found
+                        Log.d("Error", "No such document");
                     }
                 } else {
-                    //error getting item
+                    Log.d("Error", "get failed with ", task.getException());
                 }
             }
-        }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                ininom();
-            }
+
         });
+
     }
 
     /**

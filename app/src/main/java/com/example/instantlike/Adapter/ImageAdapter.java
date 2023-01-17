@@ -118,26 +118,26 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.MyViewHolder
                 //tout les teste et mise a jour du recycler
                 Drawable imagebtn = holder.Like.getDrawable();
                 Drawable newDrawable = ContextCompat.getDrawable(context, R.drawable.like);
-                Drawable newDrawableliker = ContextCompat.getDrawable(context, R.drawable.liker);
                 FirebaseAuth mAuth = FirebaseAuth.getInstance();
                 FirebaseUser userid = mAuth.getCurrentUser();
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 DocumentReference itemRef = db.collection("images").document(imageListNameStorage.get(holder.getAdapterPosition()));
                 int newImageId;
                 String newTexte;
-                if (imagebtn.getConstantState().equals(newDrawable.getConstantState())) {
-                    cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition()) + 1);
-                    newTexte = cpt.get(holder.getAdapterPosition()) + " Likes";
-                    updateLike(itemRef, userid);
-                    newImageId = R.drawable.liker;
 
-                } else {
-                    cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition()) - 1);
-                    newTexte = cpt.get(holder.getAdapterPosition()) + " Likes";
-                    deleteLike(itemRef, userid);
-                    newImageId = R.drawable.like;
+                    if (imagebtn.getConstantState().equals(newDrawable.getConstantState())) {
+                        cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition()) + 1);
+                        newTexte = cpt.get(holder.getAdapterPosition()) + " Likes";
+                        updateLike(itemRef, userid);
+                        newImageId = R.drawable.liker;
+                    } else {
+                        Toast.makeText(context, "" + holder.getAdapterPosition(), Toast.LENGTH_SHORT).show();
+                        cpt.set(holder.getAdapterPosition(), cpt.get(holder.getAdapterPosition()) - 1);
+                        newTexte = cpt.get(holder.getAdapterPosition()) + " Likes";
+                        deleteLike(itemRef, userid);
+                        newImageId = R.drawable.like;
 
-                }
+                    }
                 holder.Like.setImageResource(newImageId);
                 holder.likeNbActu.setText(newTexte);
             }
