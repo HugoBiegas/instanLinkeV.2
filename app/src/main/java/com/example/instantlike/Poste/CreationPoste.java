@@ -192,13 +192,7 @@ public class CreationPoste extends AppCompatActivity {
                     posterImage(photoUri);
                     //rajouter dans firebase le titre et le commentaire
                     ajoutBDFirestore(titre.getText().toString(), descriptions.getText().toString());
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    startActivity(new Intent(getApplicationContext(), HomePage.class));
-                    finish();
+
                 } else
                     Toast.makeText(CreationPoste.this, "saisisez une image ,un titre et une descriptions", Toast.LENGTH_SHORT).show();
             }
@@ -228,6 +222,8 @@ public class CreationPoste extends AppCompatActivity {
         documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                startActivity(new Intent(getApplicationContext(), HomePage.class));//on lance l'activiter
+                finish();
                 Log.d("TAG", "onSuccess: Les données son créer");
             }
         });

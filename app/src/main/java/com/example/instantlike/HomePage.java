@@ -1,6 +1,7 @@
 package com.example.instantlike;
 
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -72,7 +73,6 @@ public class HomePage extends AppCompatActivity {
         currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             startActivity(new Intent(getApplicationContext(), Login.class));
-            clearAllVariable();
             finish();
         }
     }
@@ -128,6 +128,8 @@ public class HomePage extends AppCompatActivity {
         }
     }
 
+
+
     /**
      * redéfinitions de la méthode onActivityResult qui permet d'avoir un retour sur la capture faite aux préalable
      * tout en enlevent tout les évent listeneur
@@ -159,7 +161,6 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), CreationPoste.class));
-
                 clearAllVariable();
                 finish();
             }
@@ -185,14 +186,13 @@ public class HomePage extends AppCompatActivity {
         home = findViewById(R.id.HomeBTNPost);
         message = findViewById(R.id.MessageBTNPost);
         profilInfoPoste = findViewById(R.id.InfoPorofilBTNPost);
-        imageScrol();
+        titreDescNomImage();
 
         //méthode pour la bar en bat
         cliquemessage();
         cliqueProfilInfoPost();
         cliqueHome();
     }
-
 
     /**
      * afficher tout les personne posible a mp
@@ -242,7 +242,6 @@ public class HomePage extends AppCompatActivity {
      * avec une boucle pour récupérer tout les images dans le storage firebase
      */
     private void imageScrol() {
-        titreDescNomImage();
         //bar de progrations de la conections a firebase
         //créations du recycler
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images");
@@ -260,6 +259,20 @@ public class HomePage extends AppCompatActivity {
                             imageListNameStorage.add(fileRef.getName());
                             imageListUriStorage.add(uri.toString());
                             Log.d("item", uri.toString());
+                        }
+                    }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Uri> task) {
+                            if (task.isSuccessful() && imageListNameStorage.size() == iconList.size()){
+                                trieImage();
+                                trieIcon();
+                                recyclerView = findViewById(R.id.recyclerView);
+                                LinearLayoutManager manager = new LinearLayoutManager(HomePage.this);
+                                recyclerView.setLayoutManager(manager);
+                                recyclerView.setHasFixedSize(true);
+                                recyclerView.setAdapter(adapter);
+                            }
+
                         }
                     });
                 }
@@ -296,13 +309,7 @@ public class HomePage extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<Uri> task) {
                                     if (task.isSuccessful() && iconList.size() == iconListToken.size()) {
-                                        trieImage();
-                                        trieIcon();
-                                        recyclerView = findViewById(R.id.recyclerView);
-                                        LinearLayoutManager manager = new LinearLayoutManager(HomePage.this);
-                                        recyclerView.setLayoutManager(manager);
-                                        recyclerView.setHasFixedSize(true);
-                                        recyclerView.setAdapter(adapter);
+                                        imageScrol();
                                     }
                                 }
                             });
