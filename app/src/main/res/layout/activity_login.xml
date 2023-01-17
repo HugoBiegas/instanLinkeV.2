@@ -18,7 +18,8 @@
         android:ems="10"
         android:hint="Email"
         android:inputType="textPersonName"
-        android:minHeight="48dp" />
+        android:minHeight="48dp"
+        />
 
     <EditText
         android:id="@+id/editTextPassword"
@@ -36,12 +37,15 @@
         android:text="Se connecter" />
 
     <TextView
+        android:textSize="20dp"
         android:id="@+id/createText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Créer un compte"/>
 
     <TextView
+        android:textSize="20dp"
+
         android:id="@+id/forgotTextLink"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

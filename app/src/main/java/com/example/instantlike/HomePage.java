@@ -72,6 +72,7 @@ public class HomePage extends AppCompatActivity {
         currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             startActivity(new Intent(getApplicationContext(), Login.class));
+            clearAllVariable();
             finish();
         }
     }
@@ -144,6 +145,7 @@ public class HomePage extends AppCompatActivity {
             intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
             intent.putExtra("uri", photoUir);
             startActivity(intent);//on lance l'activiter
+            clearAllVariable();
             finish();
         }
     }
@@ -157,9 +159,22 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), CreationPoste.class));
+
+                clearAllVariable();
                 finish();
             }
         });
+    }
+    private void clearAllVariable(){
+        imageListUriStorage.clear();
+        imageListNameStorage.clear();
+        imageNameFirebase.clear();
+        titreImage.clear();
+        descImage.clear();
+        iconListName.clear();
+        iconListToken.clear();
+        iconList.clear();
+        nomUster.clear();
     }
 
     /**
@@ -187,6 +202,7 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), UtilisateurMP.class));
+                clearAllVariable();
                 finish();
             }
         });
@@ -200,6 +216,7 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), ProfilInfo.class));
+                clearAllVariable();
                 finish();
             }
         });
@@ -213,6 +230,7 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), HomePage.class));
+                clearAllVariable();
                 finish();
             }
         });

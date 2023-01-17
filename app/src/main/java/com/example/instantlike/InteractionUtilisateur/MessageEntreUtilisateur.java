@@ -239,8 +239,10 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             if (documentSnapshot.exists()) {
+                                messageEnvoy.add(message.getText().toString());
+                                dateMessage.add(date);
                                 //update la date
-                                documentReference.update("message", FieldValue.arrayUnion(message.getText().toString()), "date", FieldValue.arrayUnion(date)).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                documentReference.update("message", messageEnvoy, "date", dateMessage).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         message.setText("");

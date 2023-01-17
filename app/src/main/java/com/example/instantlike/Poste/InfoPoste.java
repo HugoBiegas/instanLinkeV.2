@@ -109,8 +109,9 @@ public class InfoPoste extends AppCompatActivity {
                     //image : personne qui commante
                     DocumentReference documentReference = fStore.collection("images").document(nomImage);
                     String userID = fAuth.getCurrentUser().getUid();
-
-                    documentReference.update("Idcommentaire", FieldValue.arrayUnion(userID), "commentaire", FieldValue.arrayUnion(commmenter.getText().toString())).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    gererCome.add(commmenter.getText().toString());
+                    idUtilisateurCom.add(userID);
+                    documentReference.update("Idcommentaire", idUtilisateurCom, "commentaire", gererCome).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             commmenter.setText("");
