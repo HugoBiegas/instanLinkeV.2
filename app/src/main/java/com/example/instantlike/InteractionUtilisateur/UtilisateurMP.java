@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -50,6 +51,7 @@ public class UtilisateurMP extends AppCompatActivity {
     private ArrayList<String> iconUtilisateurMP = new ArrayList<>();
     private ArrayList<String> iconUtilisateurMPToken = new ArrayList<>();
     private FirebaseUser currentUser;
+    private ProgressBar progressBar;
 
     /**
      * récupérations de l'id de l'utilisateur ou redirections a la connection
@@ -81,6 +83,9 @@ public class UtilisateurMP extends AppCompatActivity {
         message = findViewById(R.id.MessageBTNMpUtilisateur);
         profilInfoPoste = findViewById(R.id.InfoPorofilBTNMpUtilisateur);
         toolbar = findViewById(R.id.toolbar);
+        progressBar = findViewById(R.id.progressBarMPUser);
+        progressBar.setVisibility(View.VISIBLE);
+
         photoClique();
         PosteClique();
         cliquemessage();
@@ -263,6 +268,7 @@ public class UtilisateurMP extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<Uri> task) {
                                     if (task.isSuccessful() && iconUtilisateurMP.size() == idUtilisateurMp.size()) {
                                         triIcon();
+                                        progressBar.setVisibility(View.GONE);
                                         final RecyclerView recyclerView = findViewById(R.id.recyclerViewMPutilisateur);
                                         recyclerView.setLayoutManager(new LinearLayoutManager(UtilisateurMP.this));
                                         MPAdapter adapter = new MPAdapter(UtilisateurMP.this, iconUtilisateurMP, nomUtilisateurMP, idUtilisateurMp);

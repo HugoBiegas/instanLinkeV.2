@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,6 +62,7 @@ public class ProfilInfo extends AppCompatActivity {
     private String photoPath;
     private Uri photoUir;
     private Button deconnections;
+    private ProgressBar progressBar;
 
 
     /**
@@ -166,6 +168,8 @@ public class ProfilInfo extends AppCompatActivity {
         nom = findViewById(R.id.NomUtilisateurProfil);
         publications = findViewById(R.id.PublicationsUtilisateurProfil);
         deconnections = findViewById(R.id.buttonDéconnecter);
+        progressBar = findViewById(R.id.progressInfoProfile);
+        progressBar.setVisibility(View.VISIBLE);
         deconnectionsUser();
         cliquemessage();
         cliqueProfilInfoPost();
@@ -229,6 +233,7 @@ public class ProfilInfo extends AppCompatActivity {
 
     private void miseEnForme() {
         if (imageListUri.size() == NomImagePoste.size()) {
+            progressBar.setVisibility(View.GONE);
             final RecyclerView recyclerView = findViewById(R.id.recyclerViewUtilisateurInfo);
             recyclerView.setLayoutManager(new LinearLayoutManager(ProfilInfo.this));
             PublicationAdapter adapter = new PublicationAdapter(imageListUri, ProfilInfo.this, DatePoste, LikePoste, NomImagePoste);

@@ -222,7 +222,9 @@ public class CreationPoste extends AppCompatActivity {
         documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                startActivity(new Intent(getApplicationContext(), HomePage.class));//on lance l'activiter
+                Intent extrat = new Intent(getApplicationContext(), HomePage.class);
+                extrat.putExtra("passe",true);
+                startActivity(extrat);//on lance l'activiter
                 finish();
                 Log.d("TAG", "onSuccess: Les données son créer");
             }

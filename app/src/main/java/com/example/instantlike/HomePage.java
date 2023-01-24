@@ -8,7 +8,9 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -60,6 +62,7 @@ public class HomePage extends AppCompatActivity {
     private Uri photoUir;
     private androidx.appcompat.widget.Toolbar toolbar;
     RecyclerView recyclerView;
+    ProgressBar progressBar;
     ImageAdapter adapter = new ImageAdapter(imageListUriStorage, imageListNameStorage, HomePage.this, titreImage, descImage, iconList, nomUster);
 
 
@@ -147,7 +150,6 @@ public class HomePage extends AppCompatActivity {
             intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
             intent.putExtra("uri", photoUir);
             startActivity(intent);//on lance l'activiter
-            clearAllVariable();
             finish();
         }
     }
@@ -161,21 +163,9 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), CreationPoste.class));
-                clearAllVariable();
                 finish();
             }
         });
-    }
-    private void clearAllVariable(){
-        imageListUriStorage.clear();
-        imageListNameStorage.clear();
-        imageNameFirebase.clear();
-        titreImage.clear();
-        descImage.clear();
-        iconListName.clear();
-        iconListToken.clear();
-        iconList.clear();
-        nomUster.clear();
     }
 
     /**
@@ -186,6 +176,9 @@ public class HomePage extends AppCompatActivity {
         home = findViewById(R.id.HomeBTNPost);
         message = findViewById(R.id.MessageBTNPost);
         profilInfoPoste = findViewById(R.id.InfoPorofilBTNPost);
+        progressBar = findViewById(R.id.progressBarMainActiviti);
+        progressBar.setVisibility(View.VISIBLE);
+
         titreDescNomImage();
 
         //méthode pour la bar en bat
@@ -202,7 +195,6 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), UtilisateurMP.class));
-                clearAllVariable();
                 finish();
             }
         });
@@ -216,7 +208,6 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), ProfilInfo.class));
-                clearAllVariable();
                 finish();
             }
         });
@@ -230,7 +221,6 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(), HomePage.class));
-                clearAllVariable();
                 finish();
             }
         });
@@ -258,14 +248,14 @@ public class HomePage extends AppCompatActivity {
                             //on récupére uri qui est le lien ou trouver les données
                             imageListNameStorage.add(fileRef.getName());
                             imageListUriStorage.add(uri.toString());
-                            Log.d("item", uri.toString());
                         }
                     }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                         @Override
                         public void onComplete(@NonNull Task<Uri> task) {
                             if (task.isSuccessful() && imageListNameStorage.size() == iconList.size()){
-                                trieImage();
-                                trieIcon();
+                                //trieImage();
+                                //trieIcon();
+                                progressBar.setVisibility(View.GONE);
                                 recyclerView = findViewById(R.id.recyclerView);
                                 LinearLayoutManager manager = new LinearLayoutManager(HomePage.this);
                                 recyclerView.setLayoutManager(manager);
@@ -283,45 +273,6 @@ public class HomePage extends AppCompatActivity {
     /**
      * récupére les icon des utilisateur
      */
-    private void iconUtilisateur() {
-        //créations du recycler
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone");
-        //on vas chercher les images dans la BD
-        storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
-            @Override
-            public void onSuccess(ListResult listResult) {
-                String c;
-                for (int i = 0; i < iconListToken.size(); i++) {
-                    for (StorageReference fileRef : listResult.getItems()) {
-                        c = fileRef.getName();
-                        if (iconListToken.get(i).equals(c)) {
-                            //actualisations pour avoir un chiffre différent a chaque foi
-                            fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    //on récupére uri qui est le lien ou trouver les données
-                                    iconList.add(uri.toString());
-                                    String name = uri.getLastPathSegment();
-                                    name = name.substring(name.indexOf("/") + 1);
-                                    iconListName.add(name);
-                                }
-                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Uri> task) {
-                                    if (task.isSuccessful() && iconList.size() == iconListToken.size()) {
-                                        imageScrol();
-                                    }
-                                }
-                            });
-                            break;
-                        }
-                    }
-                }
-                // on fait une boucle pour stocker les images une par une
-            }
-        });
-
-    }
 
     private void trieIcon() {
         String NomIcon;
@@ -371,25 +322,12 @@ public class HomePage extends AppCompatActivity {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         //récupérations du nom de l'image
                         imageNameFirebase.add(document.getId());
-                        //récupérations la personne qui a poster le com
-                        String user = document.getData().toString();
-                        user = user.substring(user.indexOf("UserPoste=") + 10);
-                        if (user.indexOf(",") == -1) user = user.substring(0, user.indexOf("}"));
-                        else user = user.substring(0, user.indexOf(","));
-                        iconListToken.add(user);
+                        //récupérations de l'userPoste
+                        iconListToken.add(document.getData().get("UserPoste").toString());
                         //récupérations des titre
-                        String titre = document.getData().toString();
-                        titre = titre.substring(titre.indexOf("Titre=") + 6);
-                        if (titre.indexOf(",") == -1)
-                            titre = titre.substring(0, titre.indexOf("}"));
-                        else titre = titre.substring(0, titre.indexOf(","));
-                        titreImage.add(titre);
+                        titreImage.add(document.getData().get("Titre").toString());
                         //récupérations des descriptions
-                        String desc = document.getData().toString();
-                        desc = desc.substring(desc.indexOf("Descriptions=") + 13);
-                        if (desc.indexOf(",") == -1) desc = desc.substring(0, desc.indexOf("}"));
-                        else desc = desc.substring(0, desc.indexOf(","));
-                        descImage.add(desc);
+                        descImage.add(document.getData().get("Descriptions").toString());
                     }
                     nomUtilisateur();
                     iconUtilisateur();
@@ -415,12 +353,7 @@ public class HomePage extends AppCompatActivity {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             userName = document.getId();
                             if (userName.equals(iconListToken.get(i))) {
-                                String user = document.getData().toString();
-                                user = user.substring(user.indexOf("username=") + 9);
-                                if (user.indexOf(",") == -1)
-                                    user = user.substring(0, user.indexOf("}"));
-                                else user = user.substring(0, user.indexOf(","));
-                                nomUster.add(user);
+                                nomUster.add(document.getData().get("username").toString());
                                 break;
                             }
                         }
@@ -430,6 +363,44 @@ public class HomePage extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void iconUtilisateur() {
+        //créations du recycler
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone");
+        //on vas chercher les images dans la BD
+        storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+            @Override
+            public void onSuccess(ListResult listResult) {
+                String c;
+                for (int i = 0; i < iconListToken.size(); i++) {
+                    for (StorageReference fileRef : listResult.getItems()) {
+                        c = fileRef.getName();
+                        if (iconListToken.get(i).equals(c)) {
+                            //actualisations pour avoir un chiffre différent a chaque foi
+                            fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    //on récupére uri qui est le lien ou trouver les données
+                                    iconList.add(uri.toString());
+                                    String name = uri.getLastPathSegment();
+                                    name = name.substring(name.indexOf("/") + 1);
+                                    iconListName.add(name);
+                                }
+                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    imageScrol();
+                                }
+                            });
+                            break;
+                        }
+                    }
+                }
+                // on fait une boucle pour stocker les images une par une
+            }
+        });
+
     }
 
 }
