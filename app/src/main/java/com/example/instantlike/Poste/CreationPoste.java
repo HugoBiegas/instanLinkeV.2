@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.instantlike.Connection.Login;
 import com.example.instantlike.HomePage;
+import com.example.instantlike.Image.ImageData;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,6 +30,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -49,26 +51,22 @@ public class CreationPoste extends AppCompatActivity {
     private String uuid;
     private EditText titre, descriptions;
     private Button ajoutImage;
-    private FirebaseAuth mAuth;
     private FirebaseAuth fAuth;
     private FirebaseFirestore fStore;
     private ProgressBar progressBar;
 
     /**
-     * méthode qui verifie que la personne et connecter et la redirige si non
+     * Vérifie que la personne est connectée et la redirige si non
      */
     public void onStart() {
         super.onStart();
-        // Check si l'user est connecté
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        // Vérifie si l'utilisateur est connecté
+        FirebaseUser currentUser = fAuth.getCurrentUser();
         if (currentUser == null) {
-
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
         }
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,22 +76,7 @@ public class CreationPoste extends AppCompatActivity {
     }
 
     /**
-     * méthode pour gérer les donnée envoiller par la view MainActivity
-     */
-    private void extraDonnée() {
-        Bundle extra = getIntent().getExtras();//récuper l'extrat envoiller par roomActivity
-        if (extra != null) {
-            String photoPath = extra.getString("image");
-            image = BitmapFactory.decodeFile(photoPath);
-            photoUri = extra.getParcelable("uri");
-            imagePoste.setImageBitmap(image);
-            ajoutImage.setVisibility(View.INVISIBLE);
-        } else ajoutImageTel();
-    }
-
-    /**
-     * méthode d'inisialisations des variable de la view
-     * et de la mise en place des appelle de méthode
+     * Initialise les variables de la vue et appelle les méthodes nécessaires
      */
     private void iniActyvity() {
         retour = findViewById(R.id.retour);
@@ -103,13 +86,30 @@ public class CreationPoste extends AppCompatActivity {
         descriptions = findViewById(R.id.descriptions);
         imagePoste = findViewById(R.id.imagePoste);
         progressBar = findViewById(R.id.progressBarPoste);
-        //Prendre instance de firebase
+        // Prend l'instance de Firebase
         fAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
         extraDonnée();
         retourHome();
         enregistrerImage();
     }
+
+    /**
+     * Méthode pour gérer les données envoyées par la vue MainActivity
+     */
+    private void extraDonnée() {
+        Bundle extra = getIntent().getExtras(); // Récupère l'extra envoyé par MainActivity
+        if (extra != null) {
+            String photoPath = extra.getString("image");
+            image = BitmapFactory.decodeFile(photoPath);
+            photoUri = extra.getParcelable("uri");
+            imagePoste.setImageBitmap(image);
+            ajoutImage.setVisibility(View.INVISIBLE);
+        } else {
+            ajoutImageTel();
+        }
+    }
+
 
     /**
      * méthode pour avoir le bouton pour ajouter une image
@@ -125,7 +125,7 @@ public class CreationPoste extends AppCompatActivity {
                     Intent galleryintent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     startActivityForResult(galleryintent, 1);
                 } else {
-                    //afficher une demande de permisions
+                    // afficher une demande de permissions
                     EasyPermissions.requestPermissions(CreationPoste.this, "Access for storage", 101, permissions);
                 }
             }
@@ -133,45 +133,44 @@ public class CreationPoste extends AppCompatActivity {
     }
 
     /**
-     * redéfinitions de la méthode onActivityResult qui permet d'avoir un retour sur l'inportations de l'image choisi
-     * et traitement de cette image (récupérations du chemin de l'image et récupérations de l'image par la suite)
+     * Méthode appelée lorsque l'utilisateur revient de la galerie après avoir sélectionné une image.
+     * Cette méthode récupère l'URI de l'image sélectionnée et l'affiche dans l'ImageView imagePoste.
      *
-     * @param requestCode
-     * @param resultCode
-     * @param data
+     * @param requestCode Le code de requête envoyé à la galerie (dans notre cas, 1)
+     * @param resultCode  Le code de résultat (RESULT_OK si l'utilisateur a sélectionné une image)
+     * @param data        Les données renvoyées par la galerie (contenant l'URI de l'image sélectionnée)
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // verifier qu'une image est selectionner
+
         if (requestCode == 1 && resultCode == RESULT_OK) {
-            Uri selectImage = data.getData();
-            String[] fillePathColum = {MediaStore.Images.Media.DATA};
-            // curseur d'accer au chemin de l'image
-            Cursor cursor = this.getContentResolver().query(selectImage, fillePathColum, null, null, null);
-            //positions sur la premier ligne
-            cursor.moveToFirst();
-            //récupérations chemin préci de l'image
-            int columIndex = cursor.getColumnIndex(fillePathColum[0]);
-            String imgPath = cursor.getString(columIndex);
-            cursor.close();
-            //récupérations de l'image
-            Bitmap image2 = BitmapFactory.decodeFile(imgPath);
-            File f = new File(imgPath);
-            photoUri = Uri.fromFile(f);
-            Glide.with(this /* context */).load(image2).into(imagePoste);
+            // Récupération de l'URI de l'image sélectionnée
+            photoUri = data.getData();
+
+            // Affichage de l'image dans l'ImageView imagePoste
+            Glide.with(this)
+                    .load(photoUri)
+                    .into(imagePoste);
+
+            // Masquage du bouton ajoutImage
             ajoutImage.setVisibility(View.INVISIBLE);
         }
     }
 
+
     /**
-     * méthode pour le btn pour revenir a la page d'acceuil
+     * Méthode appelée lorsqu'on clique sur le bouton retour.
+     * Cette méthode termine l'activité en cours et retourne à l'activité HomePage.
      */
     private void retourHome() {
         retour.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), HomePage.class));
+                // Fermeture de l'activité en cours et retour à l'activité HomePage
+                Intent intent = new Intent(getApplicationContext(), HomePage.class);
+                intent.putExtra("passe", true);
+                startActivity(intent);
                 finish();
             }
         });
@@ -186,25 +185,37 @@ public class CreationPoste extends AppCompatActivity {
         poster.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //si il y as une image on l'envoie
+                // Vérifier que l'image, le titre et la description sont saisis
                 if (null != imagePoste.getDrawable() && titre.getText().length() != 0 && descriptions.getText().length() != 0) {
                     //Poster l'image sur le storage
-                    posterImage(photoUri);
-                    //rajouter dans firebase le titre et le commentaire
-                    ajoutBDFirestore(titre.getText().toString(), descriptions.getText().toString());
-
-                } else
-                    Toast.makeText(CreationPoste.this, "saisisez une image ,un titre et une descriptions", Toast.LENGTH_SHORT).show();
+                    posterImage(photoUri, new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                            // Ajouter les données dans Firestore
+                            ajoutBDFirestore(titre.getText().toString(), descriptions.getText().toString());
+                            // Ajouter les données dans ImageData
+                            new ImageData(uri.toString(),uuid+".jpg", titre.getText().toString(), descriptions.getText().toString(),uuid+".jpg",firebaseUser.getDisplayName());
+                            // Retourner à la page HomePage
+                            Intent intent = new Intent(getApplicationContext(), HomePage.class);
+                            intent.putExtra("passe", true);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+                } else {
+                    Toast.makeText(CreationPoste.this, "Saisissez une image, un titre et une description", Toast.LENGTH_SHORT).show();
+                }
             }
         });
-
     }
 
     /**
-     * ajouter  l'image dans firestore
+     * Ajoute l'image dans Firestore
      *
-     * @param Titre
-     * @param desc
+     * @param Titre Le titre de l'image
+     * @param desc La description de l'image
      */
     private void ajoutBDFirestore(String Titre, String desc) {
         String userID = fAuth.getCurrentUser().getUid();
@@ -218,31 +229,29 @@ public class CreationPoste extends AppCompatActivity {
         donnée.put("commentaire", Arrays.asList());
         donnée.put("Idcommentaire", Arrays.asList());
 
-
         documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Intent extrat = new Intent(getApplicationContext(), HomePage.class);
-                extrat.putExtra("passe",true);
-                startActivity(extrat);//on lance l'activiter
-                finish();
-                Log.d("TAG", "onSuccess: Les données son créer");
+                Log.d("TAG", "onSuccess: Les données sont créées");
             }
         });
-
     }
 
-
     /**
-     * méthode permettent de rendre chaque image unique
-     * donc pour les différentier avec un clée unique
+     * Envoie l'image dans Firebase Storage
      *
-     * @param imageUri
+     * @param imageUri L'URI de l'image
+     * @param onSuccessListener Le listener à exécuter après que l'image soit postée
      */
-    private void posterImage(Uri imageUri) {
+    private void posterImage(Uri imageUri, final OnSuccessListener<Uri> onSuccessListener) {
         uuid = UUID.randomUUID().toString(); // GENERATE UNIQUE STRING tock
         StorageReference mImageRef = FirebaseStorage.getInstance().getReference("images/" + uuid);
-        mImageRef.putFile(imageUri);
+        mImageRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                mImageRef.getDownloadUrl().addOnSuccessListener(onSuccessListener);
+            }
+        });
     }
 
 }

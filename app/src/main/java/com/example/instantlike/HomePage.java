@@ -1,14 +1,14 @@
 package com.example.instantlike;
 
+import static com.example.instantlike.Image.ImageData.getimages;
+
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -21,9 +21,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.instantlike.Adapter.ImageAdapter;
 import com.example.instantlike.Connection.Login;
+import com.example.instantlike.Image.ImageData;
 import com.example.instantlike.InteractionUtilisateur.UtilisateurMP;
 import com.example.instantlike.Poste.CreationPoste;
 import com.example.instantlike.Profil.ProfilInfo;
+import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -41,10 +43,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class HomePage extends AppCompatActivity {
-    // vidéo pour l'appareile photo : https://www.youtube.com/watch?v=8890GpBwn9w
-    // vidéo pour les liste view : https://www.youtube.com/watch?v=KY5vOVNqkGM
     private static final int RETOUR_PHOTO = 1;
     private String photoPath = null;
     private FirebaseAuth mAuth;
@@ -63,15 +64,13 @@ public class HomePage extends AppCompatActivity {
     private androidx.appcompat.widget.Toolbar toolbar;
     RecyclerView recyclerView;
     ProgressBar progressBar;
-    ImageAdapter adapter = new ImageAdapter(imageListUriStorage, imageListNameStorage, HomePage.this, titreImage, descImage, iconList, nomUster);
+    static List<ImageData> imageDataList = new ArrayList<>();
+    private Boolean recycler= false;
+    Boolean NewPhoto = false;
+    ImageAdapter adapter = new ImageAdapter(imageDataList, HomePage.this);
 
-
-    /**
-     * vérificatiosn que l'utilisateur est bien connecter
-     */
     public void onStart() {
         super.onStart();
-        // Check si l'user est connecté
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
@@ -80,22 +79,45 @@ public class HomePage extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toolbar = findViewById(R.id.toolbar);
-        //écouteur pour quand on poste un pote pour restet la fils
-        //testMessage();
         photoClique();
         PosteClique();
         iniActivity();
     }
 
+    private void iniActivity() {
+        home = findViewById(R.id.HomeBTNPost);
+        message = findViewById(R.id.MessageBTNPost);
+        profilInfoPoste = findViewById(R.id.InfoPorofilBTNPost);
+        progressBar = findViewById(R.id.progressBarMainActiviti);
+        progressBar.setVisibility(View.VISIBLE);
+        extraDonnée();
+        Toast.makeText(this, ""+imageDataList.size(), Toast.LENGTH_SHORT).show();
+        if (NewPhoto== true || imageDataList.size() != 0){
+            imageDataList.clear();
+            setRecyclerView();
+        }else
+            titreDescNomImage();
+
+        cliquemessage();
+        cliqueProfilInfoPost();
+        cliqueHome();
+    }
+    private void extraDonnée() {
+        Bundle extra = getIntent().getExtras(); // Récupère l'extra envoyé par MainActivity
+        if (extra != null)
+            NewPhoto = true;
+
+    }
+
+
 
     /**
-     * clique pour ouvrire l'appareil photo
+     * Clique pour ouvrir l'appareil photo
      */
     private void photoClique() {
         ImageButton photo = findViewById(R.id.action_photo);
@@ -108,15 +130,15 @@ public class HomePage extends AppCompatActivity {
     }
 
     /**
-     * méthode qui mais en place l'appreille photo
-     * avec la créations de a à z de l'image en créent tout les données de l'image
+     * Méthode qui met en place l'appareil photo
+     * avec la création de A à Z de l'image en créant toutes les données de l'image
      */
     private void adimage() {
-        //on crée l'appareille photo
+        // On crée l'appareil photo
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // on regarde si la personne a pris une photo et veux la valider
+        // On regarde si la personne a pris une photo et veut la valider
         if (intent.resolveActivity(getPackageManager()) != null) {
-            // on crée tout les données corespondent a l'image
+            // On crée toutes les données correspondantes à l'image
             String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
             File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
             try {
@@ -131,25 +153,23 @@ public class HomePage extends AppCompatActivity {
         }
     }
 
-
-
     /**
-     * redéfinitions de la méthode onActivityResult qui permet d'avoir un retour sur la capture faite aux préalable
-     * tout en enlevent tout les évent listeneur
+     * Redéfinition de la méthode onActivityResult qui permet d'avoir un retour sur la capture faite précédemment
+     * tout en enlevant tous les événements listeners
      *
-     * @param requestCode
-     * @param resultCode
-     * @param data
+     * @param requestCode Le code de la requête envoyée
+     * @param resultCode Le code de résultat retourné
+     * @param data L'intent retourné contenant les données
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // on regarde si le résultat de la photo et un  sucer si oui on peux créer un poste
+        // On regarde si le résultat de la photo est OK, si oui on peut créer un poste
         if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK) {
-            Intent intent = new Intent(getApplicationContext(), CreationPoste.class);//créations de la page Game
-            intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
+            Intent intent = new Intent(getApplicationContext(), CreationPoste.class);//création de la page Game
+            intent.putExtra("image", photoPath);// On donne en extra la valeur de la roomName pour savoir si la personne est un gest ou l'host
             intent.putExtra("uri", photoUir);
-            startActivity(intent);//on lance l'activiter
+            startActivity(intent);// On lance l'activité
             finish();
         }
     }
@@ -166,25 +186,6 @@ public class HomePage extends AppCompatActivity {
                 finish();
             }
         });
-    }
-
-    /**
-     * méthode d'inisialisations des variable de la view
-     * et de la mise en place des appelle de méthode
-     */
-    private void iniActivity() {
-        home = findViewById(R.id.HomeBTNPost);
-        message = findViewById(R.id.MessageBTNPost);
-        profilInfoPoste = findViewById(R.id.InfoPorofilBTNPost);
-        progressBar = findViewById(R.id.progressBarMainActiviti);
-        progressBar.setVisibility(View.VISIBLE);
-
-        titreDescNomImage();
-
-        //méthode pour la bar en bat
-        cliquemessage();
-        cliqueProfilInfoPost();
-        cliqueHome();
     }
 
     /**
@@ -213,9 +214,6 @@ public class HomePage extends AppCompatActivity {
         });
     }
 
-    /**
-     * permet de se rendre sur la page d'aceuil
-     */
     private void cliqueHome() {
         home.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -226,43 +224,33 @@ public class HomePage extends AppCompatActivity {
         });
     }
 
-    /**
-     * méthode pour mettre a jour le recyclerVieuw qui affiche tout les postes
-     * avec une boucle pour récupérer le titre et la descriptions de la bd temps réel
-     * avec une boucle pour récupérer tout les images dans le storage firebase
-     */
+
     private void imageScrol() {
-        //bar de progrations de la conections a firebase
-        //créations du recycler
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images");
-        //on vas chercher les images dans la BD
+
         storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
             @Override
             public void onSuccess(ListResult listResult) {
-                // on fait une boucle pour stocker les images une par une
                 for (StorageReference fileRef : listResult.getItems()) {
-                    //actualisations pour avoir un chiffre différent a chaque foi
                     fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            //on récupére uri qui est le lien ou trouver les données
                             imageListNameStorage.add(fileRef.getName());
                             imageListUriStorage.add(uri.toString());
                         }
                     }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                         @Override
                         public void onComplete(@NonNull Task<Uri> task) {
-                            if (task.isSuccessful() && imageListNameStorage.size() == iconList.size()){
-                                //trieImage();
-                                //trieIcon();
-                                progressBar.setVisibility(View.GONE);
-                                recyclerView = findViewById(R.id.recyclerView);
-                                LinearLayoutManager manager = new LinearLayoutManager(HomePage.this);
-                                recyclerView.setLayoutManager(manager);
-                                recyclerView.setHasFixedSize(true);
-                                recyclerView.setAdapter(adapter);
+                            if (task.isSuccessful() && imageListNameStorage.size() == iconList.size() && recycler == false){
+                                trieImage();
+                                trieIcon();
+                                for (int i = 0; i < imageListUriStorage.size(); i++) {
+                                    new ImageData(imageListUriStorage.get(i), imageListNameStorage.get(i), titreImage.get(i), descImage.get(i), iconList.get(i), nomUster.get(i));
+                                }
+                                Toast.makeText(HomePage.this, "je passe ", Toast.LENGTH_SHORT).show();
+                                setRecyclerView();
+                                recycler = true;
                             }
-
                         }
                     });
                 }
@@ -270,9 +258,15 @@ public class HomePage extends AppCompatActivity {
         });
     }
 
-    /**
-     * récupére les icon des utilisateur
-     */
+    private void setRecyclerView(){
+            imageDataList.addAll(getimages());
+            progressBar.setVisibility(View.GONE);
+            recyclerView = findViewById(R.id.recyclerView);
+            LinearLayoutManager manager = new LinearLayoutManager(HomePage.this);
+            recyclerView.setLayoutManager(manager);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setAdapter(adapter);
+    }
 
     private void trieIcon() {
         String NomIcon;
@@ -310,9 +304,7 @@ public class HomePage extends AppCompatActivity {
         imageListNameStorage.addAll(tempsName);
     }
 
-    /**
-     * récupére les descriptions titre et nom des image du poste
-     */
+
     private void titreDescNomImage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("images").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -338,9 +330,7 @@ public class HomePage extends AppCompatActivity {
         });
     }
 
-    /**
-     * récupére le nom de l'utilisteur du poste
-     */
+
     private void nomUtilisateur() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -387,20 +377,14 @@ public class HomePage extends AppCompatActivity {
                                     name = name.substring(name.indexOf("/") + 1);
                                     iconListName.add(name);
                                 }
-                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Uri> task) {
-                                    imageScrol();
-                                }
                             });
                             break;
                         }
                     }
                 }
+                imageScrol();
                 // on fait une boucle pour stocker les images une par une
             }
         });
-
     }
-
 }
