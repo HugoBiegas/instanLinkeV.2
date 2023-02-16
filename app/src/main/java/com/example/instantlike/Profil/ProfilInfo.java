@@ -31,6 +31,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -44,6 +45,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class ProfilInfo extends AppCompatActivity {
 
@@ -64,23 +66,15 @@ public class ProfilInfo extends AppCompatActivity {
     private Button deconnections;
     private ProgressBar progressBar;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
 
-    /**
-     * verificaitons si l'utilisateur est connecter
-     */
-    public void onStart() {
-        super.onStart();
-        // Check si l'user est connecté
+        super.onCreate(savedInstanceState);
         currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil_info);
         toolbar = findViewById(R.id.toolbar);
         photoClique();
@@ -93,25 +87,20 @@ public class ProfilInfo extends AppCompatActivity {
      */
     private void photoClique() {
         ImageButton photo = findViewById(R.id.action_photo);
-        photo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                adimage();
-            }
-        });
+        photo.setOnClickListener(view -> adimage());
     }
 
     /**
-     * méthode qui mais en place l'appreille photo
-     * avec la créations de a à z de l'image en créent tout les données de l'image
+     * méthode qui met en place l'appareil photo
+     * avec la création de a à z de l'image en créant toutes les données de l'image
      */
     private void adimage() {
-        //on crée l'appareille photo
+        // on crée l'appareil photo
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // on regarde si la personne a pris une photo et veux la valider
+        // on regarde si la personne a pris une photo et veut la valider
         if (intent.resolveActivity(getPackageManager()) != null) {
-            // on crée tout les données corespondent a l'image
-            String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+            // on crée toutes les données correspondantes à l'image
+            String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.getDefault()).format(new Date());
             File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
             try {
                 File photoFile = File.createTempFile("photo" + time, ".jpg", photoDir);
@@ -126,28 +115,27 @@ public class ProfilInfo extends AppCompatActivity {
     }
 
     /**
-     * redéfinitions de la méthode onActivityResult qui permet d'avoir un retour sur la capture faite aux préalable
-     * tout en enlevent tout les évent listeneur
+     * redéfinition de la méthode onActivityResult qui permet d'avoir un retour sur la capture faite auparavant
+     * tout en enlevant tous les événements écouteurs
      *
-     * @param requestCode
-     * @param resultCode
-     * @param data
+     * @param requestCode * @param resultCode
+     *                    * @param data
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // on regarde si le résultat de la photo et un  sucer si oui on peux créer un poste
+        // on regarde si le résultat de la photo est un succès si oui on peut créer un poste
         if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK) {
-            Intent intent = new Intent(getApplicationContext(), CreationPoste.class);//créations de la page Game
-            intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
+            Intent intent = new Intent(getApplicationContext(), CreationPoste.class);
+            intent.putExtra("image", photoPath);
             intent.putExtra("uri", photoUir);
-            startActivity(intent);//on lance l'activiter
+            startActivity(intent);
             finish();
         }
     }
 
     /**
-     * clique pour faire un poste
+     * clic pour faire un poste
      */
     private void PosteClique() {
         ImageButton Poste = findViewById(R.id.action_poste);
@@ -177,7 +165,6 @@ public class ProfilInfo extends AppCompatActivity {
         publicationNB();
         iconUtilisateur();
         nomUtilisateur();
-
     }
 
     /**
@@ -198,10 +185,9 @@ public class ProfilInfo extends AppCompatActivity {
      * affichage des publications de l'utilisateur
      */
     private void PublicationUtilisateur() {
-        //bar de progrations de la conections a firebase
-        //créations du recycler
+        // bar de progression de la connexion à Firebase
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images");
-        //on vas chercher les images dans la BD
+        // on va chercher les images dans la BD
         storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
             @Override
             public void onSuccess(ListResult listResult) {
@@ -209,18 +195,21 @@ public class ProfilInfo extends AppCompatActivity {
                     // on fait une boucle pour stocker les images une par une
                     for (StorageReference fileRef : listResult.getItems()) {
                         if (fileRef.getName().equals(NomImagePoste.get(i))) {
-                            //actualisations pour avoir un chiffre différent a chaque foi
+                            // actualisations pour avoir un chiffre différent à chaque fois
                             fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
-                                    //on récupére uri qui est le lien ou trouver les données
+                                    // on récupère uri qui est le lien où trouver les données
                                     imageListUri.add(uri.toString());
                                     Log.d("item", uri.toString());
-                                }
-                            }).addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    miseEnForme();
+                                    // mise en forme du recycler view quand on a récupéré toutes les données
+                                    if (imageListUri.size() == NomImagePoste.size()) {
+                                        progressBar.setVisibility(View.GONE);
+                                        final RecyclerView recyclerView = findViewById(R.id.recyclerViewUtilisateurInfo);
+                                        recyclerView.setLayoutManager(new LinearLayoutManager(ProfilInfo.this));
+                                        PublicationAdapter adapter = new PublicationAdapter(imageListUri, ProfilInfo.this, DatePoste, LikePoste, NomImagePoste);
+                                        recyclerView.setAdapter(adapter);
+                                    }
                                 }
                             });
                             break;
@@ -230,21 +219,47 @@ public class ProfilInfo extends AppCompatActivity {
             }
         });
     }
-
-    private void miseEnForme() {
-        if (imageListUri.size() == NomImagePoste.size()) {
-            progressBar.setVisibility(View.GONE);
-            final RecyclerView recyclerView = findViewById(R.id.recyclerViewUtilisateurInfo);
-            recyclerView.setLayoutManager(new LinearLayoutManager(ProfilInfo.this));
-            PublicationAdapter adapter = new PublicationAdapter(imageListUri, ProfilInfo.this, DatePoste, LikePoste, NomImagePoste);
-            recyclerView.setAdapter(adapter);
-        }
-
+    /**
+     * Permet d'ouvrir les messages privés de l'utilisateur
+     */
+    private void cliquemessage() {
+        message.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), UtilisateurMP.class));
+                finish();
+            }
+        });
     }
 
+    /**
+     * Permet d'ouvrir la page d'informations de l'utilisateur
+     */
+    private void cliqueProfilInfoPost() {
+        profilInfoPoste.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), ProfilInfo.class));
+                finish();
+            }
+        });
+    }
 
     /**
-     * récupére le nombre de publications de la personne + tout les imfo utilise des publications
+     * Permet de revenir à la page d'accueil
+     */
+    private void cliqueHome() {
+        home.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), HomePage.class));
+                finish();
+            }
+        });
+    }
+
+    /**
+     * Récupère le nombre de publications de l'utilisateur et toutes les informations liées aux publications
      */
     private void publicationNB() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -258,11 +273,11 @@ public class ProfilInfo extends AppCompatActivity {
                         if (userposte.indexOf(",") == -1)
                             userposte = userposte.substring(0, userposte.indexOf("}"));
                         else userposte = userposte.substring(0, userposte.indexOf(","));
-                        //récupérations du nom de l'image
+                        // récupération du nom de l'image
                         if (userposte.equals(currentUser.getUid())) {
                             nbPoste++;
                             NomImagePoste.add(document.getId());
-                            //nblike
+                            // nblike
                             String likeposte = document.getData().toString();
                             likeposte = likeposte.substring(likeposte.indexOf("Like=[") + 6);
                             likeposte = likeposte.substring(0, likeposte.indexOf("]"));
@@ -280,11 +295,10 @@ public class ProfilInfo extends AppCompatActivity {
                                         cpt++;
                                     }
                                 }
-
                             }
                             LikePoste.add(cpt);
 
-                            //date du poste
+                            // date du poste
                             String dateposte = document.getData().toString();
                             dateposte = dateposte.substring(dateposte.indexOf("DatePoste=") + 10);
                             if (dateposte.indexOf(",") == -1)
@@ -301,49 +315,19 @@ public class ProfilInfo extends AppCompatActivity {
             }
         });
     }
-
-
     /**
-     * réucpére le nom de l'utilisateur
-     */
-    private void nomUtilisateur() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        //récupérations du nom de l'image
-                        if (document.getId().equals(currentUser.getUid())) {
-                            String nomUser = document.getData().toString();
-                            nomUser = nomUser.substring(nomUser.indexOf("username=") + 9);
-                            if (nomUser.indexOf(",") == -1)
-                                nomUser = nomUser.substring(0, nomUser.indexOf("}"));
-                            else nomUser = nomUser.substring(0, nomUser.indexOf(","));
-                            nom.setText(nomUser);
-                        }
-                    }
-                } else {
-                    Toast.makeText(ProfilInfo.this, "Error getting documents", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-    }
-
-    /**
-     * récupére l'icon de l'utilisateur
+     * Récupère l'icône de l'utilisateur
      */
     private void iconUtilisateur() {
         //créations du recycler
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone");
-        //on vas chercher les images dans la BD
+        //on va chercher les images dans la BD
         storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
             @Override
             public void onSuccess(ListResult listResult) {
                 for (StorageReference fileRef : listResult.getItems()) {
                     if (fileRef.getName().contains(currentUser.getUid())) {
-                        //actualisations pour avoir un chiffre différent a chaque foi
+                        //actualisations pour avoir un chiffre différent à chaque fois
                         fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
@@ -351,51 +335,32 @@ public class ProfilInfo extends AppCompatActivity {
                             }
                         });
                     }
-
                 }
-
-                // on fait une boucle pour stocker les images une par une
-            }
-        });
-
-    }
-
-    /**
-     * permet d'ouvrire les mp possible
-     */
-    private void cliquemessage() {
-        message.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), UtilisateurMP.class));
-                finish();
             }
         });
     }
 
     /**
-     * permet d'avoir les info des post
+     * Récupère le nom de l'utilisateur
      */
-    private void cliqueProfilInfoPost() {
-        profilInfoPoste.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), ProfilInfo.class));
-                finish();
-            }
-        });
+    private void nomUtilisateur() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(currentUser.getUid()).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                String nomUser = document.getString("username");
+                                nom.setText(nomUser);
+                            }
+                        } else {
+                            Log.d("TAG", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
     }
 
-    /**
-     * permet d'aller a la page d'aceuil
-     */
-    private void cliqueHome() {
-        home.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), HomePage.class));
-                finish();
-            }
-        });
-    }
+
 }

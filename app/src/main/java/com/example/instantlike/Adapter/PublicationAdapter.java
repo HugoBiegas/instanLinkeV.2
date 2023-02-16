@@ -11,24 +11,22 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.instantlike.Poste.InfoPoste;
 import com.example.instantlike.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PublicationAdapter extends RecyclerView.Adapter<PublicationAdapter.ViewHolder> {
-
-    private ArrayList<String> iconListUri, date, imageListName;
-    private ArrayList<Integer> like;
+    private List<String> iconListUri;
+    private List<String> date;
+    private List<Integer> like;
+    private List<String> imageListName;
     private Context context;
-    private TextView datePoste, likePoste;
 
-
-    /**
-     * initialise les variables quand on appelle la clase avec les paramétres données
-     */
-    public PublicationAdapter(ArrayList<String> iconListUri, Context context, ArrayList<String> date, ArrayList<Integer> like, ArrayList<String> imageListName) {
+    public PublicationAdapter(List<String> iconListUri, Context context, List<String> date, List<Integer> like, List<String> imageListName) {
         this.iconListUri = iconListUri;
         this.context = context;
         this.date = date;
@@ -36,59 +34,27 @@ public class PublicationAdapter extends RecyclerView.Adapter<PublicationAdapter.
         this.imageListName = imageListName;
     }
 
-    /**
-     * méthode permettent de créer le recycleur dans le view avec l'item créer
-     * l'item étent un layout qui défini le style de chaque Item du recycleur
-     *
-     * @param parent
-     * @param viewType
-     * @return
-     */
     @NonNull
     @Override
-    public PublicationAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.itempublication, parent, false);
-        return new PublicationAdapter.ViewHolder(view);
+        return new ViewHolder(view);
     }
 
-    /**
-     * méthode permettent d'intéragire avec l'item de cette ocurent du recycleur
-     *
-     * @param holder
-     * @param position
-     */
     @Override
-    public void onBindViewHolder(@NonNull PublicationAdapter.ViewHolder holder, int position) {
-        trie(holder, position);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.bind(iconListUri.get(position), date.get(position), like.get(position), imageListName.get(position));
     }
 
-    private void trie(@NonNull PublicationAdapter.ViewHolder holder, int position) {
-        for (int j = 0; j < imageListName.size(); j++) {
-            if (iconListUri.get(position).contains(imageListName.get(j))) {
-                Picasso.get().load(iconListUri.get(position)).into(holder.iconView);
-                datePoste.setText(date.get(j));
-                likePoste.setText("Like : " + like.get(j));
-                break;
-            }
-        }
-    }
-
-    /**
-     * récupérations de la dimentions du recycleur
-     *
-     * @return
-     */
     @Override
     public int getItemCount() {
         return iconListUri.size();
     }
 
-    /**
-     * méthode pour définir tout les éléments de la view que nous allons utiliser
-     * est ici mettre une évenement pour chaque clique sur un item
-     */
     public class ViewHolder extends RecyclerView.ViewHolder {
         private ImageView iconView;
+        private TextView datePoste;
+        private TextView likePoste;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -105,6 +71,12 @@ public class PublicationAdapter extends RecyclerView.Adapter<PublicationAdapter.
                     context.startActivity(intent);
                 }
             });
+        }
+
+        public void bind(String iconUri, String dateStr, int likeCount, String imageName) {
+            Glide.with(context).load(iconUri).into(iconView);
+            datePoste.setText(dateStr);
+            likePoste.setText("Like : " + likeCount);
         }
     }
 }
