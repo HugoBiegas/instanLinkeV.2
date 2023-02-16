@@ -20,8 +20,6 @@ public class MessageUtilisateur extends RecyclerView.Adapter<MessageUtilisateur.
     private ArrayList<String> dateMessage;
     private ArrayList<Boolean> droitOuGauche;
     private Context context;
-    private TextView nomD, date, nomG;
-
 
     /**
      * initialise les variables quand on appelle la clase avec les paramétres données
@@ -49,7 +47,7 @@ public class MessageUtilisateur extends RecyclerView.Adapter<MessageUtilisateur.
     }
 
     /**
-     * méthode permettent d'intéragire avec l'item de cette ocurent du recycleur
+     * méthode permettent d'intéragir avec l'item de cette occurrence du recycleur
      *
      * @param holder
      * @param position
@@ -57,13 +55,14 @@ public class MessageUtilisateur extends RecyclerView.Adapter<MessageUtilisateur.
     @Override
     public void onBindViewHolder(@NonNull MessageUtilisateur.ViewHolder holder, int position) {
         if (droitOuGauche.get(position)) {
-            nomD.setText(messageUtilisateur.get(position));
+            holder.texteDroite.setText(messageUtilisateur.get(position));
+            holder.texteGauche.setVisibility(View.GONE);
         } else {
-            nomG.setText(messageUtilisateur.get(position));
+            holder.texteGauche.setText(messageUtilisateur.get(position));
+            holder.texteDroite.setVisibility(View.GONE);
         }
-        date.setText(dateMessage.get(position));
+        holder.date.setText(dateMessage.get(position));
     }
-
 
     /**
      * récupérations de la dimentions du recycleur
@@ -76,16 +75,19 @@ public class MessageUtilisateur extends RecyclerView.Adapter<MessageUtilisateur.
     }
 
     /**
-     * méthode pour définir tout les élément de la view que nous allons utiliser
-     * est potentiellement mettre des évenement pour chaque item
+     * méthode pour définir tous les éléments de la vue que nous allons utiliser
+     * et potentiellement mettre des événements pour chaque item
      */
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView texteDroite;
+        TextView texteGauche;
+        TextView date;
 
-        public ViewHolder(View Itemview) {
-            super(Itemview);
-            nomD = Itemview.findViewById(R.id.texteDroite);
-            date = Itemview.findViewById(R.id.date);
-            nomG = Itemview.findViewById(R.id.texteGauche);
+        public ViewHolder(View itemView) {
+            super(itemView);
+            texteDroite = itemView.findViewById(R.id.texteDroite);
+            texteGauche = itemView.findViewById(R.id.texteGauche);
+            date = itemView.findViewById(R.id.date);
         }
     }
 }

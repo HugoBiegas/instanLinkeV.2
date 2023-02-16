@@ -1,5 +1,27 @@
 package com.example.instantlike.Image;
 
+import static android.content.ContentValues.TAG;
+
+import android.net.Uri;
+import android.util.Log;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,10 +85,7 @@ public class ImageData {
         isLiked = liked;
     }
 
-    public void setLikeCount(int likeCount) {
-        this.likeCount = likeCount;
-    }
-
+    public void setLikeCount(int likeCount) {this.likeCount = likeCount;}
 
 
 }

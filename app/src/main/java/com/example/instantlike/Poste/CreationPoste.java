@@ -1,5 +1,7 @@
 package com.example.instantlike.Poste;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -23,10 +26,13 @@ import com.example.instantlike.Connection.Login;
 import com.example.instantlike.HomePage;
 import com.example.instantlike.Image.ImageData;
 import com.example.instantlike.R;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -48,12 +54,11 @@ public class CreationPoste extends AppCompatActivity {
     private Bitmap image;
     private ImageView imagePoste;
     private Uri photoUri;
-    private String uuid;
+    private String uuid, nomUtilisateur,iconUtilisateur;
     private EditText titre, descriptions;
     private Button ajoutImage;
     private FirebaseAuth fAuth;
     private FirebaseFirestore fStore;
-    private ProgressBar progressBar;
 
     /**
      * Vérifie que la personne est connectée et la redirige si non
@@ -85,7 +90,6 @@ public class CreationPoste extends AppCompatActivity {
         ajoutImage = findViewById(R.id.ajoutImage);
         descriptions = findViewById(R.id.descriptions);
         imagePoste = findViewById(R.id.imagePoste);
-        progressBar = findViewById(R.id.progressBarPoste);
         // Prend l'instance de Firebase
         fAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
@@ -191,21 +195,66 @@ public class CreationPoste extends AppCompatActivity {
                     posterImage(photoUri, new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                             // Ajouter les données dans Firestore
                             ajoutBDFirestore(titre.getText().toString(), descriptions.getText().toString());
-                            // Ajouter les données dans ImageData
-                            new ImageData(uri.toString(),uuid+".jpg", titre.getText().toString(), descriptions.getText().toString(),uuid+".jpg",firebaseUser.getDisplayName());
-                            // Retourner à la page HomePage
-                            Intent intent = new Intent(getApplicationContext(), HomePage.class);
-                            intent.putExtra("passe", true);
-                            startActivity(intent);
-                            finish();
+                            String uriNewImage = uri.toString();
+                            //récupérer l'icone d'utilisateur et sont nom
+                            recupererIconeUtilisateurActuel(uriNewImage);
                         }
                     });
                 } else {
                     Toast.makeText(CreationPoste.this, "Saisissez une image, un titre et une description", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+
+    private void recupererIconeUtilisateurActuel(String uriNewImage) {
+        // Récupérer l'UID de l'utilisateur actuel
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        String uid = currentUser.getUid();
+
+        // Récupérer la référence à l'objet Firebase Storage contenant l'icône de l'utilisateur actuel
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone").child(uid);
+
+        // Récupérer le nom de l'utilisateur actuel à partir de la base de données Firestore
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userRef = db.collection("users").document(uid);
+
+        userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        nomUtilisateur = document.getString("username");
+
+                        // Télécharger l'icône de l'utilisateur actuel
+                        storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                // Mettre à jour l'icône dans l'interface utilisateur
+                                iconUtilisateur = uri.toString();
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task) {
+                                // Ajouter les données dans ImageData
+                                new ImageData(uriNewImage,uuid, titre.getText().toString(), descriptions.getText().toString(),iconUtilisateur,nomUtilisateur);
+                                // Retourner à la page HomePage
+                                Intent intent = new Intent(getApplicationContext(), HomePage.class);
+                                intent.putExtra("passe", true);
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
+                    } else {
+                        Log.d(TAG, "Le document n'existe pas");
+                    }
+                } else {
+                    Log.d(TAG, "Erreur : ", task.getException());
                 }
             }
         });
@@ -228,7 +277,11 @@ public class CreationPoste extends AppCompatActivity {
         donnée.put("Like", Arrays.asList());
         donnée.put("commentaire", Arrays.asList());
         donnée.put("Idcommentaire", Arrays.asList());
-
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {

@@ -57,7 +57,6 @@ public class InfoPoste extends AppCompatActivity {
     private ArrayList<String> iconUtilisateurCom = new ArrayList<>();
     private ArrayList<String> iconUtilisateurToken = new ArrayList<>();
     private ArrayList<String> nomUtilisateurCom = new ArrayList<>();
-    private ProgressBar progressBar;
 
     /**
      * verifications que l'utilisateur est bien connecter si non redirections
@@ -89,8 +88,6 @@ public class InfoPoste extends AppCompatActivity {
         imagePoste = findViewById(R.id.imagePoste);
         btnPoster = findViewById(R.id.PosterCommentaire);
         commmenter = findViewById(R.id.adcommentaire);
-        progressBar = findViewById(R.id.progressInfoPoste);
-        progressBar.setVisibility(View.VISIBLE);
         extrat();
         cliqueRetour();
         cliquePosterCom();
@@ -194,8 +191,6 @@ public class InfoPoste extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<Uri> task) {
                                     if (task.isSuccessful() && iconUtilisateurCom.size() == idUtilisateurCom.size()) {
                                         triIcon();
-                                        progressBar.setVisibility(View.GONE);
-
                                         final RecyclerView recyclerView = findViewById(R.id.commentaire);
                                         recyclerView.setLayoutManager(new LinearLayoutManager(InfoPoste.this));
                                         ComAdapter adapter = new ComAdapter(gererCome, InfoPoste.this, iconUtilisateurCom, nomUtilisateurCom);

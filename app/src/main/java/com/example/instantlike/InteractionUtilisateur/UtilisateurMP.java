@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -38,12 +39,16 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class UtilisateurMP extends AppCompatActivity {
 
-    private ImageButton home, message, profilInfoPoste;
-    private androidx.appcompat.widget.Toolbar toolbar;
     private static final int RETOUR_PHOTO = 1;
+    private static final int HOME_BTN_ID = R.id.HomeBTNMpUtilisateur;
+    private static final int MESSAGE_BTN_ID = R.id.MessageBTNMpUtilisateur;
+    private static final int INFO_PROFIL_BTN_ID = R.id.InfoPorofilBTNMpUtilisateur;
+    private ImageButton homeBtn, messageBtn, profilInfoPosteBtn;
+    private androidx.appcompat.widget.Toolbar toolbar;
     private String photoPath;
     private Uri photoUir;
     private ArrayList<String> nomUtilisateurMP = new ArrayList<>();
@@ -53,12 +58,12 @@ public class UtilisateurMP extends AppCompatActivity {
     private FirebaseUser currentUser;
     private ProgressBar progressBar;
 
-    /**
-     * récupérations de l'id de l'utilisateur ou redirections a la connection
-     */
     public void onStart() {
         super.onStart();
-        // Check si l'user est connecté
+        checkUser();
+    }
+
+    private void checkUser() {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
@@ -67,58 +72,56 @@ public class UtilisateurMP extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_utilisateur_mp);
-        iniActivity();
+        initViews();
+        setListeners();
+        displayUserList();
     }
 
-    /**
-     * initialisations des variable est liste des méthodes utiliser
-     */
-    private void iniActivity() {
-        home = findViewById(R.id.HomeBTNMpUtilisateur);
-        message = findViewById(R.id.MessageBTNMpUtilisateur);
-        profilInfoPoste = findViewById(R.id.InfoPorofilBTNMpUtilisateur);
+    private void initViews() {
+        homeBtn = findViewById(HOME_BTN_ID);
+        messageBtn = findViewById(MESSAGE_BTN_ID);
+        profilInfoPosteBtn = findViewById(INFO_PROFIL_BTN_ID);
         toolbar = findViewById(R.id.toolbar);
         progressBar = findViewById(R.id.progressBarMPUser);
         progressBar.setVisibility(View.VISIBLE);
-
-        photoClique();
-        PosteClique();
-        cliquemessage();
-        cliqueProfilInfoPost();
-        cliqueHome();
-        utilisateurAMP();
     }
 
+    private void setListeners() {
+        homeBtn.setOnClickListener(view -> {
+            startActivity(new Intent(getApplicationContext(), HomePage.class));
+            finish();
+        });
 
-    /**
-     * listeneur du clique pour les photo
-     */
-    private void photoClique() {
-        ImageButton photo = findViewById(R.id.action_photo);
-        photo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                adimage();
-            }
+        messageBtn.setOnClickListener(view -> {
+            startActivity(new Intent(getApplicationContext(), UtilisateurMP.class));
+            finish();
+        });
+
+        profilInfoPosteBtn.setOnClickListener(view -> {
+            startActivity(new Intent(getApplicationContext(), ProfilInfo.class));
+            finish();
+        });
+
+        ImageButton photoBtn = findViewById(R.id.action_photo);
+        photoBtn.setOnClickListener(view -> {
+            openCamera();
+        });
+
+        ImageButton posteBtn = findViewById(R.id.action_poste);
+        posteBtn.setOnClickListener(view -> {
+            startActivity(new Intent(getApplicationContext(), CreationPoste.class));
+            finish();
         });
     }
 
-    /**
-     * méthode qui mais en place l'appreille photo
-     * avec la créations de a à z de l'image en créent tout les données de l'image
-     */
-    private void adimage() {
-        //on crée l'appareille photo
+    private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // on regarde si la personne a pris une photo et veux la valider
         if (intent.resolveActivity(getPackageManager()) != null) {
-            // on crée tout les données corespondent a l'image
-            String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+            String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.getDefault()).format(new Date());
             File photoDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
             try {
                 File photoFile = File.createTempFile("photo" + time, ".jpg", photoDir);
@@ -132,175 +135,75 @@ public class UtilisateurMP extends AppCompatActivity {
         }
     }
 
-    /**
-     * redéfinitions de la méthode onActivityResult qui permet d'avoir un retour sur la capture faite aux préalable
-     * tout en enlevent tout les évent listeneur
-     *
-     * @param requestCode
-     * @param resultCode
-     * @param data
-     */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // on regarde si le résultat de la photo et un  sucer si oui on peux créer un poste
         if (requestCode == RETOUR_PHOTO && resultCode == RESULT_OK) {
-            Intent intent = new Intent(getApplicationContext(), CreationPoste.class);//créations de la page Game
-            intent.putExtra("image", photoPath);//on donne en extrat la valeur de la roomName pour savoir si la personne et un gest ou l'host
+            Intent intent = new Intent(getApplicationContext(), CreationPoste.class);
+            intent.putExtra("image", photoPath);
             intent.putExtra("uri", photoUir);
-            startActivity(intent);//on lance l'activiter
+            startActivity(intent);
             finish();
         }
     }
-
-    /**
-     * listeneur pour aller sur la créations d'un poste
-     */
-    private void PosteClique() {
-        ImageButton Poste = findViewById(R.id.action_poste);
-        Poste.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), CreationPoste.class));
-                finish();
-            }
-        });
-    }
-
-    /**
-     * listeneur pour voir les personne a Mp
-     */
-    private void cliquemessage() {
-        message.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), UtilisateurMP.class));
-                finish();
-            }
-        });
-    }
-
-    /**
-     * listeneur pour aller sur le profil
-     */
-    private void cliqueProfilInfoPost() {
-        profilInfoPoste.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), ProfilInfo.class));
-                finish();
-            }
-        });
-    }
-
-    /**
-     * listeneur pour la page d'acueil
-     */
-    private void cliqueHome() {
-        home.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), HomePage.class));
-                finish();
-            }
-        });
-    }
-
-    /**
-     * liste des personnes qu'on peux mp
-     */
-    private void utilisateurAMP() {
-        nomUtil();
-    }
-
-    /**
-     * méthode qui vas chercher tout les nom des utiliseurs a mp sof soi même
-     */
-    private void nomUtil() {
+    private void displayUserList() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        if (!document.getId().equals(currentUser.getUid())) {
-                            //date du poste
-                            String userName = document.getData().toString();
-                            userName = userName.substring(userName.indexOf("username=") + 9);
-                            if (userName.indexOf(",") == -1)
-                                userName = userName.substring(0, userName.indexOf("}"));
-                            else userName = userName.substring(0, userName.indexOf(","));
-                            nomUtilisateurMP.add(userName);
-                            idUtilisateurMp.add(document.getId());
-                        }
+        db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    if (!document.getId().equals(currentUser.getUid())) {
+                        String userName = document.getString("username");
+                        nomUtilisateurMP.add(userName);
+                        idUtilisateurMp.add(document.getId());
                     }
-                    //méthode pour récupe les icons
-                    iconUtil();
                 }
+                getIcons();
             }
         });
     }
 
-    /**
-     * méthode qui vas chercher tout les icon des utiliseurs a mp sof soi même
-     */
-    private void iconUtil() {
+    private void getIcons() {
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("Icone");
-        //on vas chercher les images dans la BD
-        storageReference.listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
-            @Override
-            public void onSuccess(ListResult listResult) {
-                for (int i = 0; i < idUtilisateurMp.size(); i++) {
-                    for (StorageReference fileRef : listResult.getItems()) {
-                        String c = fileRef.getName();
-                        if (c.contains(idUtilisateurMp.get(i))) {
-                            //actualisations pour avoir un chiffre différent a chaque foi
-                            fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    iconUtilisateurMP.add(uri.toString());
-                                    String name = uri.getLastPathSegment();
-                                    name = name.substring(name.indexOf("/") + 1);
-                                    iconUtilisateurMPToken.add(name);
-                                }
-                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Uri> task) {
-                                    if (task.isSuccessful() && iconUtilisateurMP.size() == idUtilisateurMp.size()) {
-                                        triIcon();
-                                        progressBar.setVisibility(View.GONE);
-                                        final RecyclerView recyclerView = findViewById(R.id.recyclerViewMPutilisateur);
-                                        recyclerView.setLayoutManager(new LinearLayoutManager(UtilisateurMP.this));
-                                        MPAdapter adapter = new MPAdapter(UtilisateurMP.this, iconUtilisateurMP, nomUtilisateurMP, idUtilisateurMp);
-                                        recyclerView.setAdapter(adapter);
-                                    }
-                                }
-                            });
-                            break;
-                        }
-
+        storageReference.listAll().addOnSuccessListener(listResult -> {
+            for (int i = 0; i < idUtilisateurMp.size(); i++) {
+                for (StorageReference fileRef : listResult.getItems()) {
+                    String fileName = fileRef.getName();
+                    if (fileName.contains(idUtilisateurMp.get(i))) {
+                        fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            iconUtilisateurMP.add(uri.toString());
+                            String name = uri.getLastPathSegment();
+                            name = name.substring(name.indexOf("/") + 1);
+                            iconUtilisateurMPToken.add(name);
+                        }).addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && iconUtilisateurMP.size() == idUtilisateurMp.size()) {
+                                sortIcons();
+                                progressBar.setVisibility(View.GONE);
+                                RecyclerView recyclerView = findViewById(R.id.recyclerViewMPutilisateur);
+                                recyclerView.setLayoutManager(new LinearLayoutManager(UtilisateurMP.this));
+                                MPAdapter adapter = new MPAdapter(UtilisateurMP.this, iconUtilisateurMP, nomUtilisateurMP, idUtilisateurMp);
+                                recyclerView.setAdapter(adapter);
+                            }
+                        });
+                        break;
                     }
                 }
-
             }
         });
     }
 
-    private void triIcon() {
-        String NomIcon;
-        ArrayList<String> temps = new ArrayList<>();
+    private void sortIcons() {
+        ArrayList<String> tempIcons = new ArrayList<>();
         for (int i = 0; i < idUtilisateurMp.size(); i++) {
-            NomIcon = idUtilisateurMp.get(i);
+            String id = idUtilisateurMp.get(i);
             for (int j = 0; j < iconUtilisateurMPToken.size(); j++) {
-                if (NomIcon.equals(iconUtilisateurMPToken.get(j))) {
-                    temps.add(iconUtilisateurMP.get(j));
+                if (id.equals(iconUtilisateurMPToken.get(j))) {
+                    tempIcons.add(iconUtilisateurMP.get(j));
                     break;
                 }
             }
         }
         iconUtilisateurMP.clear();
-        iconUtilisateurMP.addAll(temps);
+        iconUtilisateurMP.addAll(tempIcons);
     }
-
 
 }

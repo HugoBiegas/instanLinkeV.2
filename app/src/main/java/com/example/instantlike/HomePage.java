@@ -1,5 +1,6 @@
 package com.example.instantlike;
 
+import static android.content.ContentValues.TAG;
 import static com.example.instantlike.Image.ImageData.getimages;
 
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -27,10 +29,16 @@ import com.example.instantlike.Poste.CreationPoste;
 import com.example.instantlike.Profil.ProfilInfo;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -69,6 +77,8 @@ public class HomePage extends AppCompatActivity {
     Boolean NewPhoto = false;
     ImageAdapter adapter = new ImageAdapter(imageDataList, HomePage.this);
 
+    private String uriString, titre, description, userPoste,nomUtilisateurPoste,iconUri;
+
     public void onStart() {
         super.onStart();
         mAuth = FirebaseAuth.getInstance();
@@ -87,6 +97,7 @@ public class HomePage extends AppCompatActivity {
         photoClique();
         PosteClique();
         iniActivity();
+        ecouteurStorage();
     }
 
     private void iniActivity() {
@@ -96,7 +107,6 @@ public class HomePage extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBarMainActiviti);
         progressBar.setVisibility(View.VISIBLE);
         extraDonnée();
-        Toast.makeText(this, ""+imageDataList.size(), Toast.LENGTH_SHORT).show();
         if (NewPhoto== true || imageDataList.size() != 0){
             imageDataList.clear();
             setRecyclerView();
@@ -112,6 +122,70 @@ public class HomePage extends AppCompatActivity {
         if (extra != null)
             NewPhoto = true;
 
+    }
+
+    private void ecouteurStorage() {
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+        storageRef.child("images").listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+            @Override
+            public void onSuccess(ListResult listResult) {
+                for (StorageReference item : listResult.getItems()) {
+                    String fileName = item.getName().replace(".jpeg", "");
+                    Boolean dejatPrix = true;
+                    List<ImageData> data = ImageData.getimages();
+                    for (ImageData dataImag: data) {
+                        if (dataImag.getImageName().equals(fileName)){
+                            dejatPrix = false;
+                            break;
+                        }
+                    }
+
+                    if (dejatPrix){
+                        item.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                String uriString = uri.toString();
+                                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                DocumentReference docRef = db.collection("images").document(fileName);
+
+                                docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        if (documentSnapshot.exists()) {
+                                            String titre = documentSnapshot.getString("Titre");
+                                            String description = documentSnapshot.getString("Descriptions");
+                                            String userPoste = documentSnapshot.getString("UserPoste");
+
+                                            db.collection("users").document(userPoste).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                    if (documentSnapshot.exists()) {
+                                                        String nomUtilisateurPoste = documentSnapshot.getString("username");
+
+                                                        StorageReference imageRef = FirebaseStorage.getInstance().getReference().child("icone/" + userPoste + ".jpeg");
+                                                        imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                            @Override
+                                                            public void onSuccess(Uri uri) {
+                                                                String iconUri = uri.toString();
+                                                                // Utiliser les informations récupérées pour créer un nouvel objet ImageData
+                                                                new ImageData(uriString, fileName, titre, description, iconUri, nomUtilisateurPoste);
+                                                                Toast.makeText(HomePage.this, "Nouvelle image ajoutée", Toast.LENGTH_SHORT).show();
+                                                                // Actualiser l'adapter pour afficher les nouvelles données
+                                                                adapter.notifyDataSetChanged();
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+        });
     }
 
 
@@ -244,10 +318,9 @@ public class HomePage extends AppCompatActivity {
                             if (task.isSuccessful() && imageListNameStorage.size() == iconList.size() && recycler == false){
                                 trieImage();
                                 trieIcon();
-                                for (int i = 0; i < imageListUriStorage.size(); i++) {
+                                for (int i = 0; i < imageListNameStorage.size(); i++) {
                                     new ImageData(imageListUriStorage.get(i), imageListNameStorage.get(i), titreImage.get(i), descImage.get(i), iconList.get(i), nomUster.get(i));
                                 }
-                                Toast.makeText(HomePage.this, "je passe ", Toast.LENGTH_SHORT).show();
                                 setRecyclerView();
                                 recycler = true;
                             }

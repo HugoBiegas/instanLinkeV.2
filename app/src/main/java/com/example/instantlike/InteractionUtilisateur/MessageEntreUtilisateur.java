@@ -2,6 +2,7 @@ package com.example.instantlike.InteractionUtilisateur;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -28,6 +29,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -37,11 +39,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MessageEntreUtilisateur extends AppCompatActivity {
+
+    private static final String COLLECTION_MP = "MP";
+    private static final String FIELD_MESSAGE = "message";
+    private static final String FIELD_DATE = "date";
 
     private String nom, icon, idUtilisateur;
     private int newMessage;
@@ -54,13 +61,12 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
     private FirebaseUser currentUser;
 
     /**
-     * verifications si l'utilisateur et connecter
+     * Vérifie si l'utilisateur est connecté.
      */
     public void onStart() {
         super.onStart();
-        // Check si l'user est connecté
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        currentUser = mAuth.getCurrentUser();
+        // Vérifie si l'utilisateur est connecté.
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             startActivity(new Intent(getApplicationContext(), Login.class));
             finish();
@@ -98,7 +104,7 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
     }
 
     /**
-     * récupérations des extrats ces a dire nom icon et idUtilisateur qui se fait mp
+     * Récupère les paramètres passés par RoomActivity.
      */
     private void extrat() {
         Bundle extra = getIntent().getExtras();//récuper l'extrat envoiller par roomActivity
@@ -112,169 +118,137 @@ public class MessageEntreUtilisateur extends AppCompatActivity {
     }
 
     /**
-     * listeneur qui actualisa a chaque changement de la collection MP de firebase
+     * Écoute les modifications de la collection MP dans Firestore.
      */
     private void testMessage() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference docRef = db.collection("MP");
+        CollectionReference docRef = db.collection(COLLECTION_MP);
         docRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.w("Error", error);
+                    return;
+                }
                 if (!value.isEmpty()) {
-                    //clear de tout les listes pour pas avoir de message en double
+                    // Efface toutes les listes pour éviter les doublons.
                     messageEnvoy.clear();
                     dateMessage.clear();
                     droitOuGauche.clear();
-                    iniMassage();
+                    iniMessages();
                 }
             }
         });
     }
 
     /**
-     * initialisations des messages
+     * Initialise les messages.
      */
-    private void iniMassage() {
+    private void iniMessages() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("MP").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    //récupérations de tout les messages dans le désordre
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        if (document.getId().contains(currentUser.getUid()) && document.getId().contains(idUtilisateur)) {
-                            String UtilisateurMessage = document.getId();
-                            UtilisateurMessage = UtilisateurMessage.substring(UtilisateurMessage.indexOf(":") + 1);
+        db.collection(COLLECTION_MP)
+                .whereEqualTo(FieldPath.documentId(), currentUser.getUid() + ":" + idUtilisateur)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String id = document.getId();
+                                String[] idParts = id.split(":");
+                                String UtilisateurMessage = idParts[1];
 
-                            if (document.getId().contains(currentUser.getUid() + ":" + idUtilisateur))
-
-                                remplirMessage(currentUser.getUid() + ":" + idUtilisateur, UtilisateurMessage);
-
-                            if (document.getId().contains(idUtilisateur + ":" + currentUser.getUid()))
-
-                                remplirMessage(idUtilisateur + ":" + currentUser.getUid(), UtilisateurMessage);
+                                remplirMessages(document, UtilisateurMessage);
+                            }
+                        } else {
+                            Log.d("Error", "get failed with ", task.getException());
                         }
                     }
-
-                }
-            }
-        });
+                });
     }
 
-    private void remplirMessage(String document, String UtilisateurMessage) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference itemRef = db.collection("MP").document(document);
-        itemRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        messageEnvoy = (ArrayList<String>) document.get("message");
-                        //afficher le message a droit ou a gauche suivant la le destinataire
-                        for (int i = 0; i < messageEnvoy.size(); i++) {
-                            if (UtilisateurMessage.contains(currentUser.getUid()))
-                                //droite
-                                droitOuGauche.add(true);
-                            else
-                                //gauche
-                                droitOuGauche.add(false);
-                        }
-                    } else {
-                        Log.d("Error", "No such document");
-                    }
-                } else {
-                    Log.d("Error", "get failed with ", task.getException());
-                }
-            }
-        }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                remplirDate(document);
-            }
-        });
-    }
+    private void remplirMessages(QueryDocumentSnapshot document, String UtilisateurMessage) {
+        messageEnvoy = (ArrayList<String>) document.get(FIELD_MESSAGE);
+        dateMessage = (ArrayList<String>) document.get(FIELD_DATE);
 
-    private void remplirDate(String document) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference itemRef = db.collection("MP").document(document);
-        itemRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        dateMessage = (ArrayList<String>) document.get("date");
-                    } else {
-                        Log.d("Error", "No such document");
-                    }
-                } else {
-                    Log.d("Error", "get failed with ", task.getException());
-                }
+        // Afficher les messages à droite ou à gauche suivant le destinataire.
+        for (int i = 0; i < messageEnvoy.size(); i++) {
+            if (UtilisateurMessage.equals(currentUser.getUid())) {
+                // Droite.
+                droitOuGauche.add(true);
+            } else {
+                // Gauche.
+                droitOuGauche.add(false);
             }
-        }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                final RecyclerView recyclerView = findViewById(R.id.recyclerViewMP);
-                recyclerView.setLayoutManager(new LinearLayoutManager(MessageEntreUtilisateur.this));
-                MessageUtilisateur adapter = new MessageUtilisateur(MessageEntreUtilisateur.this, messageEnvoy, dateMessage, droitOuGauche);
-                recyclerView.setAdapter(adapter);
-            }
-        });
+        }
+
+        final RecyclerView recyclerView = findViewById(R.id.recyclerViewMP);
+        recyclerView.setLayoutManager(new LinearLayoutManager(MessageEntreUtilisateur.this));
+        MessageUtilisateur adapter = new MessageUtilisateur(MessageEntreUtilisateur.this, messageEnvoy, dateMessage, droitOuGauche);
+        recyclerView.setAdapter(adapter);
     }
 
     /**
-     * listeneur pour envoyer un message avec tout les données de base : date et le message
+     * Envoie un message à la collection MP dans Firestore.
      */
     private void envoyerMessage() {
         envoi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (message.getText().toString().length() != 0) {
-                    //créations du message dans la BD
-                    String date = new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss").format(new Date());
-                    FirebaseFirestore fStore = FirebaseFirestore.getInstance();
-                    DocumentReference documentReference = fStore.collection("MP").document(currentUser.getUid() + ":" + idUtilisateur);
-                    documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
+                if (TextUtils.isEmpty(message.getText())) {
+                    Toast.makeText(MessageEntreUtilisateur.this, "Écrivez un message.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String date = new SimpleDateFormat("dd.MM.yyyy 'at' HH:mm:ss").format(new Date());
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                DocumentReference documentReference = db.collection(COLLECTION_MP).document(currentUser.getUid() + ":" + idUtilisateur);
+
+                documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                // Si la conversation existe déjà, ajouter le message.
                                 messageEnvoy.add(message.getText().toString());
                                 dateMessage.add(date);
-                                //update la date
-                                documentReference.update("message", messageEnvoy, "date", dateMessage).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        message.setText("");
-                                        Log.d("Update", "items array successfully updated!");
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("Update", "Error updating items array", e);
-                                    }
-                                });
+                                documentReference.update(FIELD_MESSAGE, messageEnvoy, FIELD_DATE, dateMessage)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                message.setText("");
+                                                Log.d("Update", "items array successfully updated!");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w("Update", "Error updating items array", e);
+                                            }
+                                        });
                             } else {
-                                Map<String, Object> donnée = new HashMap<>();
-                                donnée.put("message", Arrays.asList(message.getText().toString()));
-                                donnée.put("date", Arrays.asList(date));
-                                documentReference.set(donnée).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        message.setText("");
-                                        Log.d("TAG", "onSuccess: Les données son créer");
-                                    }
-                                });
+                                // Sinon, créer la conversation et ajouter le message.
+                                Map<String, Object> donnees = new HashMap<>();
+                                donnees.put(FIELD_MESSAGE, Collections.singletonList(message.getText().toString()));
+                                donnees.put(FIELD_DATE, Collections.singletonList(date));
+                                documentReference.set(donnees)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                message.setText("");
+                                                Log.d("TAG", "onSuccess: Les données sont créées.");
+                                            }
+                                        });
                             }
+                        } else {
+                            Log.d("Error", "get failed with ", task.getException());
                         }
-                    });
-                    newMessage++;
-                } else {
-                    Toast.makeText(MessageEntreUtilisateur.this, "écriver un message", Toast.LENGTH_SHORT).show();
-                }
+                    }
+                });
+
+                newMessage++;
             }
         });
     }
-
-
 }

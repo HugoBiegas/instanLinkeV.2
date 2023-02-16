@@ -14,15 +14,6 @@
         android:layout_width="413dp"
         android:layout_height="524dp"
         />
-
-    <ProgressBar
-        android:id="@+id/progressBarPoste"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:indeterminate="true"
-        android:visibility="invisible"/>
     <Button
         android:id="@+id/ajoutImage"
         android:layout_width="wrap_content"
