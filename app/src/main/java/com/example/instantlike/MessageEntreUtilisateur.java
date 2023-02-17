@@ -1,15 +1,18 @@
 package com.example.instantlike;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,6 +49,12 @@ private String idOther;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_entre_utilisateur);
+        Toolbar toolbar = findViewById(R.id.toolbar_message);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -132,5 +141,16 @@ private String idOther;
             idOther = extra.getString("id");
 
     }
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Gérez les clics sur les éléments de la barre d'action ici
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // Appuyez sur le bouton de retour : fermez cette activité
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }
