@@ -19,12 +19,12 @@
         android:theme="@style/Theme.InstantLike"
         tools:targetApi="31">
         <activity
-            android:name=".MessageEntreUtilisateur"
+            android:name=".message.MessageEntreUtilisateur"
             android:exported="false" />
         <!-- Add the following service declarations for Firebase Cloud Messaging -->
         <activity android:name=".ToolbarActivity" />
         <activity
-            android:name=".InteractionUtilisateur.UtilisateurMP"
+            android:name=".message.UtilisateurMP"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

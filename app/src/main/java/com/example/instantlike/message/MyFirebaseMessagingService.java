@@ -1,4 +1,4 @@
-package com.example.instantlike;
+package com.example.instantlike.message;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,6 +10,7 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
+import com.example.instantlike.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 

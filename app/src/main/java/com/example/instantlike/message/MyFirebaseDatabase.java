@@ -1,8 +1,7 @@
-package com.example.instantlike;
+package com.example.instantlike.message;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 
 public class MyFirebaseDatabase {
     private DatabaseReference mMessagesDatabaseReference;

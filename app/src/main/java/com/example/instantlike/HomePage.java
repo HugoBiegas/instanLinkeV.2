@@ -1,15 +1,12 @@
 package com.example.instantlike;
 
-import static android.content.ContentValues.TAG;
 import static com.example.instantlike.Image.ImageData.getimages;
 
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -24,19 +21,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.instantlike.Adapter.ImageAdapter;
 import com.example.instantlike.Connection.Login;
 import com.example.instantlike.Image.ImageData;
-import com.example.instantlike.InteractionUtilisateur.UtilisateurMP;
+import com.example.instantlike.message.UtilisateurMP;
 import com.example.instantlike.Poste.CreationPoste;
 import com.example.instantlike.Profil.ProfilInfo;
-import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;

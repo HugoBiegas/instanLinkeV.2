@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.instantlike.Adapter.PublicationAdapter;
 import com.example.instantlike.Connection.Login;
 import com.example.instantlike.HomePage;
-import com.example.instantlike.InteractionUtilisateur.UtilisateurMP;
+import com.example.instantlike.message.UtilisateurMP;
 import com.example.instantlike.Poste.CreationPoste;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;

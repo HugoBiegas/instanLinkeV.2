@@ -1,4 +1,4 @@
-package com.example.instantlike;
+package com.example.instantlike.message;
 
 import android.content.Context;
 import android.util.Log;
