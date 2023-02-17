@@ -30,6 +30,7 @@ import com.bumptech.glide.Glide;
 import com.example.instantlike.HomePage;
 import com.example.instantlike.R;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -39,15 +40,16 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class Register extends AppCompatActivity {
-
     //Initialisation des variables
     private EditText mEmail, mUser, mPassword, mCPassword;
     private Button mRegisterBtn;
@@ -60,7 +62,6 @@ public class Register extends AppCompatActivity {
     private ImageView imageView;
     private Uri uri;
     private Boolean passage = false;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +90,30 @@ public class Register extends AppCompatActivity {
         BtnDejatConnecter();
         BtnAdImage();
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Vérifier qu'une image a été sélectionnée et que l'action est "OK"
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            // Obtenir l'URI de l'image sélectionnée
+            Uri selectedImage = data.getData();
+            // Obtenir le chemin du fichier pour l'image sélectionnée
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String filePath = cursor.getString(columnIndex);
+            cursor.close();
+            // Charger l'image à partir du fichier
+            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+            // Afficher l'image dans l'ImageView
+            imageView.setImageBitmap(bitmap);
+            // Enregistrer l'URI de l'image pour l'envoyer à Firebase Storage
+            uri = Uri.fromFile(new File(filePath));
+            passage = true;
+        }
+    }
+
 
     private void BtnAdImage() {
         adIimage.setOnClickListener(new View.OnClickListener() {
@@ -99,48 +124,50 @@ public class Register extends AppCompatActivity {
                     Intent galleryintent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     startActivityForResult(galleryintent, 1);
                 } else {
-                        //afficher une demande de permisions
-                        EasyPermissions.requestPermissions(Register.this, "Access for storage", 101, permissions);
+                    // afficher une demande de permissions
+                    EasyPermissions.requestPermissions(Register.this, "Access for storage", 101, permissions);
                 }
             }
         });
     }
-
-
-    /**
-     * redéfinitions de la méthode onActivityResult qui permet d'avoir un retour sur l'inportations de l'image choisi
-     * et traitement de cette image (récupérations du chemin de l'image et récupérations de l'image par la suite)
-     *
-     * @param requestCode
-     * @param resultCode
-     * @param data
-     */
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // verifier qu'une image est selectionner
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            Uri selectImage = data.getData();
-            String[] fillePathColum = {MediaStore.Images.Media.DATA};
-            // curseur d'accer au chemin de l'image
-            Cursor cursor = this.getContentResolver().query(selectImage, fillePathColum, null, null, null);
-            //positions sur la premier ligne
-            cursor.moveToFirst();
-            //récupérations chemin préci de l'image
-            int columIndex = cursor.getColumnIndex(fillePathColum[0]);
-            String imgPath = cursor.getString(columIndex);
-            cursor.close();
-            //récupérations de l'image
-            Bitmap image2 = BitmapFactory.decodeFile(imgPath);
-            imageView.setImageIcon(Icon.createWithBitmap(image2));
-            //on retrouve l'uri avec le path et on le stock pour le maitre dans la bd
-            File f = new File(imgPath);
-            uri = Uri.fromFile(f);
-            passage = true;
-        }
+    private void BtnDejatConnecter() {
+        mLoginBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), Login.class));
+                finish();
+            }
+        });
     }
+    /**
+     * Envoie une image sélectionnée par l'utilisateur à Firebase Storage
+     * pour l'associer au compte utilisateur créé.
+     *
+     * @param imageUri L'URI de l'image sélectionnée.
+     */
+    private void envoiImage(Uri imageUri) {
+        // Récupère la référence à l'emplacement de stockage pour l'icône de l'utilisateur
+        StorageReference mImageRef = FirebaseStorage.getInstance().getReference("Icone/" + userID);
 
+        // Télécharge l'image à l'emplacement spécifié
+        mImageRef.putFile(imageUri)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // Si l'envoi de l'image a réussi, affiche un message de succès.
+                        Log.d("Register", "envoiImage: Image envoyée avec succès.");
+                        Toast.makeText(Register.this, "Image de profil mise à jour", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Si l'envoi de l'image a échoué, affiche un message d'erreur.
+                        Log.e("Register", "envoiImage: Échec de l'envoi de l'image. Erreur : " + e.getMessage());
+                        Toast.makeText(Register.this, "Erreur lors de l'envoi de l'image", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
     private void BtnRegister() {
         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
@@ -179,65 +206,81 @@ public class Register extends AppCompatActivity {
                 if(null != imageView.getDrawable()){
                     progressBar.setVisibility(View.VISIBLE);
                     mRegisterBtn.setEnabled(false);
-                    fAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            //Si le compte est créer on affiche un toast, on va rentrer ensuite avec son userid dans la bd et dans la collection "users" introduire l'username et l'email pour nous les
-                            //réutiliser plus tard. Ensuite on redirige vers Main
-                            //Sachant que FirebaseAuth n'a besoin que de l'email et du mdp
-                            if (task.isSuccessful()) {
-                                Toast.makeText(Register.this, "Compte créer!", Toast.LENGTH_SHORT).show();
-                                userID = fAuth.getCurrentUser().getUid();
-                                if (passage)
-                                    envoiImage(uri);
-                                DocumentReference documentReference = fStore.collection("users").document(userID);
-                                Map<String, Object> user = new HashMap<>();
-                                user.put("username", username);
-                                user.put("email", email);
-                                documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d("TAG", "onSuccess: Le profil a été créer pour" + userID);
-                                    }
-                                });
-                                startActivity(new Intent(getApplicationContext(), HomePage.class));
-                                finish();
-                            } else {
-                                //si cela a échoué pour une quelquonque raison
-                                Toast.makeText(Register.this, "Error! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                progressBar.setVisibility(View.GONE);
-                                mRegisterBtn.setEnabled(true);
-                            }
-                        }
-                    });
-                }else{
-                    Toast.makeText(Register.this, "ajouter une image", Toast.LENGTH_SHORT).show();
-                }
 
+                    // Vérification si le nom d'utilisateur est unique
+                    fStore.collection("users")
+                            .whereEqualTo("username", username)
+                            .get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    if (task.getResult().isEmpty()) {
+                                        // Nom d'utilisateur unique
+                                        fAuth.createUserWithEmailAndPassword(email, password)
+                                                .addOnCompleteListener(Register.this, taskAuth -> {
+                                                    if (taskAuth.isSuccessful()) {
+                                                        Toast.makeText(Register.this, "Compte créé!", Toast.LENGTH_SHORT).show();
+                                                        userID = fAuth.getCurrentUser().getUid();
+                                                        if (passage)
+                                                            envoiImage(uri);
+                                                        DocumentReference documentReference = fStore.collection("users").document(userID);
+                                                        Map<String, Object> user = new HashMap<>();
+                                                        user.put("username", username);
+                                                        user.put("email", email);
+                                                        documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Log.d("TAG", "onSuccess: Le profil a été créé pour " + userID);
+                                                            }
+                                                        });
+                                                        startActivity(new Intent(getApplicationContext(), HomePage.class));
+                                                        finish();
+                                                    } else {
+                                                        Toast.makeText(Register.this, "Error! " + taskAuth.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                        progressBar.setVisibility(View.GONE);
+                                                        mRegisterBtn.setEnabled(true);
+                                                    }
+                                                });
+                                    } else {
+                                        // Nom d'utilisateur déjà pris
+                                        mUser.setError("Nom d'utilisateur déjà pris !");
+                                        progressBar.setVisibility(View.GONE);
+                                        mRegisterBtn.setEnabled(true);
+                                    }
+                                } else {
+                                    Toast.makeText(Register.this, "Error! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    progressBar.setVisibility(View.GONE);
+                                    mRegisterBtn.setEnabled(true);
+                                }
+                            });
+                } else {
+                    Toast.makeText(Register.this, "Ajouter une image", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+    }
+
+
+
+
+
+    /**
+     * Vérifie si l'adresse email est valide
+     *
+     * @param email l'adresse email à vérifier
+     * @return vrai si l'adresse email est valide, faux sinon
+     */
+    private boolean isEmailValid(CharSequence email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 
     /**
-     * méthode permettent de rendre chaque image unique
-     * donc pour les différentier avec un clée unique
+     * Vérifie si le mot de passe respecte les critères de sécurité
      *
-     * @param imageUri
+     * @param password le mot de passe à vérifier
+     * @return vrai si le mot de passe respecte les critères de sécurité, faux sinon
      */
-    private void envoiImage(Uri imageUri) {
-        StorageReference mImageRef = FirebaseStorage.getInstance().getReference("Icone/" + userID);
-        mImageRef.putFile(imageUri);
+    private boolean isPasswordValid(CharSequence password) {
+        String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$";
+        return Pattern.matches(regex, password);
     }
-
-    private void BtnDejatConnecter() {
-        mLoginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), Login.class));
-                finish();
-            }
-        });
-    }
-
-
 }

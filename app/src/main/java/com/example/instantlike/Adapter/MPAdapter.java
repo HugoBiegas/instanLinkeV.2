@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.instantlike.InteractionUtilisateur.MessageEntreUtilisateur;
+import com.example.instantlike.MessageEntreUtilisateur;
 import com.example.instantlike.R;
 import com.squareup.picasso.Picasso;
 

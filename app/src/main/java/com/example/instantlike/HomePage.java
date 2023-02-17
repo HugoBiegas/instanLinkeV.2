@@ -88,7 +88,6 @@ public class HomePage extends AppCompatActivity {
             finish();
         }
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -10,14 +10,12 @@
 
     <!-- Incluez votre toolbar -->
     <include layout="@layout/activity_toolbar"/>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="50dp"
-        android:layout_above="@+id/HomeBTNPost"/>
-
+        android:layout_above="@+id/HomeBTNPost"
+        android:layout_marginVertical="50dp"/>
 
     <ImageButton
         android:layout_alignParentBottom="true"
