@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/black">
+    android:background="@color/noir">
 
     <ImageView
         android:id="@+id/iconUtilisateurPost"
@@ -10,7 +10,7 @@
         android:layout_height="70dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:src="@color/white"/>
+        android:src="@color/blanc"/>
 
     <TextView
         android:id="@+id/NomUtilisateurPost"
@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:text="nom"
         android:layout_toRightOf="@+id/iconUtilisateurPost"
-        android:textColor="@color/white"
+        android:textColor="@color/blanc"
         android:textSize="15dp"
         android:layout_marginTop="15dp"/>
 
@@ -29,7 +29,7 @@
         android:layout_height="800px"
         android:layout_below="@+id/iconUtilisateurPost"
         android:layout_marginTop="59dp"
-        android:textColor="@color/white" />
+        android:textColor="@color/blanc" />
 
     <TextView
         android:id="@+id/titre"
@@ -37,13 +37,13 @@
         android:layout_height="wrap_content"
         android:text="Image du siécle"
         android:layout_toRightOf="@+id/iconUtilisateurPost"
-        android:textColor="@color/white"
+        android:textColor="@color/blanc"
         android:textSize="15dp"
         android:layout_marginTop="10dp"
         android:layout_below="@+id/NomUtilisateurPost"/>
 
     <TextView
-        android:textColor="@color/white"
+        android:textColor="@color/blanc"
         android:id="@+id/descriptions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
         android:text="trés belle image fait en 1945"></TextView>
 
     <ImageButton
-        android:background="@color/black"
+        android:background="@color/noir"
         android:src="@drawable/like"
         android:layout_marginLeft="10dp"
         android:id="@+id/LikeBTNPost"
@@ -66,7 +66,7 @@
         android:clickable="true"/>
 
     <ImageButton
-        android:background="@color/black"
+        android:background="@color/noir"
         android:layout_toRightOf="@+id/LikeBTNPost"
         android:src="@drawable/partage"
         android:layout_marginLeft="10dp"
@@ -83,7 +83,7 @@
         android:layout_toRightOf="@+id/partagePost"
         android:layout_below="@+id/imageViewpPoste"
         android:layout_marginLeft="250dp"
-        android:textColor="@color/white"
+        android:textColor="@color/blanc"
         android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

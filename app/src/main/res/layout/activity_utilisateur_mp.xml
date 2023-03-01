@@ -5,19 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".message.UtilisateurMP"
-    android:background="@color/black"
+    android:background="@color/noir"
     android:saveEnabled="false"
     >
 
     <!-- Incluez votre toolbar -->
     <include layout="@layout/activity_toolbar"/>
 
-    <SearchView
-        android:id="@+id/searchbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMPutilisateur"
@@ -34,7 +28,7 @@
         android:id="@+id/HomeBTNMpUtilisateur"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/black"
+        android:background="@color/noir"
         android:layout_marginTop="7dp"
         android:layout_toLeftOf="@+id/MessageBTNMpUtilisateur"
         android:text="Button"
@@ -43,7 +37,7 @@
     <ImageButton
         android:layout_alignParentBottom="true"
         android:clickable="true"
-        android:background="@color/black"
+        android:background="@color/noir"
         android:src="@drawable/messageactif"
         android:layout_marginTop="7dp"
         android:layout_centerHorizontal="true"
@@ -56,7 +50,7 @@
         android:layout_alignParentBottom="true"
         android:clickable="true"
         android:src="@drawable/infoprofilnonactif"
-        android:background="@color/black"
+        android:background="@color/noir"
         android:layout_marginTop="7dp"
         android:id="@+id/InfoPorofilBTNMpUtilisateur"
         android:layout_width="wrap_content"

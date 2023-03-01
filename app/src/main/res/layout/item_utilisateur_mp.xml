@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/noir">
 
     <ImageView
         android:id="@+id/iconMp"
         android:layout_width="250px"
         android:layout_height="250px"
-        android:src="@color/white"
+        android:src="@color/blanc"
         />
 
     <TextView

@@ -9,9 +9,24 @@
     android:noHistory="true"
     tools:context=".Connection.Login"
     android:saveEnabled="true"
-    >
+    android:background="@color/gris_foncé"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/logoText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="InstantLike"
+        android:textSize="60dp"
+        android:textColor="@color/noir"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/regular"
+        android:paddingTop="32dp"
+        />
 
     <EditText
+        android:gravity="center"
         android:id="@+id/editTextEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,42 +34,53 @@
         android:hint="Email"
         android:inputType="textPersonName"
         android:minHeight="48dp"
+        android:textColor="@color/noir"
+        android:textSize="16sp"
+        android:padding="16dp"
         />
 
     <EditText
+        android:gravity="center"
         android:id="@+id/editTextPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Mot de passe"
         android:inputType="textPassword"
-        android:minHeight="48dp" />
+        android:minHeight="48dp"
+        android:textColor="@color/noir"
+        android:textSize="16sp"
+        android:padding="16dp"
+        />
 
     <Button
         android:id="@+id/buttonLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Se connecter" />
+        android:text="Se connecter"
+        android:textColor="@color/blanc"
+        android:textSize="16sp"
+        android:padding="16dp"
+        />
 
     <TextView
-        android:textSize="20dp"
         android:id="@+id/createText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Créer un compte"/>
+        android:text="Créer un compte"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:padding="16dp"
+        />
 
     <TextView
-        android:textSize="20dp"
-
         android:id="@+id/forgotTextLink"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Mot de passe oublié"/>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="invisible" />
+        android:text="Mot de passe oublié"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:padding="16dp"
+        />
+
 </LinearLayout>

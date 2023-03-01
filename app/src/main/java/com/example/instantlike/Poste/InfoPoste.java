@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,7 +13,9 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -44,7 +47,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InfoPoste extends AppCompatActivity {
-    private Button btnR, btnPoster;
+    private Button btnPoster;
     private ImageView imagePoste;
     private String photoPath, nomImage;
     private ArrayList<String> gererCome = new ArrayList<>();
@@ -76,20 +79,39 @@ public class InfoPoste extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info_poste);
+        Toolbar toolbar = findViewById(R.id.toolbar_message);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+
         initActivity();
     }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            // Code pour gérer le clic sur le bouton de retour de la toolbar
+            Intent intent = new Intent(this, HomePage.class);
+            startActivity(intent);
+            finish(); // Termine cette activité pour ne pas qu'elle reste empilée sur la pile d'activités
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     /**
      * méthode d'inisialisations des variable de la view
      * et de la mise en place des appelle de méthode
      */
     private void initActivity() {
-        btnR = findViewById(R.id.retourPoste);
         imagePoste = findViewById(R.id.imagePoste);
         btnPoster = findViewById(R.id.PosterCommentaire);
         commmenter = findViewById(R.id.adcommentaire);
         extrat();
-        cliqueRetour();
         cliquePosterCom();
         ComeAffichage();
     }
@@ -253,21 +275,7 @@ public class InfoPoste extends AppCompatActivity {
     }
 
 
-    /**
-     * lister pour l'actions de revenir a la page d'acceuil.
-     * Et enlevage des écouteurs
-     */
-    private void cliqueRetour() {
-        btnR.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (retourInfo)
-                    startActivity(new Intent(getApplicationContext(), ProfilInfo.class));
-                else startActivity(new Intent(getApplicationContext(), HomePage.class));
-                finish();
-            }
-        });
-    }
+
 
     /**
      * récupérations des extrat envoiller

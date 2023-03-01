@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="300px"
-    android:background="@color/black">
+    android:background="@color/noir">
 
     <ImageView
         android:id="@+id/iconUtilisateurPublications"
@@ -10,7 +10,7 @@
         android:layout_height="250px"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:src="@color/white"/>
+        android:src="@color/blanc"/>
 
     <TextView
         android:layout_marginLeft="5dp"
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:text="12/03/2022"
         android:layout_toRightOf="@+id/iconUtilisateurPublications"
-        android:textColor="@color/white"
+        android:textColor="@color/blanc"
         android:textSize="15dp"
         android:layout_marginTop="10dp"/>
     <TextView
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:text="Like : 0"
         android:layout_toRightOf="@+id/iconUtilisateurPublications"
-        android:textColor="@color/white"
+        android:textColor="@color/blanc"
         android:textSize="15dp"
         android:layout_marginTop="10dp"
         android:layout_below="@+id/PublicationsPosteDate"/>

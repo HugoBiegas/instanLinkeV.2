@@ -2,13 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/black">
+    android:background="@color/noir">
 
     <ImageView
         android:id="@+id/iconCom"
         android:layout_width="180px"
         android:layout_height="180px"
-        android:src="@color/white"
+        android:src="@color/blanc"
         />
 
     <TextView
@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/iconCom"
         android:text="nom"
-        android:textColor="@color/white"
+        android:textColor="@color/blanc"
         />
 
     <TextView
@@ -29,7 +29,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
         android:text="com"
-        android:textColor="@color/white"
+        android:textColor="@color/blanc"
         />
 
 </RelativeLayout>

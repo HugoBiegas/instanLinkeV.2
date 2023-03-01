@@ -3,17 +3,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".Poste.InfoPoste"
-    android:background="@color/black"
-    android:saveEnabled="false"
-    >
+    android:background="@color/noir"
+    android:saveEnabled="false">
 
-    <Button
-        android:id="@+id/retourPoste"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="retour"
-        />
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_message"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+    </androidx.appcompat.widget.Toolbar>
+
 
     <Button
         android:id="@+id/PosterCommentaire"
@@ -26,11 +29,11 @@
         android:text="poster"/>
 
     <ImageView
-        android:layout_below="@id/retourPoste"
+        android:layout_below="@id/toolbar_message"
         android:id="@+id/imagePoste"
         android:layout_width="match_parent"
         android:layout_height="524dp"
-        android:src="@color/black"/>
+        android:src="@color/noir"/>
 
     <EditText
         android:id="@+id/adcommentaire"
@@ -38,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/imagePoste"
         android:hint="commentaire"
-        android:textColor="@color/white"
+        android:textColor="@color/blanc"
         />
 
     <androidx.recyclerview.widget.RecyclerView

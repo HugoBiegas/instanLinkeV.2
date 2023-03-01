@@ -4,24 +4,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
     android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/gris_foncé"
     tools:context=".Connection.Register"
-    android:saveEnabled="false"
-    >
+    android:gravity="center">
+    <TextView
+        android:id="@+id/logoText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="InstantLike"
+        android:textSize="60dp"
+        android:textColor="@color/noir"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/regular"
+        android:paddingTop="32dp"
+        />
 
     <ImageView
         android:id="@+id/iconUtilisateurCréationCompte"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_marginLeft="30dp"
-        />
+        android:src="@drawable/titreapplication" />
 
     <Button
         android:id="@+id/ajoutImageCreationCompt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ajouter image"
+        android:text="Ajouter une image"
+        android:textColor="@color/blanc"
+        android:layout_marginTop="20dp"
         />
 
     <EditText
@@ -31,7 +45,8 @@
         android:ems="10"
         android:hint="Email"
         android:inputType="textEmailAddress"
-        android:minHeight="48dp" />
+        android:minHeight="48dp"
+        android:textColor="@color/noir" />
 
     <EditText
         android:id="@+id/editTextLogin"
@@ -40,7 +55,8 @@
         android:ems="10"
         android:hint="Nom d'utilisateur"
         android:inputType="textPersonName"
-        android:minHeight="48dp" />
+        android:minHeight="48dp"
+        android:textColor="@color/noir" />
 
     <EditText
         android:id="@+id/editTextPassword"
@@ -49,7 +65,8 @@
         android:ems="10"
         android:hint="Mot de passe"
         android:inputType="textPassword"
-        android:minHeight="48dp" />
+        android:minHeight="48dp"
+        android:textColor="@color/noir" />
 
     <EditText
         android:id="@+id/editTextCPassword"
@@ -58,25 +75,33 @@
         android:ems="10"
         android:hint="Confirmer mot de passe"
         android:inputType="textPassword"
-        android:minHeight="48dp" />
+        android:minHeight="48dp"
+        android:textColor="@color/noir" />
 
     <Button
         android:id="@+id/buttonLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="S'enregistrer" />
+        android:text="S'enregistrer"
+        android:textColor="@color/blanc"
+        android:layout_marginTop="20dp"
+        />
 
     <TextView
-        android:textSize="20dp"
+        android:textSize="20sp"
         android:id="@+id/createText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Déja créer, connecte-toi ici"/>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="invisible" />
+        android:text="Déjà créé un compte ?"
+        android:textColor="@color/blanc"
+        android:gravity="center"
+        />
+<ProgressBar
+    android:id="@+id/progressBar"
+    style="?android:attr/progressBarStyle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:visibility="invisible"
+    android:layout_marginTop="20dp"
+    />
 </LinearLayout>
